@@ -25,7 +25,7 @@ function assertSupportedBun(): void {
     (parts[0] === 1 && parts[1] === 3 && parts[2] >= 14)
   );
   if (!supported) {
-    throw new Error(`pstack tooling requires Bun 1.3.14 or newer; found ${version ?? "another runtime"}`);
+    throw new Error(`ronin tooling requires Bun 1.3.14 or newer; found ${version ?? "another runtime"}`);
   }
 }
 

@@ -7,7 +7,7 @@ const argv = process.argv.slice(2);
 const dryRun = argv.includes('--dry-run');
 const home = parseHomeArgument(argv, homedir());
 const paths = installationPaths(home);
-const bundleRoot = join(repositoryRoot, 'dist', 'pstack-portable');
+const bundleRoot = join(repositoryRoot, 'dist', 'ronin');
 const sourceManifestPath = join(bundleRoot, 'manifest.json');
 if (!existsSync(sourceManifestPath)) throw new Error('Build output is missing. Run `bun run build` first.');
 const sourceManifest = JSON.parse(await import('node:fs').then(({ readFileSync }) => readFileSync(sourceManifestPath, 'utf8')));
@@ -20,7 +20,7 @@ for (const name of sourceManifest.skillNames) {
   assertOwnedLinkOrMissing(join(paths.claudeSkills, name), target);
 }
 for (const name of sourceManifest.personaNames) {
-  assertOwnedLinkOrMissing(join(paths.claudeAgents, `${name}.md`), join(paths.root, 'skills', 'pstack-core', 'personas', `${name}.md`));
+  assertOwnedLinkOrMissing(join(paths.claudeAgents, `${name}.md`), join(paths.root, 'skills', 'ronin-core', 'personas', `${name}.md`));
 }
 
 // Links owned by the prior manifest whose names the new manifest no longer
@@ -39,7 +39,7 @@ if (priorManifest) {
   }
   for (const name of priorManifest.personaNames.filter((name) => !keptPersonas.has(name))) {
     const link = join(paths.claudeAgents, `${name}.md`);
-    if (isOwnedLink(link, join(paths.root, 'skills', 'pstack-core', 'personas', `${name}.md`))) staleLinks.push(link);
+    if (isOwnedLink(link, join(paths.root, 'skills', 'ronin-core', 'personas', `${name}.md`))) staleLinks.push(link);
   }
 }
 
@@ -50,11 +50,11 @@ if (dryRun) {
 }
 
 mkdirSync(join(paths.home, '.agents'), { recursive: true });
-const stage = join(paths.home, '.agents', `.pstack-portable-stage-${process.pid}`);
-const backup = join(paths.home, '.agents', `.pstack-portable-backup-${process.pid}`);
+const stage = join(paths.home, '.agents', `.ronin-stage-${process.pid}`);
+const backup = join(paths.home, '.agents', `.ronin-backup-${process.pid}`);
 if (existsSync(stage) || existsSync(backup)) throw new Error('Unexpected staging path already exists');
 cpSync(bundleRoot, stage, { recursive: true });
-writeFileSync(join(stage, '.pstack-portable-install.json'), `${JSON.stringify({
+writeFileSync(join(stage, '.ronin-install.json'), `${JSON.stringify({
   marker: installMarker,
   skillNames: sourceManifest.skillNames,
   personaNames: sourceManifest.personaNames
@@ -71,7 +71,7 @@ for (const name of sourceManifest.skillNames) {
 }
 for (const name of sourceManifest.personaNames) {
   const link = join(paths.claudeAgents, `${name}.md`);
-  if (!existsSync(link)) symlinkSync(join(paths.root, 'skills', 'pstack-core', 'personas', `${name}.md`), link);
+  if (!existsSync(link)) symlinkSync(join(paths.root, 'skills', 'ronin-core', 'personas', `${name}.md`), link);
 }
 for (const link of staleLinks) {
   if (safeLstat(link)) rmSync(link);

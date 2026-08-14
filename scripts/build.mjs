@@ -3,7 +3,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { installMarker, repositoryRoot, treeManifest } from './lib.mjs';
 
 const distRoot = join(repositoryRoot, 'dist');
-const bundleRoot = join(distRoot, 'pstack-portable');
+const bundleRoot = join(distRoot, 'ronin');
 if (dirname(distRoot) !== repositoryRoot || basename(distRoot) !== 'dist') throw new Error(`Unsafe dist path: ${distRoot}`);
 rmSync(distRoot, { recursive: true, force: true });
 mkdirSync(bundleRoot, { recursive: true });
@@ -22,7 +22,7 @@ const skillNames = treeManifest(join(bundleRoot, 'skills'))
   .filter((entry) => entry.path.endsWith('/SKILL.md') && !entry.path.slice(0, -9).includes('/'))
   .map((entry) => entry.path.split('/')[0])
   .sort();
-const personaNames = treeManifest(join(bundleRoot, 'skills', 'pstack-core', 'personas'))
+const personaNames = treeManifest(join(bundleRoot, 'skills', 'ronin-core', 'personas'))
   .filter((entry) => entry.path.endsWith('.md'))
   .map((entry) => basename(entry.path, '.md'))
   .sort();

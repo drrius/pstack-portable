@@ -1,6 +1,6 @@
 # Notices
 
-`pstack-portable` is an unofficial community-maintained derivative of pstack by Lauren Tan.
+`ronin` is an unofficial community-maintained derivative of pstack by Lauren Tan.
 
 Upstream source: <https://github.com/cursor/plugins/tree/main/pstack>
 

@@ -1,11 +1,11 @@
 ---
 name: setup-ronin
-description: Configure pstack's stable model roles. Use for /setup-ronin, "configure pstack models", or changing pstack's model choices.
+description: Configure ronin's stable model roles. Use for /setup-ronin, "configure ronin models", or changing ronin's model choices.
 ---
 
 # Setup ronin
 
-Configure the mapping from pstack's stable roles to models the user can run. Canonical workflows name roles, never provider-specific model IDs. Agents read `~/.config/pstack/models.yaml` when selecting models. A host adapter may inject or enforce that map when the host supports it. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them.
+Configure the mapping from ronin's stable roles to models the user can run. Canonical workflows name roles, never provider-specific model IDs. Agents read `~/.config/ronin/models.yaml` when selecting models. A host adapter may inject or enforce that map when the host supports it. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them.
 
 The roles are:
 
@@ -25,7 +25,7 @@ If the host cannot enumerate models but accepts a user-configured model identifi
 
 ### 2. Load current state
 
-Read `~/.config/pstack/models.yaml` when it exists. This host-neutral user configuration lives outside the replaceable installation tree. Never search another host's private configuration directories. Missing roles inherit the current model.
+Read `~/.config/ronin/models.yaml` when it exists. This host-neutral user configuration lives outside the replaceable installation tree. Never search another host's private configuration directories. Missing roles inherit the current model.
 
 ### 3. Map and confirm
 
@@ -37,7 +37,7 @@ For `independent-review`, preserve a configured list when the host supports sele
 
 Validate the complete mapping before writing it. Every concrete identifier must be in the host's enumerated set when enumeration is available. If enumeration is unavailable, preserve the user's identifiers as explicitly unverified rather than claiming they work.
 
-Write `~/.config/pstack/models.yaml` atomically and preserve the other hosts' sections unchanged. Re-running this skill must produce the same state for the same choices. The file is keyed by host — each top-level key names a host (`claude`, `codex`, or another adapter name) and holds that host's complete role map, because model identifiers are host-specific and one user works across hosts. A host reads only its own section; a host with no section inherits the current model for every role. The file has this shape:
+Write `~/.config/ronin/models.yaml` atomically and preserve the other hosts' sections unchanged. Re-running this skill must produce the same state for the same choices. The file is keyed by host — each top-level key names a host (`claude`, `codex`, or another adapter name) and holds that host's complete role map, because model identifiers are host-specific and one user works across hosts. A host reads only its own section; a host with no section inherits the current model for every role. The file has this shape:
 
 ```yaml
 claude:
@@ -51,7 +51,7 @@ codex:
   deep-code: { model: example-identifier, effort: xhigh }
 ```
 
-A role value is a model identifier, `inherit-current`, or a mapping with `model` and optional `effort` when the host supports selecting reasoning effort per worker; a bare identifier uses the host's default effort. `inherit-current` is a pstack semantic value, not a model identifier. Apply it by omitting explicit model selection. A host may inject the same omission when it can. Validate any `effort` against the host's supported levels for that model when the host enumerates them.
+A role value is a model identifier, `inherit-current`, or a mapping with `model` and optional `effort` when the host supports selecting reasoning effort per worker; a bare identifier uses the host's default effort. `inherit-current` is a ronin semantic value, not a model identifier. Apply it by omitting explicit model selection. A host may inject the same omission when it can. Validate any `effort` against the host's supported levels for that model when the host enumerates them.
 
 ### 5. Confirm
 

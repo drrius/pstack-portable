@@ -4,7 +4,7 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { filesUnder, installationPaths, parseHomeArgument, repositoryRoot, safeLstat, sha256, treeDigest, treeManifest } from './lib.mjs';
 
-if (!process.versions.bun) throw new Error('pstack-portable verification requires Bun 1.3.14 or newer');
+if (!process.versions.bun) throw new Error('ronin verification requires Bun 1.3.14 or newer');
 
 const failures = [];
 const check = (condition, message) => { if (!condition) failures.push(message); };
@@ -56,16 +56,16 @@ function validateSource(root) {
     check(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.name) && metadata.name.length <= 64, `Invalid Agent Skills name: ${metadata.name}`);
     check(Boolean(metadata.description) && metadata.description.length <= 1024, `Invalid description: ${name}`);
   }
-  check(filesUnder(join(root, 'skills/pstack-core/personas')).filter((path) => path.endsWith('.md')).length === 2, 'Expected two personas');
-  for (const path of filesUnder(join(root, 'skills/pstack-core/personas')).filter((path) => path.endsWith('.md'))) {
+  check(filesUnder(join(root, 'skills/ronin-core/personas')).filter((path) => path.endsWith('.md')).length === 2, 'Expected two personas');
+  for (const path of filesUnder(join(root, 'skills/ronin-core/personas')).filter((path) => path.endsWith('.md'))) {
     const name = basename(path, '.md');
     const metadata = frontmatter(readFileSync(path, 'utf8'));
-    check(metadata, `Invalid persona frontmatter: skills/pstack-core/personas/${name}.md`);
+    check(metadata, `Invalid persona frontmatter: skills/ronin-core/personas/${name}.md`);
     if (metadata) check(metadata.name === name, `Persona name must match filename: ${name} != ${metadata.name}`);
   }
   check(filesUnder(join(root, 'skills/ronin-mode/playbooks')).filter((path) => path.endsWith('.md')).length === 23, 'Expected 23 playbooks');
   check(filesUnder(join(root, 'skills'), sourceOptions).filter((path) => path.includes('/references/')).length === 34, 'Expected 34 skill reference files');
-  check(filesUnder(join(root, 'docs')).length === 17, 'Expected 17 guide files');
+  check(filesUnder(join(root, 'docs/guide')).length === 17, 'Expected 17 guide files');
   for (const path of filesUnder(root, { excludeDirectories: ['.git', '.codex', 'dist', 'node_modules'] }).filter((path) => path.endsWith('.md'))) validateLinks(path, root);
 
   const trackedResult = spawnSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: root, encoding: 'buffer' });
@@ -126,7 +126,7 @@ function validateSource(root) {
     if (existsSync(source)) check(edge.needles.some((needle) => readFileSync(source, 'utf8').includes(needle)), `Routing edge is not expressed in ${edge.from}: ${edge.to}`);
   }
   const capabilities = JSON.parse(readFileSync(join(root, 'tests/fixtures/capabilities.json'), 'utf8'));
-  const contract = readFileSync(join(root, 'skills/pstack-core/HOST_CONTRACT.md'), 'utf8');
+  const contract = readFileSync(join(root, 'skills/ronin-core/HOST_CONTRACT.md'), 'utf8');
   for (const capability of capabilities.capabilities) {
     check(contract.includes(capability.contractNeedle), `Host contract lacks ${capability.name}`);
     const source = join(root, capability.fallbackFile);
@@ -134,7 +134,7 @@ function validateSource(root) {
     if (existsSync(source)) check(readFileSync(source, 'utf8').includes(capability.fallbackNeedle), `Capability fallback is not explicit for ${capability.name}`);
   }
   validateNamedSkillReferences(root, skillDirectories);
-  check(readFileSync(join(root, 'skills/pstack-core/personas/poteto-agent.md'), 'utf8').includes('ronin-mode'), 'Poteto Agent persona cannot route to Ronin Mode');
+  check(readFileSync(join(root, 'skills/ronin-core/personas/poteto-agent.md'), 'utf8').includes('ronin-mode'), 'Poteto Agent persona cannot route to Ronin Mode');
 }
 
 function validateNamedSkillReferences(root, skillDirectories) {
@@ -155,7 +155,7 @@ function validateNamedSkillReferences(root, skillDirectories) {
 
 function validateInstallation(home) {
   const paths = installationPaths(home);
-  const manifestPath = join(paths.root, '.pstack-portable-install.json');
+  const manifestPath = join(paths.root, '.ronin-install.json');
   check(existsSync(manifestPath), `Installed ownership manifest is missing: ${manifestPath}`);
   if (!existsSync(manifestPath)) return;
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
@@ -179,18 +179,18 @@ function validateInstallation(home) {
   for (const name of manifest.personaNames) {
     const link = join(paths.claudeAgents, `${name}.md`);
     check(existsSync(link) && lstatSync(link).isSymbolicLink(), `Missing persona link: ${link}`);
-    if (existsSync(link)) check(realpathSync(link) === realpathSync(join(paths.root, 'skills', 'pstack-core', 'personas', `${name}.md`)), `Incorrect persona target: ${link}`);
+    if (existsSync(link)) check(realpathSync(link) === realpathSync(join(paths.root, 'skills', 'ronin-core', 'personas', `${name}.md`)), `Incorrect persona target: ${link}`);
   }
   const installedRouter = join(paths.root, 'skills/ronin-mode/SKILL.md');
   const installedPlaybook = join(paths.root, 'skills/ronin-mode/playbooks/feature.md');
   const installedSibling = join(paths.root, 'skills/architect/SKILL.md');
-  const installedPersona = join(paths.root, 'skills/pstack-core/personas/poteto-agent.md');
+  const installedPersona = join(paths.root, 'skills/ronin-core/personas/poteto-agent.md');
   check(existsSync(installedRouter) && readFileSync(installedRouter, 'utf8').includes('playbooks/feature.md'), 'Installed Ronin Mode router cannot resolve the Feature playbook');
   check(existsSync(installedPlaybook) && readFileSync(installedPlaybook, 'utf8').includes('architect'), 'Installed Feature playbook cannot resolve architect');
   check(existsSync(installedSibling) && readFileSync(installedSibling, 'utf8').includes('HOST_CONTRACT.md'), 'Installed architect skill cannot resolve the host contract');
   const architectDir = realpathSync(dirname(installedSibling));
-  const contractFromSkill = resolve(architectDir, '../pstack-core/HOST_CONTRACT.md');
-  check(existsSync(contractFromSkill), 'HOST_CONTRACT.md is not reachable as ../pstack-core/HOST_CONTRACT.md from installed skills/architect');
+  const contractFromSkill = resolve(architectDir, '../ronin-core/HOST_CONTRACT.md');
+  check(existsSync(contractFromSkill), 'HOST_CONTRACT.md is not reachable as ../ronin-core/HOST_CONTRACT.md from installed skills/architect');
   if (existsSync(contractFromSkill)) {
     try {
       readFileSync(contractFromSkill, 'utf8');
@@ -218,17 +218,17 @@ function validateToolLaunchers(home) {
 
 validateSource(repositoryRoot);
 run('build.mjs');
-const firstBuildDigest = existsSync(join(repositoryRoot, 'dist/pstack-portable')) ? treeDigest(join(repositoryRoot, 'dist/pstack-portable')) : '';
-check(!filesUnder(join(repositoryRoot, 'dist/pstack-portable')).some((path) => path.includes('/node_modules/')), 'Build output contains cached dependencies');
+const firstBuildDigest = existsSync(join(repositoryRoot, 'dist/ronin')) ? treeDigest(join(repositoryRoot, 'dist/ronin')) : '';
+check(!filesUnder(join(repositoryRoot, 'dist/ronin')).some((path) => path.includes('/node_modules/')), 'Build output contains cached dependencies');
 run('build.mjs');
-const secondBuildDigest = existsSync(join(repositoryRoot, 'dist/pstack-portable')) ? treeDigest(join(repositoryRoot, 'dist/pstack-portable')) : '';
+const secondBuildDigest = existsSync(join(repositoryRoot, 'dist/ronin')) ? treeDigest(join(repositoryRoot, 'dist/ronin')) : '';
 check(firstBuildDigest === secondBuildDigest, 'Build output is not deterministic');
 
 const argv = process.argv.slice(2);
 if (argv.includes('--installed')) {
   validateInstallation(parseHomeArgument(argv, homedir()));
 } else {
-  const testHome = mkdtempSync(join(tmpdir(), 'pstack-portable-test-'));
+  const testHome = mkdtempSync(join(tmpdir(), 'ronin-test-'));
   try {
     writeFileSync(join(testHome, 'sentinel'), 'preserve\n');
     const collision = join(testHome, '.agents/skills/architect');
@@ -253,7 +253,7 @@ if (argv.includes('--installed')) {
     for (const link of staleLinks) symlinkSync(staleSkillDir, link);
     const releasedUnrelated = join(testHome, '.claude/skills/renamed-kept');
     symlinkSync(join(testHome, 'sentinel'), releasedUnrelated);
-    const ownershipPath = join(upgradeRoot, '.pstack-portable-install.json');
+    const ownershipPath = join(upgradeRoot, '.ronin-install.json');
     const ownership = JSON.parse(readFileSync(ownershipPath, 'utf8'));
     writeFileSync(ownershipPath, JSON.stringify({ ...ownership, skillNames: [...ownership.skillNames, 'renamed-away', 'renamed-kept'] }, null, 2));
     run('install.mjs', ['--home', testHome]);
@@ -268,7 +268,7 @@ if (argv.includes('--installed')) {
     check(existsSync(unrelated), 'Uninstall removed an unrelated skill link');
     check(!existsSync(installationPaths(testHome).root), 'Uninstall left the owned installation root');
   } finally {
-    if (basename(testHome).startsWith('pstack-portable-test-') && dirname(testHome) === resolve(tmpdir())) rmSync(testHome, { recursive: true });
+    if (basename(testHome).startsWith('ronin-test-') && dirname(testHome) === resolve(tmpdir())) rmSync(testHome, { recursive: true });
   }
 }
 

@@ -1,8 +1,8 @@
 {
-  "name": "pstack-portable",
+  "name": "ronin",
   "version": "0.1.0",
   "private": true,
-  "description": "Unofficial cross-agent port of Lauren Tan's pstack workflows",
+  "description": "Native Agent Skills project for Claude Code and Codex, derived from Lauren Tan's pstack",
   "type": "module",
   "packageManager": "bun@1.3.14",
   "engines": {

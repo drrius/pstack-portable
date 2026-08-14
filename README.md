@@ -1,99 +1,137 @@
-# pstack-portable
+<p align="center">
+  <img src="docs/assets/ronin.png" alt="ronin" width="640">
+</p>
 
-A native [Agent Skills](https://agentskills.io/) project for Claude Code and Codex, derived from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the rigorous engineering workflow created by Lauren Tan. Unofficial and unaffiliated.
+# ronin
 
-The repository keeps one canonical skill tree in `skills/`. Workflows request capabilities — delegation, persistence, model selection, transcript access, real-surface control, the source forge — through `skills/pstack-core/HOST_CONTRACT.md`, and each skill states an honest fallback when the active host lacks one. The original Cursor plugin remains the best native Cursor experience and is not modified by this project.
+pstack is Lauren Tan's engineering workflow. ronin is that workflow rebuilt to run in Claude Code and Codex. If you work in Cursor, install [her plugin](https://github.com/cursor/plugins/tree/main/pstack) instead. It's better there.
 
-The corpus derives from pstack 0.14.1 and diverges deliberately where these hosts differ from Cursor; `PORTING.md` is the divergence ledger. Upstream is watched and cherry-picked, not tracked. The tree holds 46 skills (44 derived from upstream, MIT-imported `deslop` from Cursor Team Kit, and the first-party `pstack-core` foundation), both agent personas, the 23 Ronin Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
+Unofficial and unaffiliated. A ronin serves no house, which is the point.
 
-Three entry points carry their own names so the portable and native projects stay distinguishable side by side: `ronin-mode` (upstream `poteto-mode`), `setup-ronin` (upstream `setup-pstack`), and `ronin-review` (upstream `show-me-your-work`). The Poteto Agent and Comment Sicko personas keep their upstream names.
+## Why
 
-## Status
+I use pstack every day. I don't use Cursor.
 
-The corpus is discoverable on Agent Skills-compatible hosts: Claude Code, Codex, and other hosts that read skill directories. Skills fall back honestly when a host cannot delegate, persist, select models, read transcripts, or control a real surface. Bun 1.3.14 or newer is the runtime for building, testing, installing, and running the bundled command-line tooling.
+Moving the skills across was the easy half. Two problems the original never had to solve turned out to matter more.
+
+My work repos live in Azure DevOps. Every PR step in pstack speaks `gh`. ronin reads the git remote and speaks `az repos` when the remote is Azure, `gh` when it's GitHub. Same playbooks either way.
+
+Then there's review. Cursor can hand your code to a different lab's model, so pstack treats a single provider as a degraded setup. Claude Code and Codex each ship one family. I don't think that's degraded. ronin asks for the most different model the host actually has, counts a sibling in the same family as real diversity, and says so in the reply when the reviewer ended up on the author's own model.
+
+The rest follows from those two. I don't use Graphite, so stacks are plain `gh` and `az` with bases retargeted by hand. Any skill that can't get what it needs says so instead of pretending it did.
 
 ## Install
 
-Install with the [skills CLI](https://github.com/vercel-labs/skills) into any supported agent:
-
 ```sh
-npx skills add drrius/pstack-portable --all
+npx skills add drrius/ronin --all
 ```
 
-Or pick agents and skills explicitly. Every pstack skill expects the `pstack-core` skill beside it — it carries the host contract and personas — so partial installs must include it. Skills report it as a missing prerequisite if it is absent. Remove with `npx skills remove`.
+Every skill expects `ronin-core` next to it. That one carries the host contract and the two personas, so partial installs have to include it. `npx skills remove` takes it all back out.
 
-### Coexisting with native Cursor pstack
+### If you also run Cursor
 
-The renamed entry points (`ronin-mode`, `setup-ronin`, `ronin-review`) never collide with native pstack, but most other visible skills keep their upstream names, and Cursor and Codex both read the shared global directory `~/.agents/skills`. On a machine that runs Cursor with native pstack installed, a global shared-directory install still produces same-named duplicates in Cursor's skill picker. Keep this project out of Cursor's view instead:
-
-```sh
-npx skills add drrius/pstack-portable --all -g -a claude-code
-```
-
-Claude Code reads `~/.claude/skills`, which Cursor does not. For Codex, install per project so only the repositories you choose see it:
+Cursor reads `~/.agents/skills`, the same global directory Codex reads, and most skill names here match the originals. Install globally and you get two of everything with no way to tell them apart. Keep ronin out of Cursor's view.
 
 ```sh
-cd your-project && npx skills add drrius/pstack-portable --skill '*' -a codex -y
+npx skills add drrius/ronin --all -g -a claude-code
 ```
 
-That lands in the project's `.agents/skills`; note Cursor also reads project `.agents/skills`, so a repo you open in both hosts will show both copies there. The native Cursor plugin remains the intended experience inside Cursor.
+Claude Code reads `~/.claude/skills`. Cursor doesn't. For Codex, install per project.
 
-### After install
+```sh
+cd your-project && npx skills add drrius/ronin --skill '*' -a codex -y
+```
 
-The skills CLI delivers only the skill tree. Three optional host steps unlock full capability; every skill degrades honestly without them:
+Three commands carry their own names so you can always tell which is which. `ronin-mode`, `setup-ronin`, `ronin-review`. Upstream calls them `poteto-mode`, `setup-pstack`, `show-me-your-work`.
 
-- **Model roles.** Run `/setup-ronin` (or invoke the `setup-ronin` skill) to write `~/.config/pstack/models.yaml` — per-host role maps with optional reasoning efforts. Without it, every role inherits the current model and review panels disclose that they shared one model.
-- **Codex fan-out.** Subagent delegation on Codex requires its feature flag: `codex features enable multi_agent`. Codex's newer `multi_agent_v2` coexists with it and can be enabled alongside. Without the flag, fan-out skills (`how`, `arena`, `interrogate`, `swarm`) execute serially and disclose the lost concurrency.
-- **Claude personas.** The persona files ship inside `skills/pstack-core/personas/`. To register them as Claude agent definitions, link them into `~/.claude/agents/` (the maintainer installer below does this automatically):
+## After install
 
-  ```sh
-  ln -s ~/.claude/skills/pstack-core/personas/poteto-agent.md ~/.claude/agents/poteto-agent.md
-  ln -s ~/.claude/skills/pstack-core/personas/comment-sicko.md ~/.claude/agents/comment-sicko.md
-  ```
+The skills CLI ships the skill tree and nothing else. Three steps unlock the rest. Skip them and everything still runs, just with less.
 
-### Maintainer install
+**Models.** Run `/setup-ronin`. It writes `~/.config/ronin/models.yaml`, keyed by host, with an optional reasoning effort per role. Without it every role inherits your current model.
 
-The repository also ships a manifest-owned installer used for development and release verification:
+**Codex fan-out.** Run `codex features enable multi_agent`. Without it `how`, `arena`, `interrogate`, and `swarm` run one worker at a time and tell you they did.
+
+**Claude personas.** Link them so Claude Code can spawn them by name.
+
+```sh
+ln -s ~/.claude/skills/ronin-core/personas/poteto-agent.md ~/.claude/agents/poteto-agent.md
+ln -s ~/.claude/skills/ronin-core/personas/comment-sicko.md ~/.claude/agents/comment-sicko.md
+```
+
+## Get started
+
+Give it a goal and a way to check it.
+
+```text
+/ronin-mode the export writes duplicate rows when a retry lands mid-run. repro first, then fix and verify.
+```
+
+You don't name a playbook. `/ronin-mode` matches one, copies the steps into a todo list, and calls the other skills as the steps fire. The [guide](./docs/guide/README.md) teaches the habit in ten pages.
+
+<details>
+<summary>The other skills</summary>
+
+| Skills | Use them for |
+| --- | --- |
+| `/how` `/why` `/teach` `/recall` | Understand code before you touch it |
+| `/architect` `/arena` `/swarm` `/interrogate` | Design it, compete the options, stress test the result |
+| `/tdd` `/deslop` `/unslop` `/no-comments` | Build it and clean it |
+| `/blast-radius` `/ronin-review` | Prove it's safe, leave a trail someone can audit |
+| `/figure-it-out` `/automate-me` | Large migrations, and capturing how you work |
+| `/bro` `/technical-writing` `/typescript-best-practices` | Plain language, docs, TypeScript |
+
+21 `principle-*` skills sit behind these. `/ronin-mode` reads them and names the ones it applied.
+
+</details>
+
+## What's different from pstack
+
+| | pstack | ronin |
+| --- | --- | --- |
+| Hosts | Cursor | Claude Code, Codex, anything that reads Agent Skills |
+| Forge | GitHub | GitHub or Azure DevOps, picked from the remote |
+| Stacks | Graphite | Plain `gh` and `az`, bases retargeted by hand |
+| Review panel | Another provider's model | The most different model the host has |
+| Missing capability | Assumed present | Named in the reply |
+
+[`PORTING.md`](./PORTING.md) records every divergence and the reason for it.
+
+## What isn't done
+
+The PR watcher only speaks GitHub. On Azure it hands you a manual next step.
+
+Azure support passes against recorded fixtures, not a live org. I haven't run it at work yet.
+
+ronin derives from pstack 0.14.1. I watch upstream and cherry-pick. I don't track it.
+
+## Verify
+
+```sh
+bun run check
+```
+
+You need Bun 1.3.14 or newer. That runs 58 tests, a strict typecheck, a dependency audit, and the distribution verifier. The verifier builds twice and compares digests, installs into a throwaway home, proves the installer refuses to touch anything it doesn't own, then uninstalls and checks nothing got left behind.
+
+## How it's built
+
+- `skills/` is the canonical tree, host-neutral.
+- [`skills/ronin-core/HOST_CONTRACT.md`](./skills/ronin-core/HOST_CONTRACT.md) is the capability contract every skill reads first.
+- `adapters/` maps that contract onto Claude Code, Codex, and generic hosts.
+- `docs/` is the guide.
+- `scripts/` builds, installs, and verifies.
+- `upstream.json` pins the imported commit.
+
+Maintainers can install from source instead of the skills CLI.
 
 ```sh
 bun run build
 bun run install:global -- --dry-run
 bun run install:global
-bun run verify:installed
 ```
 
-It places the owned distribution at `~/.agents/pstack-portable`, links all skills into `~/.agents/skills`, and creates Claude aliases in `~/.claude/skills` plus persona definitions in `~/.claude/agents`. It refuses unrelated files or links instead of overwriting them. `bun run uninstall:global` removes only manifest-owned artifacts, and `--home /explicit/home` targets another home directory.
+That puts the owned tree in `~/.agents/ronin` and links it into place. It refuses unrelated files instead of overwriting them, and `bun run uninstall:global` removes only what it owns.
 
-## Use
+## Credit
 
-Invoke a skill by name through your host, such as `ronin-mode`, `architect`, `why`, or `ronin-review`. Hosts with persona support can spawn `poteto-agent` or `comment-sicko`; other hosts pass the matching file under `skills/pstack-core/personas/` in a delegated worker brief.
-
-The workflows request capabilities through `HOST_CONTRACT.md`. If a host cannot delegate, persist a run, read transcripts, select a model role, or control the real UI, the skill uses its documented fallback and reports the lost capability rather than pretending it was exercised.
-
-## Verify
-
-```sh
-bun run install:tools
-bun test
-bun run verify
-bun run typecheck:tools
-bun run audit:tools
-```
-
-`bun test` runs the 52 native unit tests. `bun run verify` checks metadata, links, exclusions, provenance, routing fixtures, deterministic builds, collision refusal, isolated-home install and reinstall, installed file integrity and workflow readback, and exact uninstall. `bun run check` runs the complete test, verifier, typecheck, and audit gate. See `CONTRIBUTING.md` for upstream auditing and `RELEASING.md` for the release gate.
-
-## Design
-
-- `skills/` is the canonical host-neutral Agent Skills tree.
-- `skills/pstack-core/` carries the host contract and the portable source prompts for Poteto Agent and Comment Sicko.
-- `adapters/` documents the thin Codex, Claude, and generic-agent mappings.
-- `docs/` contains the adapted pstack guide.
-- `scripts/` builds, installs, uninstalls, and verifies generated distributions.
-- `tests/` holds clean-home and capability-contract fixtures.
-- `UPSTREAM.md` and `upstream.json` record the exact source and intentional exclusions.
-
-See `PORTING.md` for the divergence ledger: every deliberate difference from Cursor-native pstack and why it exists.
-
-## Licensing
-
-The adapted pstack material remains under Lauren Tan's MIT license in `LICENSE`. Imported `deslop` remains under Cursor's MIT license in `LICENSE-cursor-team-kit`. This community port is not affiliated with or endorsed by Lauren Tan or Cursor. See `NOTICE.md` for provenance and adaptation details.
+pstack is Lauren Tan's work, MIT, preserved in [`LICENSE`](./LICENSE). `deslop` comes from Cursor's Team Kit, MIT, in [`LICENSE-cursor-team-kit`](./LICENSE-cursor-team-kit). Neither Lauren nor Cursor endorsed this. [`NOTICE.md`](./NOTICE.md) has the full provenance.
