@@ -7,6 +7,6 @@ A release candidate is ready only when it is reproducible from a clean checkout 
 3. **Exercise a clean checkout.** Clone the local candidate without borrowing ignored files, run every verifier, build twice, and run the isolated-home lifecycle. The verifier must prove collision refusal, installed router/playbook/sibling/persona readback, idempotent reinstall, exact uninstall, and preservation of unrelated files.
 4. **Inspect the artifact.** Confirm the generated manifest is deterministic and machine-neutral, cached dependencies and private paths are absent, and the distribution contains only the canonical source plus adapters and notices.
 5. **Install deliberately.** Run the real-home dry run, inspect every collision, install only if it is clean, and run `bun run verify:installed`. Do not overwrite a pre-existing global skill or persona alias.
-6. **Record the candidate.** Update `RESULT.md` with exact commands, versions, digests, intentional differences, capability fallbacks, and the Git commit being released.
+6. **Record the candidate.** Put the exact commands, versions, digests, capability fallbacks, and released commit in that release's notes, where they stay pinned to the thing they describe. A tracked evidence file instead accumulates claims about whichever candidate last bothered to update it.
 
 Creating a public repository, pushing a remote, publishing a package or release, and announcing the project are separate user-controlled actions. Passing this checklist does not authorize them.
