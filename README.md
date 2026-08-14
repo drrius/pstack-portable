@@ -83,12 +83,6 @@ You don't name a playbook. `/ronin-mode` matches one, copies the steps into a to
 
 [`PORTING.md`](./PORTING.md) records every divergence and the reason for it.
 
-## What isn't done
-
-The PR watcher only speaks GitHub. On Azure it hands you a manual next step.
-
-Azure support passes against recorded fixtures, not a live org. I haven't run it at work yet.
-
 ronin derives from pstack 0.14.1. I watch upstream and cherry-pick. I don't track it.
 
 ## Verify
