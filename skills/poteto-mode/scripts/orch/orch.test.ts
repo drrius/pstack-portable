@@ -15,6 +15,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   NotFoundError,
+  parseForgeRemote,
   UserError,
   openStore,
   parseVerdict,
@@ -88,6 +89,8 @@ async function makeGitStack(directory: string): Promise<{
   git({ repo, args: ["add", "."] });
   git({ repo, args: ["commit", "-m", "main"] });
 
+  git({ repo, args: ["remote", "add", "origin", "https://github.com/example/stack.git"] });
+
   const branches = ["stack/merged", "stack/closed", "stack/open"];
   for (const [index, branch] of branches.entries()) {
     git({ repo, args: ["checkout", "-b", branch] });
@@ -143,6 +146,59 @@ esac
 `
   );
   await chmod(gh, 0o755);
+
+  const originalPath = process.env.PATH;
+  process.env.PATH = `${bin}:${originalPath ?? ""}`;
+  try {
+    return await operation(outputPath);
+  } finally {
+    if (originalPath === undefined) {
+      delete process.env.PATH;
+    } else {
+      process.env.PATH = originalPath;
+    }
+  }
+}
+
+async function withFakeAz<T>({
+  directory,
+  operation,
+  output,
+}: {
+  directory: string;
+  operation: (outputPath: string) => Promise<T>;
+  output: string;
+}): Promise<T> {
+  const bin = join(directory, "bin");
+  const outputPath = join(directory, "az-output.json");
+  await mkdir(bin);
+  await writeFile(outputPath, output);
+  const az = join(bin, "az");
+  const common =
+    "--organization https://dev.azure.com/org1 --project proj1 --repository repo1 --output json";
+  await writeFile(
+    az,
+    `#!/usr/bin/env bash
+set -euo pipefail
+if [ "$(pwd -P)" != "${realpathSync(join(directory, "repo"))}" ]; then
+  printf 'az ran outside the fixture repo: %s\n' "$(pwd -P)" >&2
+  exit 2
+fi
+case "$*" in
+  "repos show ${common}")
+    printf '{"defaultBranch":"refs/heads/main"}\n'
+    ;;
+  "repos pr list --status all --top 1000 ${common}")
+    cat "${outputPath}"
+    ;;
+  *)
+    printf 'unexpected az arguments: %s\n' "$*" >&2
+    exit 2
+    ;;
+esac
+`
+  );
+  await chmod(az, 0o755);
 
   const originalPath = process.env.PATH;
   process.env.PATH = `${bin}:${originalPath ?? ""}`;
@@ -570,7 +626,7 @@ describe("Store", () => {
         await expect(
           store.frontier.set({ repo: stack.repo, branch: "stack/merged" })
         ).rejects.toThrow(
-          "gh pr list shows 2 open pull requests based on stack/merged: 11,13 is a fork, not a stack"
+          "the forge lists 2 open pull requests based on stack/merged: 11,13 is a fork, not a stack"
         );
       },
     });
@@ -595,10 +651,82 @@ describe("Store", () => {
         await expect(
           store.frontier.set({ repo: stack.repo })
         ).rejects.toThrow(
-          "gh pr list has no pull request with head branch stack/open"
+          "the forge has no pull request with head branch stack/open"
         );
       },
     });
+  });
+
+  it("resolves an Azure DevOps frontier from the origin remote", async () => {
+    const { directory, store } = await initializedStore();
+    const stack = await makeGitStack(directory);
+    git({
+      repo: stack.repo,
+      args: ["remote", "set-url", "origin", "https://dev.azure.com/org1/proj1/_git/repo1"],
+    });
+    const output = `${JSON.stringify([
+      {
+        pullRequestId: 10,
+        sourceRefName: "refs/heads/stack/merged",
+        targetRefName: "refs/heads/main",
+        status: "completed",
+      },
+      {
+        pullRequestId: 13,
+        sourceRefName: "refs/heads/stack/closed",
+        targetRefName: "refs/heads/stack/merged",
+        status: "abandoned",
+      },
+      {
+        pullRequestId: 11,
+        sourceRefName: "refs/heads/stack/open",
+        targetRefName: "refs/heads/stack/closed",
+        status: "active",
+      },
+    ])}\n`;
+
+    await withFakeAz({
+      directory,
+      output,
+      operation: async () => {
+        expect(await store.frontier.set({ repo: stack.repo })).toEqual({
+          generation: 1,
+          prs: [
+            {
+              pr: 10,
+              branches: "stack/merged",
+              sha: stack.mergedSha,
+              state: "MERGED",
+            },
+            {
+              pr: 13,
+              branches: "stack/closed",
+              sha: stack.closedSha,
+              state: "CLOSED",
+            },
+            {
+              pr: 11,
+              branches: "stack/open",
+              sha: stack.openSha,
+              state: "OPEN",
+            },
+          ],
+          lowestUnmerged: 11,
+        });
+      },
+    });
+  });
+
+  it("rejects an origin remote that matches no supported forge", async () => {
+    const { directory, store } = await initializedStore();
+    const stack = await makeGitStack(directory);
+    git({
+      repo: stack.repo,
+      args: ["remote", "set-url", "origin", "https://gitlab.com/x/y.git"],
+    });
+    await expect(store.frontier.set({ repo: stack.repo })).rejects.toThrow(
+      "matches no supported forge"
+    );
   });
 
   it("rejects malformed gh output loudly", async () => {
@@ -758,5 +886,31 @@ describe("orch CLI", () => {
       verdict: "NOT-VERIFIED",
     });
     expect(missingLedger.stderr).toBe("");
+  });
+});
+
+describe("parseForgeRemote", () => {
+  it("classifies forge remotes", () => {
+    expect(parseForgeRemote("https://github.com/o/r.git")).toEqual({ kind: "github" });
+    expect(parseForgeRemote("git@github.com:o/r.git")).toEqual({ kind: "github" });
+    expect(parseForgeRemote("https://user@dev.azure.com/org1/proj%20one/_git/repo1")).toEqual({
+      kind: "azure",
+      organization: "org1",
+      project: "proj one",
+      repository: "repo1",
+    });
+    expect(parseForgeRemote("git@ssh.dev.azure.com:v3/org1/proj1/repo1")).toEqual({
+      kind: "azure",
+      organization: "org1",
+      project: "proj1",
+      repository: "repo1",
+    });
+    expect(parseForgeRemote("https://org1.visualstudio.com/DefaultCollection/proj1/_git/repo1")).toEqual({
+      kind: "azure",
+      organization: "org1",
+      project: "proj1",
+      repository: "repo1",
+    });
+    expect(parseForgeRemote("https://gitlab.com/o/r.git")).toBeNull();
   });
 });

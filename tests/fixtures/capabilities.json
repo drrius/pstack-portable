@@ -29,6 +29,12 @@
       "contractNeedle": "Real-surface control",
       "fallbackFile": "skills/poteto-mode/SKILL.md",
       "fallbackNeedle": "manual-handoff"
+    },
+    {
+      "name": "source forge",
+      "contractNeedle": "Source forge",
+      "fallbackFile": "skills/poteto-mode/playbooks/babysit.md",
+      "fallbackNeedle": "capability gap"
     }
   ]
 }

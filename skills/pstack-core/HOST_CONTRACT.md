@@ -28,6 +28,12 @@ Transcript-dependent workflows use only a host adapter or an explicit user-provi
 
 Browser, desktop, CLI, and TUI verification use the host's available real-surface tools. Static inspection is supporting evidence, not a substitute when behavior depends on interaction. If the required surface is inaccessible, return the exact manual handoff and evidence required.
 
+## Source forge
+
+Pull request work — creating, reading, merging, retargeting, and judging merge readiness — goes through the repository's forge, detected per repository from `git remote get-url origin`: a `github.com` remote means GitHub through `gh`; a `dev.azure.com` or `*.visualstudio.com` remote means Azure DevOps through `az repos`. Never mix one forge's commands with another's repository. When the remote matches no supported forge, or the forge CLI is unavailable, return the exact PR operations needed as a manual handoff instead of improvising raw API calls.
+
+Forge equivalences the workflows rely on: GitHub PR state OPEN/MERGED/CLOSED corresponds to Azure DevOps active/completed/abandoned, and GitHub auto-merge corresponds to Azure DevOps auto-complete — including the rule that neither may ever be armed on a stacked pull request, because a child targeting its unprotected parent merges immediately and collapses the stack.
+
 ## Skills and paths
 
 pstack skills install wherever the host or the user's skill manager puts them: the Agent Skills root `~/.agents/skills`, an agent-specific directory such as `~/.claude/skills`, or a project-local `.agents/skills`. Installs may be copies or symlinks. The one requirement is that the pstack skills land side by side in the same parent directory.

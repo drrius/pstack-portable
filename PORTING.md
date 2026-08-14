@@ -26,6 +26,7 @@ Deliberate changes to what the workflows do, not just how they name capabilities
 - **`pstack-core` foundation skill added.** First-party. Carries `HOST_CONTRACT.md` and the personas inside a skill directory so bare per-skill copies (the `npx skills` install mode) keep them; every dependent skill locates them as the sibling `../pstack-core/`.
 - **Principle leaves are model-invocable.** Upstream marks all skills `disable-model-invocation: true`, which Cursor's loader treats differently. On Agent Skills hosts that flag blocks the read path `poteto-mode` depends on, so the 21 `principle-*` leaves carry `user-invocable: false` instead: readable by the model, hidden from the user's command menu. Mode skills keep `disable-model-invocation: true`.
 - **`show-me-your-work` degrades.** Upstream hard-requires a different-model review subagent. Here the cross-model review falls back — inherited model, then serial self-review — with the substitution disclosed in the Attention section rather than implied fresh eyes.
+- **Forge-neutral workflows.** Upstream assumes GitHub. PR workflows go through the repository's forge, detected from the git remote; GitHub (`gh`) and Azure DevOps (`az repos`) are supported, and `orch frontier set` resolves stacks on either. The bundled PR watcher remains GitHub-only and reports the gap elsewhere.
 - **Distribution via the skills CLI.** `npx skills add` is the primary install; the manifest-owned Bun installer remains the maintainer path.
 
 ## Exclusions

@@ -968,7 +968,7 @@ function countLine(value: Counts): string {
     : entries.map(([name, count]) => `${name}=${count}`).join(", ");
 }
 
-interface GhPullRequestRow {
+interface ForgePullRequestRow {
   readonly pr: number;
   readonly head: string;
   readonly base: string;
@@ -981,18 +981,20 @@ interface FrontierEntry {
   readonly state: FrontierPrState;
 }
 
-function ghJson({
+function cliJson({
+  bin,
   args,
   repo,
   what,
 }: {
+  bin: string;
   args: readonly string[];
   repo: string;
   what: string;
 }): unknown {
   let raw: string;
   try {
-    raw = execFileSync("gh", args, {
+    raw = execFileSync(bin, args, {
       cwd: repo,
       encoding: "utf8",
       env: { ...process.env, NO_COLOR: "1" },
@@ -1010,9 +1012,202 @@ function ghJson({
   }
 }
 
+export type ForgeIdentity =
+  | { readonly kind: "github" }
+  | {
+      readonly kind: "azure";
+      readonly organization: string;
+      readonly project: string;
+      readonly repository: string;
+    };
+
+export function parseForgeRemote(url: string): ForgeIdentity | null {
+  const trimmed = url.trim();
+  if (/^(https:\/\/([^@/]+@)?github\.com\/|git@github\.com:)/.test(trimmed)) {
+    return { kind: "github" };
+  }
+  const azureHttps =
+    /^https:\/\/(?:[^@/]+@)?dev\.azure\.com\/([^/]+)\/([^/]+)\/_git\/([^/]+?)(?:\.git)?$/.exec(
+      trimmed
+    );
+  if (azureHttps !== null) {
+    return {
+      kind: "azure",
+      organization: decodeURIComponent(azureHttps[1] ?? ""),
+      project: decodeURIComponent(azureHttps[2] ?? ""),
+      repository: decodeURIComponent(azureHttps[3] ?? ""),
+    };
+  }
+  const azureSsh =
+    /^git@ssh\.dev\.azure\.com:v3\/([^/]+)\/([^/]+)\/(.+?)(?:\.git)?$/.exec(
+      trimmed
+    );
+  if (azureSsh !== null) {
+    return {
+      kind: "azure",
+      organization: azureSsh[1] ?? "",
+      project: azureSsh[2] ?? "",
+      repository: azureSsh[3] ?? "",
+    };
+  }
+  const azureLegacy =
+    /^https:\/\/(?:[^@/]+@)?([^./]+)\.visualstudio\.com\/(?:DefaultCollection\/)?([^/]+)\/_git\/([^/]+?)(?:\.git)?$/.exec(
+      trimmed
+    );
+  if (azureLegacy !== null) {
+    return {
+      kind: "azure",
+      organization: azureLegacy[1] ?? "",
+      project: decodeURIComponent(azureLegacy[2] ?? ""),
+      repository: decodeURIComponent(azureLegacy[3] ?? ""),
+    };
+  }
+  return null;
+}
+
+function forgeForRepo(repo: string): ForgeIdentity {
+  let raw: string;
+  try {
+    raw = execFileSync("git", ["remote", "get-url", "origin"], {
+      cwd: repo,
+      encoding: "utf8",
+      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (error) {
+    throw new UserError(
+      `git remote get-url origin failed: ${errorMessage(error)}`
+    );
+  }
+  const forge = parseForgeRemote(raw);
+  if (forge === null) {
+    throw new UserError(
+      `origin remote ${raw.trim()} matches no supported forge (github.com or dev.azure.com/*.visualstudio.com)`
+    );
+  }
+  return forge;
+}
+
+function stripRefsHeads(ref: string): string {
+  return ref.startsWith("refs/heads/") ? ref.slice("refs/heads/".length) : ref;
+}
+
+function azureArgs(identity: Extract<ForgeIdentity, { kind: "azure" }>): readonly string[] {
+  return [
+    "--organization",
+    `https://dev.azure.com/${identity.organization}`,
+    "--project",
+    identity.project,
+    "--repository",
+    identity.repository,
+    "--output",
+    "json",
+  ];
+}
+
+function azureTrunk({
+  identity,
+  repo,
+}: {
+  identity: Extract<ForgeIdentity, { kind: "azure" }>;
+  repo: string;
+}): string {
+  const what = "az repos show";
+  const value = cliJson({
+    bin: "az",
+    args: ["repos", "show", ...azureArgs(identity)],
+    repo,
+    what,
+  });
+  const name =
+    typeof value === "object" && value !== null
+      ? (value as Record<string, unknown>).defaultBranch
+      : undefined;
+  if (typeof name !== "string" || name.length === 0) {
+    throw new UserError(`${what} output has no default branch name`);
+  }
+  return stripRefsHeads(name);
+}
+
+function azureState(status: unknown): FrontierPrState | null {
+  switch (status) {
+    case "active":
+      return "OPEN";
+    case "completed":
+      return "MERGED";
+    case "abandoned":
+      return "CLOSED";
+    default:
+      return null;
+  }
+}
+
+function parseAzurePullRequests(value: unknown): readonly ForgePullRequestRow[] {
+  if (!Array.isArray(value)) {
+    throw new UserError("az repos pr list output must be a JSON array");
+  }
+  return value.map((row: unknown, index): ForgePullRequestRow => {
+    const record =
+      typeof row === "object" && row !== null
+        ? (row as Record<string, unknown>)
+        : {};
+    const pr = record.pullRequestId;
+    const source = record.sourceRefName;
+    const target = record.targetRefName;
+    const state = azureState(record.status);
+    if (
+      typeof pr !== "number" ||
+      !Number.isSafeInteger(pr) ||
+      pr <= 0 ||
+      typeof source !== "string" ||
+      source.length === 0 ||
+      typeof target !== "string" ||
+      target.length === 0 ||
+      state === null
+    ) {
+      throw new UserError(
+        `az repos pr list output has an invalid row ${index + 1}: ${JSON.stringify(row)}`
+      );
+    }
+    return {
+      pr,
+      head: stripRefsHeads(source),
+      base: stripRefsHeads(target),
+      state,
+    };
+  });
+}
+
+function azureRows({
+  identity,
+  repo,
+}: {
+  identity: Extract<ForgeIdentity, { kind: "azure" }>;
+  repo: string;
+}): readonly ForgePullRequestRow[] {
+  return parseAzurePullRequests(
+    cliJson({
+      bin: "az",
+      args: [
+        "repos",
+        "pr",
+        "list",
+        "--status",
+        "all",
+        "--top",
+        "1000",
+        ...azureArgs(identity),
+      ],
+      repo,
+      what: "az repos pr list",
+    })
+  );
+}
+
 function githubTrunk(repo: string): string {
   const what = "gh repo view --json defaultBranchRef";
-  const value = ghJson({
+  const value = cliJson({
+    bin: "gh",
     args: ["repo", "view", "--json", "defaultBranchRef"],
     repo,
     what,
@@ -1031,11 +1226,11 @@ function githubTrunk(repo: string): string {
   return name;
 }
 
-function parseGhPullRequests(value: unknown): readonly GhPullRequestRow[] {
+function parseGhPullRequests(value: unknown): readonly ForgePullRequestRow[] {
   if (!Array.isArray(value)) {
     throw new UserError("gh pr list output must be a JSON array");
   }
-  return value.map((row: unknown, index): GhPullRequestRow => {
+  return value.map((row: unknown, index): ForgePullRequestRow => {
     const record =
       typeof row === "object" && row !== null
         ? (row as Record<string, unknown>)
@@ -1090,13 +1285,13 @@ function prForHead({
   rows,
 }: {
   head: string;
-  rows: readonly GhPullRequestRow[];
-}): GhPullRequestRow | undefined {
+  rows: readonly ForgePullRequestRow[];
+}): ForgePullRequestRow | undefined {
   const matches = rows.filter((row) => row.head === head);
   const open = matches.filter((row) => row.state === "OPEN");
   if (open.length > 1) {
     throw new UserError(
-      `gh pr list shows ${open.length} open pull requests with head branch ${head}: ${open
+      `the forge lists ${open.length} open pull requests with head branch ${head}: ${open
         .map((row) => row.pr)
         .join(",")}`
     );
@@ -1106,51 +1301,59 @@ function prForHead({
   return matches.reduce((best, row) => (row.pr > best.pr ? row : best));
 }
 
-function githubFrontier({
+function forgeFrontier({
   branch,
   repo,
 }: {
   branch: string | undefined;
   repo: string;
 }): readonly FrontierEntry[] {
-  const trunk = githubTrunk(repo);
+  const forge = forgeForRepo(repo);
+  const trunk =
+    forge.kind === "github"
+      ? githubTrunk(repo)
+      : azureTrunk({ identity: forge, repo });
   const start = branch ?? currentBranch(repo);
   if (start === trunk) {
     throw new UserError(
       `the checkout is on trunk (${trunk}); check out a stack branch or pass --branch`
     );
   }
-  const rows = parseGhPullRequests(
-    ghJson({
-      args: [
-        "pr",
-        "list",
-        "--state",
-        "all",
-        "--limit",
-        "1000",
-        "--json",
-        "number,headRefName,baseRefName,state",
-      ],
-      repo,
-      what: "gh pr list",
-    })
-  );
+  const rows =
+    forge.kind === "github"
+      ? parseGhPullRequests(
+          cliJson({
+            bin: "gh",
+            args: [
+              "pr",
+              "list",
+              "--state",
+              "all",
+              "--limit",
+              "1000",
+              "--json",
+              "number,headRefName,baseRefName,state",
+            ],
+            repo,
+            what: "gh pr list",
+          })
+        )
+      : azureRows({ identity: forge, repo });
 
   const startPr = prForHead({ head: start, rows });
   if (startPr === undefined) {
     throw new UserError(
-      `gh pr list has no pull request with head branch ${start}; push the branch and open its PR, or pass --branch`
+      `the forge has no pull request with head branch ${start}; push the branch and open its PR, or pass --branch`
     );
   }
 
   const seen = new Set<string>([startPr.head]);
-  const below: GhPullRequestRow[] = [];
+  const below: ForgePullRequestRow[] = [];
   let cursor = startPr;
   while (cursor.base !== trunk) {
     if (seen.has(cursor.base)) {
       throw new UserError(
-        `gh pr list describes a base cycle at branch ${cursor.base}`
+        `the forge describes a base cycle at branch ${cursor.base}`
       );
     }
     const parent = prForHead({ head: cursor.base, rows });
@@ -1164,14 +1367,14 @@ function githubFrontier({
     cursor = parent;
   }
 
-  const above: GhPullRequestRow[] = [];
+  const above: ForgePullRequestRow[] = [];
   cursor = startPr;
   for (;;) {
     const candidates = rows.filter((row) => row.base === cursor.head);
     const open = candidates.filter((row) => row.state === "OPEN");
     if (open.length > 1) {
       throw new UserError(
-        `gh pr list shows ${open.length} open pull requests based on ${cursor.head}: ${open
+        `the forge lists ${open.length} open pull requests based on ${cursor.head}: ${open
           .map((row) => row.pr)
           .join(",")} is a fork, not a stack`
       );
@@ -1181,14 +1384,14 @@ function githubFrontier({
     if (next === undefined) {
       if (candidates.length > 1) {
         throw new UserError(
-          `gh pr list shows no open successor and ${candidates.length} terminal pull requests based on ${cursor.head}; retarget the stack before resolving the frontier`
+          `the forge lists no open successor and ${candidates.length} terminal pull requests based on ${cursor.head}; retarget the stack before resolving the frontier`
         );
       }
       break;
     }
     if (seen.has(next.head)) {
       throw new UserError(
-        `gh pr list describes a base cycle at branch ${next.head}`
+        `the forge describes a base cycle at branch ${next.head}`
       );
     }
     seen.add(next.head);
@@ -1237,7 +1440,7 @@ function resolveFrontier({
   branch: string | undefined;
   repo: string;
 }): readonly FrontierPr[] {
-  return githubFrontier({ branch, repo }).map((row) => ({
+  return forgeFrontier({ branch, repo }).map((row) => ({
     ...row,
     sha: branchSha({ branch: row.branches, repo }),
   }));
