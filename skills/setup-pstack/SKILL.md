@@ -37,18 +37,21 @@ For `independent-review`, preserve a configured list when the host supports sele
 
 Validate the complete mapping before writing it. Every concrete identifier must be in the host's enumerated set when enumeration is available. If enumeration is unavailable, preserve the user's identifiers as explicitly unverified rather than claiming they work.
 
-Write `~/.config/pstack/models.yaml` atomically and preserve no unrelated keys. Re-running this skill must produce the same state for the same choices. The file has this shape:
+Write `~/.config/pstack/models.yaml` atomically and preserve the other hosts' sections unchanged. Re-running this skill must produce the same state for the same choices. The file is keyed by host — each top-level key names a host (`claude`, `codex`, or another adapter name) and holds that host's complete role map, because model identifiers are host-specific and one user works across hosts. A host reads only its own section; a host with no section inherits the current model for every role. The file has this shape:
 
 ```yaml
-fast-code: inherit-current
-deep-code: inherit-current
-judgment: inherit-current
-prose: inherit-current
-independent-review:
-  - inherit-current
+claude:
+  fast-code: inherit-current
+  deep-code: inherit-current
+  judgment: inherit-current
+  prose: inherit-current
+  independent-review:
+    - inherit-current
+codex:
+  deep-code: { model: example-identifier, effort: xhigh }
 ```
 
-`inherit-current` is a pstack semantic value, not a model identifier. Apply it by omitting explicit model selection. A host may inject the same omission when it can.
+A role value is a model identifier, `inherit-current`, or a mapping with `model` and optional `effort` when the host supports selecting reasoning effort per worker; a bare identifier uses the host's default effort. `inherit-current` is a pstack semantic value, not a model identifier. Apply it by omitting explicit model selection. A host may inject the same omission when it can. Validate any `effort` against the host's supported levels for that model when the host enumerates them.
 
 ### 5. Confirm
 
