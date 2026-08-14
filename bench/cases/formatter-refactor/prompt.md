@@ -1,0 +1,1 @@
+Refactor `formatDisplayName` so normalization is handled by a separately exported `normalizeDisplayName` function in `src/normalize.ts`. Preserve every existing output behavior: trim outer whitespace, collapse internal whitespace, lowercase, then title-case each word. Keep `formatDisplayName` as the public entry point and verify the refactor.

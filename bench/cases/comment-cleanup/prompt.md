@@ -1,0 +1,1 @@
+Clean up comments in `src/retry.ts`. Remove comments that merely narrate the next line or restate syntax. Preserve the non-obvious operational rationale for the retry cap. Do not change runtime behavior, exports, or constants. Verify the cleanup.

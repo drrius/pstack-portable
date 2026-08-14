@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "formatter-refactor",
+  "title": "Refactor formatting without behavior drift",
+  "prompt": "prompt.md",
+  "input": "input",
+  "verifier": "hidden.test.ts",
+  "gold": "gold",
+  "bad": "bad"
+}

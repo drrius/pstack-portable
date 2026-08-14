@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "suiteId": "pstack-portable-v1",
+  "defaultRepetitions": 3,
+  "nativeCursor": {
+    "name": "pstack",
+    "version": "0.14.1",
+    "commit": "2a8044425c7bddf429c3bdedf3ab61e791d34d65",
+    "allowlistDigest": "9e3347061e86a60d73138e839c6a4cd419fbefa50932bba50a0964e477d83251"
+  },
+  "conditions": [
+    { "id": "cursor-bare", "host": "cursor", "pstack": "none" },
+    { "id": "cursor-native", "host": "cursor", "pstack": "native" },
+    { "id": "codex-bare", "host": "codex", "pstack": "none" },
+    { "id": "codex-portable", "host": "codex", "pstack": "portable" },
+    { "id": "claude-bare", "host": "claude", "pstack": "none" },
+    { "id": "claude-portable", "host": "claude", "pstack": "portable" }
+  ],
+  "cases": [
+    "counter-clamp",
+    "discount-policy",
+    "duration-parser",
+    "formatter-refactor",
+    "review-findings",
+    "comment-cleanup"
+  ]
+}

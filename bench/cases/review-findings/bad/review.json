@@ -1,0 +1,5 @@
+{
+  "findings": [
+    { "id": "pagination-uses-returned-count", "severity": "medium" }
+  ]
+}

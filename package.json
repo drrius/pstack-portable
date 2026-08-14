@@ -19,7 +19,14 @@
     "typecheck:tools": "cd skills/poteto-mode/scripts && bun run typecheck",
     "verify": "bun scripts/verify.mjs",
     "verify:installed": "bun scripts/verify.mjs --installed",
-    "check": "bun run verify && bun run test:tools && bun run typecheck:tools && bun run audit:tools"
+    "check": "bun run verify && bun run bench:test && bun run bench:typecheck && bun run test:tools && bun run typecheck:tools && bun run audit:tools",
+    "bench:preflight": "bun bench/cli.ts preflight",
+    "bench:test": "bun test ./bench/lib",
+    "bench:typecheck": "skills/poteto-mode/scripts/node_modules/.bin/tsc --project bench/tsconfig.json",
+    "bench:smoke": "bun bench/cli.ts smoke",
+    "bench:compare": "bun bench/cli.ts compare",
+    "bench:report": "bun bench/cli.ts report",
+    "bench:verify": "bun bench/verify.ts"
   },
   "license": "MIT"
 }

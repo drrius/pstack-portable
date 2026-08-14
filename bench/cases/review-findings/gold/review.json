@@ -1,0 +1,5 @@
+{
+  "findings": [
+    { "id": "runBatch-does-not-await-workers", "severity": "high" }
+  ]
+}

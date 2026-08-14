@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "discount-policy",
+  "title": "Repair a cross-module discount policy",
+  "prompt": "prompt.md",
+  "input": "input",
+  "verifier": "hidden.test.ts",
+  "gold": "gold",
+  "bad": "bad"
+}

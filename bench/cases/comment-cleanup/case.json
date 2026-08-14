@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "comment-cleanup",
+  "title": "Remove noisy comments while preserving rationale",
+  "prompt": "prompt.md",
+  "input": "input",
+  "verifier": "hidden.test.ts",
+  "gold": "gold",
+  "bad": "bad"
+}

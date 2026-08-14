@@ -2,6 +2,8 @@
 
 An unofficial, cross-agent port of [pstack](https://github.com/cursor/plugins/tree/main/pstack), the rigorous engineering workflow created by Lauren Tan.
 
+The repository also includes a Bun-native [cross-host benchmark](BENCHMARKING.md) for comparing bare and pstack-assisted Cursor, Codex, and Claude Code runs without conflating host quality with pstack uplift.
+
 The repository keeps one canonical [Agent Skills](https://agentskills.io/) tree in `skills/`. Host adapters translate capabilities such as delegation, persistence, model selection, transcript access, and real-surface control without forking the underlying workflows. The original Cursor plugin remains the best native Cursor experience and is not modified by this project.
 
 This port currently tracks pstack 0.14.1. It includes all 44 upstream skills, both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.

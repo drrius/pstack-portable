@@ -1,0 +1,1 @@
+Fix the bounded counter implementation. `clampCounter(value, min, max)` must return `min` below the range, `max` above the range, and the original value inside the inclusive range. Preserve the public function signature and verify the fix.

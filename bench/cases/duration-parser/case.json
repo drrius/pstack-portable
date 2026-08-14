@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "duration-parser",
+  "title": "Implement a small duration parser",
+  "prompt": "prompt.md",
+  "input": "input",
+  "verifier": "hidden.test.ts",
+  "gold": "gold",
+  "bad": "bad"
+}

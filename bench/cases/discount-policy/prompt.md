@@ -1,0 +1,1 @@
+Repair the discount policy. Premium accounts qualify at any non-negative subtotal; other accounts qualify when their subtotal is at least 100. Qualified orders receive exactly 15% off, returned as a currency amount rounded to two decimal places. Unqualified orders receive zero. Preserve the exported function signatures and verify the behavior across the module boundary.

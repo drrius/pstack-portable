@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "counter-clamp",
+  "title": "Repair a bounded counter",
+  "prompt": "prompt.md",
+  "input": "input",
+  "verifier": "hidden.test.ts",
+  "gold": "gold",
+  "bad": "bad"
+}
