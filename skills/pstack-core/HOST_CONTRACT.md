@@ -10,7 +10,7 @@ A requested checklist means the host's plan or durable state mechanism. A reques
 
 A worker request defines an objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Use the host's subagent facility when authorized. If unavailable, execute the lane serially and disclose that concurrency or model diversity was not exercised.
 
-Named pstack workers are portable personas. A Poteto Agent worker reads the pstack-core skill's `personas/poteto-agent.md`, this contract, and `skills/poteto-mode/SKILL.md` before work. A Comment Sicko worker reads the pstack-core skill's `personas/comment-sicko.md`, this contract, and `skills/no-comments/SKILL.md` before review. Host-specific generated wrappers may point to those canonical files.
+Named pstack workers are portable personas. A Poteto Agent worker reads the pstack-core skill's `personas/poteto-agent.md`, this contract, and `skills/ronin-mode/SKILL.md` before work. A Comment Sicko worker reads the pstack-core skill's `personas/comment-sicko.md`, this contract, and `skills/no-comments/SKILL.md` before review. Host-specific generated wrappers may point to those canonical files.
 
 ## Model roles
 

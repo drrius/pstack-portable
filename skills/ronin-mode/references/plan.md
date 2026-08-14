@@ -1,6 +1,6 @@
 # Plan
 
-Produce a phased implementation plan grounded in the **Principles** section of the `poteto-mode` skill. The plan is the deliverable. Do not implement.
+Produce a phased implementation plan grounded in the **Principles** section of the `ronin-mode` skill. The plan is the deliverable. Do not implement.
 
 Open a todolist with one item per step below.
 
@@ -12,7 +12,7 @@ Plan when the change spans three or more files, introduces architecture, has com
 
 ## 1. Re-read principles
 
-Read the **Principles** section of the `poteto-mode` skill end to end, and the leaf `principle-*` skills it indexes. The principles govern every plan decision; cross-link them.
+Read the **Principles** section of the `ronin-mode` skill end to end, and the leaf `principle-*` skills it indexes. The principles govern every plan decision; cross-link them.
 
 ## 2. Scope and constraints
 
@@ -24,7 +24,7 @@ Resolve what is in scope vs explicitly out, technical or platform constraints, p
 
 Delegate codebase exploration (the **guard-the-context-window** principle skill).
 
-- Prefer a Poteto Agent worker, which reads the pstack-core skill's `personas/poteto-agent.md` and `HOST_CONTRACT.md`, plus `skills/poteto-mode/SKILL.md`, before work. A general worker is the fallback when the host cannot load named personas.
+- Prefer a Poteto Agent worker, which reads the pstack-core skill's `personas/poteto-agent.md` and `HOST_CONTRACT.md`, plus `skills/ronin-mode/SKILL.md`, before work. A general worker is the fallback when the host cannot load named personas.
 - Select the configured stable role explicitly: `fast-code` or `deep-code` for source exploration, and `judgment` for architectural interpretation. If model routing is unavailable, inherit the current model and disclose the substitution when diversity mattered.
 
 Each explorer returns file pointers, conventions, dependencies, test infrastructure, and entry points. No inlined dumps.
@@ -92,12 +92,12 @@ For bug fixes, the loop is reproduce on the surface, fix, verify on the same sur
 
 ## 6. Implementation guidance
 
-In the overview, name which poteto-mode non-negotiables the implementer must apply, by name:
+In the overview, name which ronin-mode non-negotiables the implementer must apply, by name:
 
 - the **how** skill over each unfamiliar subsystem before changing it.
 - the **interrogate** skill for adversarial review on contested designs before shipping.
 - the **deslop** skill over each diff before commit; the **unslop** skill over any prose surface.
-- the **show-me-your-work** skill to keep a decision trail when the plan is large enough to need an auditable record.
+- the **ronin-review** skill to keep a decision trail when the plan is large enough to need an auditable record.
 - the Poteto `playbooks/babysit.md` workflow after opening the PR, using the configured forge-monitoring capability.
 
 ## 7. Hand back

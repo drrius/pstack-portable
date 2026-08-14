@@ -1,9 +1,9 @@
 ---
-name: setup-pstack
-description: Configure pstack's stable model roles. Use for /setup-pstack, "configure pstack models", or changing pstack's model choices.
+name: setup-ronin
+description: Configure pstack's stable model roles. Use for /setup-ronin, "configure pstack models", or changing pstack's model choices.
 ---
 
-# Setup pstack
+# Setup ronin
 
 Configure the mapping from pstack's stable roles to models the user can run. Canonical workflows name roles, never provider-specific model IDs. Agents read `~/.config/pstack/models.yaml` when selecting models. A host adapter may inject or enforce that map when the host supports it. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them.
 
