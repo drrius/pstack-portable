@@ -1,14 +1,14 @@
 # pstack-portable
 
-An unofficial, cross-agent port of [pstack](https://github.com/cursor/plugins/tree/main/pstack), the rigorous engineering workflow created by Lauren Tan.
+A native [Agent Skills](https://agentskills.io/) project for Claude Code and Codex, derived from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the rigorous engineering workflow created by Lauren Tan. Unofficial and unaffiliated.
 
-The repository keeps one canonical [Agent Skills](https://agentskills.io/) tree in `skills/`. Host adapters translate capabilities such as delegation, persistence, model selection, transcript access, and real-surface control without forking the underlying workflows. The original Cursor plugin remains the best native Cursor experience and is not modified by this project.
+The repository keeps one canonical skill tree in `skills/`. Workflows request capabilities — delegation, persistence, model selection, transcript access, real-surface control, the source forge — through `skills/pstack-core/HOST_CONTRACT.md`, and each skill states an honest fallback when the active host lacks one. The original Cursor plugin remains the best native Cursor experience and is not modified by this project.
 
-This port currently tracks pstack 0.14.1. It includes the 44 upstream skills, MIT-imported `deslop` from Cursor Team Kit, and the first-party `pstack-core` foundation skill (46 total), both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
+The corpus derives from pstack 0.14.1 and diverges deliberately where these hosts differ from Cursor; `PORTING.md` is the divergence ledger. Upstream is watched and cherry-picked, not tracked. The tree holds 46 skills (44 derived from upstream, MIT-imported `deslop` from Cursor Team Kit, and the first-party `pstack-core` foundation), both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
 
 ## Status
 
-The local release candidate is discoverable on Agent Skills-compatible hosts, including Codex and other hosts that read `~/.agents/skills`, plus Claude skill and persona aliases. Discovery is not Cursor runtime parity. Skills fall back honestly when a host cannot delegate, persist, select models, read transcripts, or control a real surface. Bun 1.3.14 or newer is the runtime for building, testing, installing, and running the bundled command-line tooling.
+The corpus is discoverable on Agent Skills-compatible hosts: Claude Code, Codex, and other hosts that read skill directories. Skills fall back honestly when a host cannot delegate, persist, select models, read transcripts, or control a real surface. Bun 1.3.14 or newer is the runtime for building, testing, installing, and running the bundled command-line tooling.
 
 ## Install
 
@@ -22,13 +22,13 @@ Or pick agents and skills explicitly. Every pstack skill expects the `pstack-cor
 
 ### Coexisting with native Cursor pstack
 
-Cursor and Codex both read the shared global directory `~/.agents/skills`, and skills there carry the same names as the native Cursor plugin's. On a machine that runs Cursor with native pstack installed, a global shared-directory install produces indistinguishable duplicates in Cursor's skill picker. Keep the port out of Cursor's view instead:
+Cursor and Codex both read the shared global directory `~/.agents/skills`, and skills there carry the same names as the native Cursor plugin's. On a machine that runs Cursor with native pstack installed, a global shared-directory install produces indistinguishable duplicates in Cursor's skill picker. Keep this project out of Cursor's view instead:
 
 ```sh
 npx skills add drrius/pstack-portable --all -g -a claude-code
 ```
 
-Claude Code reads `~/.claude/skills`, which Cursor does not. For Codex, install per project so only the repositories you choose see the port:
+Claude Code reads `~/.claude/skills`, which Cursor does not. For Codex, install per project so only the repositories you choose see it:
 
 ```sh
 cd your-project && npx skills add drrius/pstack-portable --skill '*' -a codex -y
@@ -53,7 +53,7 @@ It places the owned distribution at `~/.agents/pstack-portable`, links all skill
 
 Invoke a skill by name through your host, such as `poteto-mode`, `architect`, `why`, or `show-me-your-work`. Hosts with persona support can spawn `poteto-agent` or `comment-sicko`; other hosts pass the matching file under `skills/pstack-core/personas/` in a delegated worker brief.
 
-The workflows request capabilities through `HOST_CONTRACT.md`. If a host cannot delegate, persist a run, read transcripts, select a model role, or control the real UI, the skill uses its documented fallback and reports the lost capability rather than claiming Cursor runtime parity.
+The workflows request capabilities through `HOST_CONTRACT.md`. If a host cannot delegate, persist a run, read transcripts, select a model role, or control the real UI, the skill uses its documented fallback and reports the lost capability rather than pretending it was exercised.
 
 ## Verify
 
@@ -77,7 +77,7 @@ bun run audit:tools
 - `tests/` holds clean-home and capability-contract fixtures.
 - `UPSTREAM.md` and `upstream.json` record the exact source and intentional exclusions.
 
-See `PORTING.md` for the semantic adaptation map and deliberate differences from the Cursor-native plugin.
+See `PORTING.md` for the divergence ledger: every deliberate difference from Cursor-native pstack and why it exists.
 
 ## Licensing
 

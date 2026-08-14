@@ -99,7 +99,7 @@ Run the full explain flow above (Steps 1-4). You must understand the architectur
 
 ### Step 2. Spawn Critics
 
-After the explanation is complete, launch the configured `independent-review` panel concurrently, defaulting to four non-writing critics. Ask the host adapter for model diversity when available. If model selection is unavailable, inherit the current model and disclose that cross-model diversity was not exercised. If delegation is unavailable, perform independent serial passes and disclose that limitation.
+After the explanation is complete, launch the configured `independent-review` panel concurrently, defaulting to four non-writing critics. Spread critics across the most different models the host offers — different models within one provider's family count as full diversity. Only when the host offers no alternative model at all, inherit the current model and disclose that every critic shared the author's model. If delegation is unavailable, perform independent serial passes and disclose that limitation.
 
 Read `references/critic-prompt.md` for the prompt template. Each critic gets:
 1. The explanation from Step 1 (so they don't re-explore)

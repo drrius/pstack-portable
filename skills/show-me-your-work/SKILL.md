@@ -64,16 +64,16 @@ Fix the log, not the story. If the work diverged from what a row claims, the row
 
 ## Cross-model review of the trail
 
-Before handing back, spawn a subagent through the host's delegation capability, on a different model family from the one that did the work. Self-review is not a substitute; the point is fresh eyes you cannot bring yourself. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
+Before handing back, spawn a subagent through the host's delegation capability, on the most different model the host offers from the one that did the work — a different model in the same provider's family counts in full. Self-review is not a substitute; the point is fresh eyes you cannot bring yourself. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
 
-If model selection is unavailable, spawn the reviewer on the inherited model and disclose that cross-model diversity was not exercised. If delegation is unavailable, run the review as its own separate pass over the trail and disclose that independent review was not exercised. Substituted review is weaker review; report the substitution rather than letting the Attention section imply fresh eyes it never had.
+If the host offers no alternative model, spawn the reviewer on the inherited model and disclose that it shared the author's model. If delegation is unavailable, run the review as its own separate pass over the trail and disclose that independent review was not exercised. Substituted review is weaker review; report the substitution rather than letting the Attention section imply fresh eyes it never had.
 
 - Decisions logged with weak or absent evidence.
 - Verification steps skipped or claimed without proof in the transcript.
 - Choices that look risky in hindsight (premature, scope-creeping, papering over a symptom).
 - Gaps the user would otherwise miss on a casual skim.
 
-Every reply for a run that produced a trail ends with an "Attention" section. Lead with the reviewer's model on its own line (`reviewed by <model>`), carrying the disclosure when the host forced a substitution (`reviewed by <model>, same family as the author` or `reviewed by <model>, self-review; host cannot delegate`), then list each flag pointing to specific rows or moments. "No flags" is a valid value; an unnamed reviewer is not. The self-audit asks if the log told the truth; this asks what the user should still scrutinize even when it did.
+Every reply for a run that produced a trail ends with an "Attention" section. Lead with the reviewer's model on its own line (`reviewed by <model>`), carrying the disclosure when the host forced a substitution (`reviewed by <model>, same model as the author` or `reviewed by <model>, self-review; host cannot delegate`), then list each flag pointing to specific rows or moments. "No flags" is a valid value; an unnamed reviewer is not. The self-audit asks if the log told the truth; this asks what the user should still scrutinize even when it did.
 
 ## Reviewing the trail
 

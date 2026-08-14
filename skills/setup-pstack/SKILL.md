@@ -21,7 +21,7 @@ The roles are:
 
 Inspect the host's model-routing capability, current role mapping, and models available to this user. Treat that response as authoritative. Do not infer model access from documentation, model names seen in prose, or another host's configuration.
 
-If the host cannot enumerate models but accepts a user-configured model identifier, ask the user for the identifiers they want to use and explain that availability can be verified only when a worker is launched. If the host cannot select models at all, explain that every role will inherit the current model and identify model diversity as unavailable. This is a supported capability fallback, not an error.
+If the host cannot enumerate models but accepts a user-configured model identifier, ask the user for the identifiers they want to use and explain that availability can be verified only when a worker is launched. If the host cannot select models at all, explain that every role will inherit the current model and that reviewer diversity is unavailable until the host offers a second model. This is a supported capability fallback, not an error.
 
 ### 2. Load current state
 
@@ -31,7 +31,7 @@ Read `~/.config/pstack/models.yaml` when it exists. This host-neutral user confi
 
 Show every stable role with its current mapping. Mark a concrete identifier as unverified when the host could not enumerate availability. Use the host's user-input mechanism to ask whether to keep the mapping or change specific roles.
 
-For `independent-review`, preserve a configured list when the host supports selecting a model per worker; its length sets the default review-panel size. When the host supports only one model or no explicit selection, keep the workflow's fan-out but inherit the current model and disclose that the panel did not exercise model diversity.
+For `independent-review`, preserve a configured list when the host supports selecting a model per worker; its length sets the default review-panel size. When the host supports only one model or no explicit selection, keep the workflow's fan-out but inherit the current model and disclose that the panel shared one model. Different models within one provider's family count as full diversity; a single-provider host is not a degraded host.
 
 ### 4. Validate and write
 
@@ -52,7 +52,7 @@ independent-review:
 
 ### 5. Confirm
 
-Tell the user which roles inherit the current model, which identifiers remain unverified, and whether the host applies the change immediately or only to new sessions. Never claim model diversity when every role inherited the same model.
+Tell the user which roles inherit the current model, which identifiers remain unverified, and whether the host applies the change immediately or only to new sessions. Never claim reviewer diversity when every role inherited the same model.
 
 ### 6. Offer a verification skill (optional)
 

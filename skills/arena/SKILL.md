@@ -40,7 +40,7 @@ If a candidate fails to produce output, proceed with N-1 and note the dropout in
 
 ## Phase C: Cross-judge
 
-After all Phase B candidates complete, launch one non-writing judge using the configured `independent-review` role. Ask the host adapter for a model family different from the parent when selection is available. If it is not, inherit the current model and record that model diversity was not exercised. The judge sees the rubric and candidates by path label, scores each criterion, and recommends a base with rationale. It runs concurrently with the parent's reading in Phase D, never while candidates are still writing. If delegation is unavailable, perform a separate serial judging pass and disclose the substitution.
+After all Phase B candidates complete, launch one non-writing judge using the configured `independent-review` role. Run the judge on the most different model the host offers from the candidates' — on a single-provider host that is a different model in the family, and it counts as full diversity. Only when the host offers no alternative model at all, inherit the current model and record that the judge shared the candidates' model. The judge sees the rubric and candidates by path label, scores each criterion, and recommends a base with rationale. It runs concurrently with the parent's reading in Phase D, never while candidates are still writing. If delegation is unavailable, perform a separate serial judging pass and disclose the substitution.
 
 ## Phase D: Pick a base
 
