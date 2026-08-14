@@ -51,10 +51,10 @@ The two compose naturally. `do ronin-why first, then ronin-how` works when histo
 When another agent (or you, last week) left a branch mid-flight:
 
 ```text
-/ronin-mode take over this branch. read the decision log, figure out what's done, and continue from there. don't redo finished work.
+/ronin take over this branch. read the decision log, figure out what's done, and continue from there. don't redo finished work.
 ```
 
-The [Session pickup playbook](../../skills/ronin-mode/playbooks/session-pickup.md) treats the prior trail as authoritative. It reconstructs the branch state and decisions, names the resume point, and verifies inherited claims against the original goal instead of re-deriving everything from scratch.
+The [Session pickup playbook](../../skills/ronin/playbooks/session-pickup.md) treats the prior trail as authoritative. It reconstructs the branch state and decisions, names the resume point, and verifies inherited claims against the original goal instead of re-deriving everything from scratch.
 
 **Pitfall:** an agent that starts editing without tracing behavior tends to fix the first plausible symptom. `/ronin-how` is cheaper than the second bug.
 

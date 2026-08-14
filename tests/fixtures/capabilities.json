@@ -9,7 +9,7 @@
     {
       "name": "persistence",
       "contractNeedle": "Persistence",
-      "fallbackFile": "skills/ronin-mode/playbooks/autonomous-run.md",
+      "fallbackFile": "skills/ronin/playbooks/autonomous-run.md",
       "fallbackNeedle": "resume packet"
     },
     {
@@ -21,13 +21,13 @@
     {
       "name": "real-surface control",
       "contractNeedle": "Real-surface control",
-      "fallbackFile": "skills/ronin-mode/SKILL.md",
+      "fallbackFile": "skills/ronin/SKILL.md",
       "fallbackNeedle": "manual-handoff"
     },
     {
       "name": "source forge",
       "contractNeedle": "Source forge",
-      "fallbackFile": "skills/ronin-mode/playbooks/babysit.md",
+      "fallbackFile": "skills/ronin/playbooks/babysit.md",
       "fallbackNeedle": "capability gap"
     }
   ]

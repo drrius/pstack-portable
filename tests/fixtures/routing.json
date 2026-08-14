@@ -1,19 +1,19 @@
 {
   "edges": [
     {
-      "from": "skills/ronin-mode/SKILL.md",
-      "to": "skills/ronin-mode/playbooks/feature.md",
+      "from": "skills/ronin/SKILL.md",
+      "to": "skills/ronin/playbooks/feature.md",
       "needles": ["playbooks/feature.md"]
     },
     {
-      "from": "skills/ronin-mode/playbooks/feature.md",
+      "from": "skills/ronin/playbooks/feature.md",
       "to": "skills/ronin-architect/SKILL.md",
       "needles": ["ronin-architect"]
     },
     {
       "from": "skills/ronin-core/personas/poteto-agent.md",
-      "to": "skills/ronin-mode/SKILL.md",
-      "needles": ["ronin-mode"]
+      "to": "skills/ronin/SKILL.md",
+      "needles": ["/ronin"]
     }
   ]
 }

@@ -13,7 +13,7 @@ const commanderPackagePath = join(
 );
 const installKeyPath = join(
   nodeModulesDirectory,
-  ".ronin-mode-tools-install-key"
+  ".ronin-tools-install-key"
 );
 
 function assertSupportedBun(): void {

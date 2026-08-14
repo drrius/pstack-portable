@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext",
-    "typeRoots": ["./skills/ronin-mode/scripts/node_modules/@types"],
+    "typeRoots": ["./skills/ronin/scripts/node_modules/@types"],
     "types": ["bun"]
   },
   "include": ["tests/**/*.ts"]

@@ -39,7 +39,7 @@ The qualifiers do real work. "don't change anything yet" keeps it read-only, and
 ## Fix a bug through a failing test
 
 ```text
-/ronin-mode repro the duplicate write first. if there's a cheap test path, /ronin-tdd it. then fix and rerun.
+/ronin repro the duplicate write first. if there's a cheap test path, /ronin-tdd it. then fix and rerun.
 ```
 
 "if there's a cheap test path" matters. Forcing a test through brittle mocks proves less than running the real command, and the playbook is allowed to say so.
@@ -87,7 +87,7 @@ That's the whole prompt. [`/ronin-bro`](../../skills/ronin-bro/SKILL.md) restate
 - **Accepting every review comment.** Bots and humans both file real catches and noise in one list. `/ronin-interrogate` sorts findings into act-on and dismissed buckets with reasons.
 - **Treating worker count as proof.** Task lenses create coverage. Fresh contexts create review separation. Reproducible evidence creates confidence.
 - **Reporting success off a green build.** A build proves it compiles. Ask for the real command, flow, stored value, or profile, and expect the evidence in the reply.
-- **Writing a `SKILL.md` freehand.** Route it through the [Authoring or modifying a skill playbook](../../skills/ronin-mode/playbooks/authoring-a-skill.md) so validation and review happen.
+- **Writing a `SKILL.md` freehand.** Route it through the [Authoring or modifying a skill playbook](../../skills/ronin/playbooks/authoring-a-skill.md) so validation and review happen.
 
 That's the guide. If you skipped ahead, go back to [setup](./01-setup.md) and run one real task. The habits stick from use, not from reading.
 

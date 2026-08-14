@@ -10,7 +10,7 @@ This is an unofficial port. Lauren and Cursor did not endorse it.
 
 ronin keeps all 21 pstack principles and 22 working skills. It drops three surfaces that do not earn their weight here: `arena`, `automate-me`, and `setup-pstack`.
 
-Every command starts with `ronin-`. Cursor can load ronin beside pstack without duplicate command names in the picker.
+The front door is `/ronin`. Every other command starts with `ronin-`. Cursor can load ronin beside pstack without duplicate command names in the picker.
 
 ## Install
 
@@ -44,10 +44,10 @@ Without subagents, ronin runs the same work in the coordinator and reports the l
 Give ronin a goal and a check.
 
 ```text
-/ronin-mode the export writes duplicate rows when a retry lands mid-run. repro first, then fix and verify.
+/ronin the export writes duplicate rows when a retry lands mid-run. repro first, then fix and verify.
 ```
 
-`/ronin-mode` picks the playbook and calls the right skills. The [guide](./docs/guide/README.md) teaches the habit.
+`/ronin` picks the playbook and calls the right skills. The [guide](./docs/guide/README.md) teaches the habit.
 
 <details>
 <summary>The public skills</summary>
@@ -62,7 +62,7 @@ Give ronin a goal and a check.
 | `/ronin-bro` `/ronin-technical-writing` `/ronin-typescript-best-practices` | Write plainly and keep TypeScript sharp |
 | `/ronin-create-verification-skill` `/ronin-maintain-verification-skill` | Build and maintain real-surface proof |
 
-Twenty-one hidden `ronin-principle-*` skills sit behind these. `/ronin-mode` names the principles it applies.
+Twenty-one hidden `ronin-principle-*` skills sit behind these. `/ronin` names the principles it applies.
 
 </details>
 

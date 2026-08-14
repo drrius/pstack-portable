@@ -20,7 +20,7 @@ The optional automation pack, Cursor plugin metadata, cache markers, vendored de
 
 ## Names stay distinct
 
-Every retained skill is namespaced `ronin-*`. The foundation, router, and review skills already had distinct names. The other 40 were renamed.
+Every retained skill uses the ronin namespace. The front door is `/ronin`. Every other public command starts with `ronin-`.
 
 Cursor can now show Lauren's pstack and ronin in the same picker without ambiguous commands. Cursor users should still prefer pstack. It is native there.
 

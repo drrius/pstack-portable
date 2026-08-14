@@ -19,10 +19,10 @@ One odd session is an anecdote. Keep a proposal only when it names a repeated fa
 When the workflow is real enough to reuse, name the behavior:
 
 ```text
-/ronin-mode write a skill for verifying database migrations in this repo
+/ronin write a skill for verifying database migrations in this repo
 ```
 
-The [Authoring or modifying a skill playbook](../../skills/ronin-mode/playbooks/authoring-a-skill.md) uses the host's skill-authoring capability when one exists. Otherwise it writes and validates the Agent Skill directly. It checks frontmatter, links, commands, and one real invocation before opening a PR.
+The [Authoring or modifying a skill playbook](../../skills/ronin/playbooks/authoring-a-skill.md) uses the host's skill-authoring capability when one exists. Otherwise it writes and validates the Agent Skill directly. It checks frontmatter, links, commands, and one real invocation before opening a PR.
 
 Agent-facing prose has a higher bar than human prose. A loose sentence becomes an instruction some future agent follows.
 
@@ -45,10 +45,10 @@ Use `/ronin-unslop` for a final subtraction pass:
 ## Test a skill change blind
 
 ```text
-/ronin-mode run the eval playbook on this skill change. same task for both variants. keep the candidates blind.
+/ronin run the eval playbook on this skill change. same task for both variants. keep the candidates blind.
 ```
 
-The [Eval playbook](../../skills/ronin-mode/playbooks/eval.md) hides the experiment from candidate workers. They receive an ordinary task in sanitized directories. One judge scores neutral outputs. Chain-following is measured from the files each candidate read, not from its claims.
+The [Eval playbook](../../skills/ronin/playbooks/eval.md) hides the experiment from candidate workers. They receive an ordinary task in sanitized directories. One judge scores neutral outputs. Chain-following is measured from the files each candidate read, not from its claims.
 
 Read every output before accepting the verdict. If the verdict feels wrong, inspect the rubric first.
 

@@ -7,30 +7,30 @@ The build playbooks share one discipline. Say what you observed, let the playboo
 A bug prompt states the symptom and asks for a reproduction first:
 
 ```text
-/ronin-mode this command emits two records after a retry. repro first, then fix and verify.
+/ronin this command emits two records after a retry. repro first, then fix and verify.
 ```
 
 A feature prompt states the behavior and what must not change:
 
 ```text
-/ronin-mode add a --json flag. text output stays byte-identical. verify both forms.
+/ronin add a --json flag. text output stays byte-identical. verify both forms.
 ```
 
 A refactoring prompt pins behavior before structure moves:
 
 ```text
-/ronin-mode move parsing into one module, zero behavior change. record the current output first and prove it's unchanged after.
+/ronin move parsing into one module, zero behavior change. record the current output first and prove it's unchanged after.
 ```
 
 A perf prompt states the measurement, not a vibe:
 
 ```text
-/ronin-mode startup takes 1.8s on this fixture. trace it, fix the measured cause, show me before and after.
+/ronin startup takes 1.8s on this fixture. trace it, fix the measured cause, show me before and after.
 ```
 
-Each of these routes to its playbook ([Bug fix](../../skills/ronin-mode/playbooks/bug-fix.md), [Feature](../../skills/ronin-mode/playbooks/feature.md), [Refactoring](../../skills/ronin-mode/playbooks/refactoring.md), [Perf issue](../../skills/ronin-mode/playbooks/perf-issue.md)), and the playbook supplies the steps you didn't type: reproduce before fixing, name the data shape before implementing, pin behavior before restructuring, profile before optimizing.
+Each of these routes to its playbook ([Bug fix](../../skills/ronin/playbooks/bug-fix.md), [Feature](../../skills/ronin/playbooks/feature.md), [Refactoring](../../skills/ronin/playbooks/refactoring.md), [Perf issue](../../skills/ronin/playbooks/perf-issue.md)), and the playbook supplies the steps you didn't type: reproduce before fixing, name the data shape before implementing, pin behavior before restructuring, profile before optimizing.
 
-For sustained improvement of one number, there's the [Hillclimb playbook](../../skills/ronin-mode/playbooks/hillclimb.md). Give it the metric, a target, and a floor on attempts, and it loops one hypothesis at a time with a frozen measurement harness. It keeps wins and reverts everything else.
+For sustained improvement of one number, there's the [Hillclimb playbook](../../skills/ronin/playbooks/hillclimb.md). Give it the metric, a target, and a floor on attempts, and it loops one hypothesis at a time with a frozen measurement harness. It keeps wins and reverts everything else.
 
 ## Write the failing test first with `/ronin-tdd`
 
@@ -48,7 +48,7 @@ In context, that's enough. [`/ronin-tdd`](../../skills/ronin-tdd/SKILL.md) write
 
 ## Clean before you commit
 
-The [Opening a PR playbook](../../skills/ronin-mode/playbooks/opening-a-pr.md) applies [`ronin-deslop`](../../skills/ronin-deslop/SKILL.md) before each commit and [`/ronin-unslop`](../../skills/ronin-unslop/SKILL.md) to the PR description and commit bodies.
+The [Opening a PR playbook](../../skills/ronin/playbooks/opening-a-pr.md) applies [`ronin-deslop`](../../skills/ronin-deslop/SKILL.md) before each commit and [`/ronin-unslop`](../../skills/ronin-unslop/SKILL.md) to the PR description and commit bodies.
 
 For the code diff, `/ronin-deslop` walks the change against `main`:
 

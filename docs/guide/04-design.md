@@ -63,6 +63,6 @@ The lead sorts findings into `Act on`, `Consider`, `Noted`, and `Dismissed`. Evi
 - A package matrix or set of independent checks needs `/ronin-swarm`.
 - An expensive design gets `/ronin-architect`, then `/ronin-interrogate` before shipping.
 
-`/ronin-mode` already applies this ladder. Invoke a skill directly when you want to override the default amount of scrutiny.
+`/ronin` already applies this ladder. Invoke a skill directly when you want to override the default amount of scrutiny.
 
 Next: [Build and clean the change](./05-build-and-clean.md).

@@ -122,7 +122,7 @@ function validateSource(root) {
     check(metadata, `Invalid persona frontmatter: skills/ronin-core/personas/${name}.md`);
     if (metadata) check(metadata.name === name, `Persona name must match filename: ${name} != ${metadata.name}`);
   }
-  check(filesUnder(join(root, 'skills/ronin-mode/playbooks')).filter((path) => path.endsWith('.md')).length === 23, 'Expected 23 playbooks');
+  check(filesUnder(join(root, 'skills/ronin/playbooks')).filter((path) => path.endsWith('.md')).length === 23, 'Expected 23 ronin playbooks');
   check(filesUnder(join(root, 'skills'), sourceOptions).filter((path) => path.includes('/references/')).length === 34, 'Expected 34 skill reference files');
   check(filesUnder(join(root, 'docs/guide')).length === 17, 'Expected 17 guide files');
   for (const path of filesUnder(root, { excludeDirectories: ['.git', '.codex', 'dist', 'node_modules'] }).filter((path) => path.endsWith('.md'))) validateLinks(path, root);
@@ -167,13 +167,13 @@ function validateSource(root) {
   const rootPackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
   check(rootPackage.packageManager === 'bun@1.3.14', 'Root package manager is not pinned to Bun 1.3.14');
   check(Object.values(rootPackage.scripts).every((script) => !/\b(?:node|npm|npx|tsx|vitest)\b/.test(script)), 'Root package scripts still invoke the Node/npm toolchain');
-  check(rootPackage.scripts['typecheck:tests'] === 'bun skills/ronin-mode/scripts/node_modules/typescript/bin/tsc --project tsconfig.tests.json', 'Repository-test typecheck does not use the pinned nested TypeScript compiler');
+  check(rootPackage.scripts['typecheck:tests'] === 'bun skills/ronin/scripts/node_modules/typescript/bin/tsc --project tsconfig.tests.json', 'Repository-test typecheck does not use ronin\'s pinned TypeScript compiler');
   check(rootPackage.scripts.check.includes('bun run typecheck:tests'), 'Complete check omits the repository-test typecheck');
   const testsTypeScript = JSON.parse(readFileSync(join(root, 'tsconfig.tests.json'), 'utf8'));
   check(testsTypeScript.compilerOptions?.strict === true && testsTypeScript.compilerOptions?.noEmit === true, 'Repository-test typecheck is not strict and no-emit');
-  check(testsTypeScript.compilerOptions?.typeRoots?.includes('./skills/ronin-mode/scripts/node_modules/@types'), 'Repository-test typecheck does not use the pinned nested type definitions');
+  check(testsTypeScript.compilerOptions?.typeRoots?.includes('./skills/ronin/scripts/node_modules/@types'), 'Repository-test typecheck does not use ronin\'s pinned type definitions');
   check(testsTypeScript.include?.includes('tests/**/*.ts'), 'Repository-test typecheck does not include the complete tests tree');
-  const toolsRoot = join(root, 'skills/ronin-mode/scripts');
+  const toolsRoot = join(root, 'skills/ronin/scripts');
   const toolsPackage = JSON.parse(readFileSync(join(toolsRoot, 'package.json'), 'utf8'));
   const toolDependencies = { ...toolsPackage.dependencies, ...toolsPackage.devDependencies };
   check(toolsPackage.packageManager === 'bun@1.3.14', 'Tool package manager is not pinned to Bun 1.3.14');
@@ -225,7 +225,7 @@ function validateSource(root) {
     for (const needle of doc.needles) check(text.includes(needle), `Review-separation documentation in ${doc.file} lacks ${JSON.stringify(needle)}`);
   }
   validateNamedSkillReferences(root, skillDirectories);
-  check(readFileSync(join(root, 'skills/ronin-core/personas/poteto-agent.md'), 'utf8').includes('ronin-mode'), 'Poteto Agent persona cannot route to Ronin Mode');
+  check(readFileSync(join(root, 'skills/ronin-core/personas/poteto-agent.md'), 'utf8').includes('/ronin'), 'Poteto Agent persona cannot route to /ronin');
 }
 
 function validateNamedSkillReferences(root, skillDirectories) {

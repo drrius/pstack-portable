@@ -17,7 +17,7 @@ cd your-project
 npx skills add drrius/ronin --skill '*' -a codex -y
 ```
 
-Confirm that your host can discover `ronin-mode`. Every other skill expects `ronin-core` beside it, so partial installs must include both.
+Confirm that your host can discover `ronin`. Every other skill expects `ronin-core` beside it, so partial installs must include both.
 
 Every command carries the `ronin-` prefix. Cursor can load ronin beside pstack without ambiguous picker entries. Use Lauren's pstack when you are working in Cursor.
 
@@ -40,11 +40,11 @@ Without subagents, ronin runs the lane in the coordinator. It reports when concu
 Pick something small. Give it a finish condition.
 
 ```text
-/ronin-mode add a --json flag to this command. text output stays byte-identical. verify both.
+/ronin add a --json flag to this command. text output stays byte-identical. verify both.
 ```
 
 Watch the todo list. The first item reads the principles. The rest come from the matched playbook. A skipped step stays visible with `skip: <reason>`.
 
-Use normal follow-ups after that. Invoke `/ronin-mode` again when you start a new task. The mode does not stay on by itself.
+Use normal follow-ups after that. Invoke `/ronin` again when you start a new task. The mode does not stay on by itself.
 
-Next: [Route work through `/ronin-mode`](./02-ronin-mode.md).
+Next: [Route work through `/ronin`](./02-ronin.md).
