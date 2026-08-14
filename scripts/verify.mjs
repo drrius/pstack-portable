@@ -65,7 +65,7 @@ function validateSource(root) {
   }
   check(filesUnder(join(root, 'skills/ronin-mode/playbooks')).filter((path) => path.endsWith('.md')).length === 23, 'Expected 23 playbooks');
   check(filesUnder(join(root, 'skills'), sourceOptions).filter((path) => path.includes('/references/')).length === 34, 'Expected 34 skill reference files');
-  check(filesUnder(join(root, 'docs')).length === 17, 'Expected 17 guide files');
+  check(filesUnder(join(root, 'docs/guide')).length === 17, 'Expected 17 guide files');
   for (const path of filesUnder(root, { excludeDirectories: ['.git', '.codex', 'dist', 'node_modules'] }).filter((path) => path.endsWith('.md'))) validateLinks(path, root);
 
   const trackedResult = spawnSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: root, encoding: 'buffer' });

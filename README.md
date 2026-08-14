@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/ronin.png" alt="ronin" width="640">
+</p>
+
 # ronin
 
 pstack is Lauren Tan's engineering workflow. ronin is that workflow rebuilt to run in Claude Code and Codex. If you work in Cursor, install [her plugin](https://github.com/cursor/plugins/tree/main/pstack) instead. It's better there.
