@@ -12,7 +12,7 @@ A worker request defines an objective, ownership boundary, permissions, isolatio
 
 Run independent lanes concurrently when the host supports it. Otherwise run them serially in fresh worker contexts. If no separate worker context is available, execute in the coordinator and disclose that fresh-context review was not exercised. Lost concurrency and lost review separation are different limitations. Report them separately.
 
-Named ronin workers are prompt files, not host registrations. A Poteto Agent worker reads the ronin-core skill's `personas/poteto-agent.md`, this contract, and `skills/ronin/SKILL.md` before work. A Comment Sicko worker reads the ronin-core skill's `personas/comment-sicko.md`, this contract, and `skills/ronin-no-comments/SKILL.md` before review.
+Named ronin workers are prompt files, not host registrations. A ronin agent reads the ronin-core skill's `personas/ronin-agent.md`, this contract, and `skills/ronin/SKILL.md` before work. A Comment Sicko worker reads the ronin-core skill's `personas/comment-sicko.md`, this contract, and `skills/ronin-no-comments/SKILL.md` before review.
 
 ## Task profiles
 

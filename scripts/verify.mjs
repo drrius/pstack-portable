@@ -114,6 +114,7 @@ function validateSource(root) {
     check(metadata.name === name, `Skill name must match directory: ${name} != ${metadata.name}`);
     check(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.name) && metadata.name.length <= 64, `Invalid Agent Skills name: ${metadata.name}`);
     check(Boolean(metadata.description) && metadata.description.length <= 1024, `Invalid description: ${name}`);
+    check(!/poteto|potato/i.test(`${metadata.name} ${metadata.description}`), `Legacy Poteto branding remains in skill metadata: ${name}`);
   }
   check(filesUnder(join(root, 'skills/ronin-core/personas')).filter((path) => path.endsWith('.md')).length === 2, 'Expected two personas');
   for (const path of filesUnder(join(root, 'skills/ronin-core/personas')).filter((path) => path.endsWith('.md'))) {
@@ -225,7 +226,7 @@ function validateSource(root) {
     for (const needle of doc.needles) check(text.includes(needle), `Review-separation documentation in ${doc.file} lacks ${JSON.stringify(needle)}`);
   }
   validateNamedSkillReferences(root, skillDirectories);
-  check(readFileSync(join(root, 'skills/ronin-core/personas/poteto-agent.md'), 'utf8').includes('/ronin'), 'Poteto Agent persona cannot route to /ronin');
+  check(readFileSync(join(root, 'skills/ronin-core/personas/ronin-agent.md'), 'utf8').includes('/ronin'), 'ronin agent persona cannot route to /ronin');
 }
 
 function validateNamedSkillReferences(root, skillDirectories) {

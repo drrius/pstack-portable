@@ -1,11 +1,11 @@
 {
-  "objective": "Review a bounded change using the Poteto Agent persona",
+  "objective": "Review a bounded change using the ronin agent persona",
   "ownershipBoundary": "Read-only review; do not edit application files",
   "permissions": "read-only",
   "isolation": "host-managed",
   "verifier": "Return file-scoped findings with evidence",
   "stopCondition": "Stop after the scoped diff and verifier are inspected",
   "returnedEvidence": "Verdict, findings, inspected paths, and checks run",
-  "persona": "skills/ronin-core/personas/poteto-agent.md",
+  "persona": "skills/ronin-core/personas/ronin-agent.md",
   "requiredSkill": "skills/ronin/SKILL.md"
 }
