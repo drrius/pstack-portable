@@ -18,7 +18,23 @@ Install with the [skills CLI](https://github.com/vercel-labs/skills) into any su
 npx skills add drrius/pstack-portable --all
 ```
 
-Or pick agents and skills explicitly, for example `npx skills add drrius/pstack-portable -g --agent claude-code,codex --skill '*'`. Every pstack skill expects the `pstack-core` skill beside it — it carries the host contract and personas — so partial installs must include it. Skills report it as a missing prerequisite if it is absent. Remove with `npx skills remove`.
+Or pick agents and skills explicitly. Every pstack skill expects the `pstack-core` skill beside it — it carries the host contract and personas — so partial installs must include it. Skills report it as a missing prerequisite if it is absent. Remove with `npx skills remove`.
+
+### Coexisting with native Cursor pstack
+
+Cursor and Codex both read the shared global directory `~/.agents/skills`, and skills there carry the same names as the native Cursor plugin's. On a machine that runs Cursor with native pstack installed, a global shared-directory install produces indistinguishable duplicates in Cursor's skill picker. Keep the port out of Cursor's view instead:
+
+```sh
+npx skills add drrius/pstack-portable --all -g -a claude-code
+```
+
+Claude Code reads `~/.claude/skills`, which Cursor does not. For Codex, install per project so only the repositories you choose see the port:
+
+```sh
+cd your-project && npx skills add drrius/pstack-portable --skill '*' -a codex -y
+```
+
+That lands in the project's `.agents/skills`; note Cursor also reads project `.agents/skills`, so a repo you open in both hosts will show both copies there. The native Cursor plugin remains the intended experience inside Cursor.
 
 ### Maintainer install
 
