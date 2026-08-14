@@ -5,7 +5,7 @@ description: "Use for 'why does X work this way', 'why we picked Y', design rati
 
 # Why
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. Use its delegation, model-role, connector, and safety rules for every investigator and synthesizer. If it is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From any installed skill directory's realpath, the contract is at `../../HOST_CONTRACT.md` (two levels up from `skills/<name>`). Use its delegation, model-role, connector, and safety rules for every investigator and synthesizer. If it is unavailable, stop and report an incomplete pstack installation.
 
 Investigate the motivation and intent behind code. Why was it built this way? What edge cases were considered? What product, business, or operational constraints shaped the design? What alternatives were rejected, and why?
 

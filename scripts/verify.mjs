@@ -46,7 +46,7 @@ function validateSource(root) {
     .filter((entry) => entry.path.endsWith('/SKILL.md') && !entry.path.slice(0, -9).includes('/'))
     .map((entry) => entry.path.split('/')[0])
     .sort();
-  check(skillDirectories.length === 44, `Expected 44 skills, found ${skillDirectories.length}`);
+  check(skillDirectories.length === 45, `Expected 45 skills, found ${skillDirectories.length}`);
   for (const name of skillDirectories) {
     const path = join(root, 'skills', name, 'SKILL.md');
     const metadata = frontmatter(readFileSync(path, 'utf8'));
@@ -130,7 +130,27 @@ function validateSource(root) {
     check(existsSync(source), `Capability fallback file is missing: ${capability.fallbackFile}`);
     if (existsSync(source)) check(readFileSync(source, 'utf8').includes(capability.fallbackNeedle), `Capability fallback is not explicit for ${capability.name}`);
   }
+  validateNamedSkillReferences(root, skillDirectories);
   check(readFileSync(join(root, 'personas/poteto-agent.md'), 'utf8').includes('poteto-mode'), 'Poteto Agent persona cannot route to Poteto Mode');
+}
+
+function validateNamedSkillReferences(root, skillDirectories) {
+  const skillSet = new Set(skillDirectories);
+  const nonSkillSlashTokens = new Set(['tmp']);
+  const files = [
+    ...filesUnder(join(root, 'skills'), { excludeDirectories: ['node_modules'] }).filter((path) => path.endsWith('.md')),
+    ...filesUnder(join(root, 'personas')).filter((path) => path.endsWith('.md'))
+  ];
+  for (const path of files) {
+    const text = readFileSync(path, 'utf8');
+    for (const match of text.matchAll(/(?<![A-Za-z0-9_./:<>])\/([a-z0-9]+(?:-[a-z0-9]+)*)\b/g)) {
+      const name = match[1];
+      const after = text.slice(match.index + match[0].length, match.index + match[0].length + 1);
+      if (after === '/' || after === '.' || after === '-') continue;
+      if (skillSet.has(name) || nonSkillSlashTokens.has(name)) continue;
+      check(false, `Unresolved skill invocation /${name} in ${relative(root, path)}`);
+    }
+  }
 }
 
 function validateInstallation(home) {
@@ -168,6 +188,16 @@ function validateInstallation(home) {
   check(existsSync(installedRouter) && readFileSync(installedRouter, 'utf8').includes('playbooks/feature.md'), 'Installed Poteto Mode router cannot resolve the Feature playbook');
   check(existsSync(installedPlaybook) && readFileSync(installedPlaybook, 'utf8').includes('architect'), 'Installed Feature playbook cannot resolve architect');
   check(existsSync(installedSibling) && readFileSync(installedSibling, 'utf8').includes('HOST_CONTRACT.md'), 'Installed architect skill cannot resolve the host contract');
+  const architectDir = realpathSync(dirname(installedSibling));
+  const contractFromSkill = resolve(architectDir, '../../HOST_CONTRACT.md');
+  check(existsSync(contractFromSkill), 'HOST_CONTRACT.md is not reachable as ../../HOST_CONTRACT.md from installed skills/architect');
+  if (existsSync(contractFromSkill)) {
+    try {
+      readFileSync(contractFromSkill, 'utf8');
+    } catch {
+      check(false, 'HOST_CONTRACT.md at the skill locator path is unreadable');
+    }
+  }
   check(existsSync(installedPersona) && readFileSync(installedPersona, 'utf8').includes('poteto-mode'), 'Installed Poteto Agent cannot resolve Poteto Mode');
 }
 

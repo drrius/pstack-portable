@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # No comments
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. Use its delegation, persona, and safety rules. If it is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From any installed skill directory's realpath, the contract is at `../../HOST_CONTRACT.md` (two levels up from `skills/<name>`). Use its delegation, persona, and safety rules. If it is unavailable, stop and report an incomplete pstack installation.
 
 Spawn Comment Sicko. Act on accepted findings.
 

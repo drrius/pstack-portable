@@ -27,8 +27,8 @@
     {
       "name": "real-surface control",
       "contractNeedle": "Real-surface control",
-      "fallbackFile": "skills/show-me-your-work/SKILL.md",
-      "fallbackNeedle": "unavailable"
+      "fallbackFile": "skills/poteto-mode/SKILL.md",
+      "fallbackNeedle": "manual-handoff"
     }
   ]
 }

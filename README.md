@@ -4,11 +4,11 @@ An unofficial, cross-agent port of [pstack](https://github.com/cursor/plugins/tr
 
 The repository keeps one canonical [Agent Skills](https://agentskills.io/) tree in `skills/`. Host adapters translate capabilities such as delegation, persistence, model selection, transcript access, and real-surface control without forking the underlying workflows. The original Cursor plugin remains the best native Cursor experience and is not modified by this project.
 
-This port currently tracks pstack 0.14.1. It includes all 44 upstream skills, both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
+This port currently tracks pstack 0.14.1. It includes the 44 upstream skills plus the portable `deslop` skill (45 total), both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
 
 ## Status
 
-The local release candidate supports Agent Skills-compatible hosts, Codex, and Claude. Bun 1.3.14 or newer is the runtime for building, testing, installing, and running the bundled command-line tooling.
+The local release candidate is discoverable on Agent Skills-compatible hosts, including Codex and other hosts that read `~/.agents/skills`, plus Claude skill and persona aliases. Discovery is not Cursor runtime parity. Skills fall back honestly when a host cannot delegate, persist, select models, read transcripts, or control a real surface. Bun 1.3.14 or newer is the runtime for building, testing, installing, and running the bundled command-line tooling.
 
 ## Install
 
@@ -36,7 +36,7 @@ Pass `--home /explicit/home` to the install, uninstall, or installed-verificatio
 
 Invoke a skill by name through your host, such as `poteto-mode`, `architect`, `why`, or `show-me-your-work`. Hosts with persona support can spawn `poteto-agent` or `comment-sicko`; other hosts pass the matching file under `personas/` in a delegated worker brief.
 
-The workflows request capabilities through `HOST_CONTRACT.md`. If a host cannot delegate, persist a run, read transcripts, select a model role, or control the real UI, the skill uses its documented fallback and reports the lost capability rather than pretending parity.
+The workflows request capabilities through `HOST_CONTRACT.md`. If a host cannot delegate, persist a run, read transcripts, select a model role, or control the real UI, the skill uses its documented fallback and reports the lost capability rather than claiming Cursor runtime parity.
 
 ## Verify
 

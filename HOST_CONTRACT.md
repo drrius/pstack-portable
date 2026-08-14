@@ -14,7 +14,7 @@ Named pstack workers are portable personas. A Poteto Agent worker reads `persona
 
 ## Model roles
 
-Canonical workflows select stable roles such as `fast-code`, `deep-code`, `judgment`, `prose`, and `independent-review`. A host adapter may map roles to models the user has configured. If model selection is unavailable, inherit the current model and disclose the substitution when diversity was part of the verifier.
+Canonical workflows select stable roles such as `fast-code`, `deep-code`, `judgment`, `prose`, and `independent-review`. `~/.config/pstack/models.yaml` is the user-authored role map. Workers and setup read it when choosing models. A host adapter may inject or enforce it when the host supports that. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them. If model selection is unavailable, inherit the current model and disclose the substitution when diversity was part of the verifier.
 
 ## Persistence
 
@@ -31,6 +31,8 @@ Browser, desktop, CLI, and TUI verification use the host's available real-surfac
 ## Skills and paths
 
 The canonical global skill root is `~/.agents/skills`; project-local skills use `.agents/skills`. Host adapters may expose aliases such as `~/.claude/skills` without duplicating source. Every installed path is owned by an installation manifest so collisions fail closed and uninstall removes only owned artifacts.
+
+From any installed skill directory's realpath, this contract is at `../../HOST_CONTRACT.md` (two levels up from `skills/<name>` to the pstack installation root). The installed root has the shape `~/.agents/pstack-portable/HOST_CONTRACT.md`.
 
 ## Safety
 

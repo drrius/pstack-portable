@@ -96,7 +96,7 @@ In the overview, name which poteto-mode non-negotiables the implementer must app
 
 - the **how** skill over each unfamiliar subsystem before changing it.
 - the **interrogate** skill for adversarial review on contested designs before shipping.
-- the host's diff-cleanup capability over each diff before commit; the **unslop** skill over any prose surface.
+- the **deslop** skill over each diff before commit; the **unslop** skill over any prose surface.
 - the **show-me-your-work** skill to keep a decision trail when the plan is large enough to need an auditable record.
 - the Poteto `playbooks/babysit.md` workflow after opening the PR, using the configured forge-monitoring capability.
 

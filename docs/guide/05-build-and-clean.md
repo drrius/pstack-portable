@@ -48,7 +48,13 @@ In context, that's enough. [`/tdd`](../../skills/tdd/SKILL.md) writes the smalle
 
 ## Clean before you commit
 
-The [Opening a PR playbook](../../skills/poteto-mode/playbooks/opening-a-pr.md) applies the host's diff-cleanup capability before each commit and [`/unslop`](../../skills/unslop/SKILL.md) to the PR description and commit bodies. If no cleanup skill is available, request the outcome directly: remove narrating comments, unsupported guards, dead compatibility paths, and unrelated edits.
+The [Opening a PR playbook](../../skills/poteto-mode/playbooks/opening-a-pr.md) applies the [`deslop`](../../skills/deslop/SKILL.md) skill before each commit and [`/unslop`](../../skills/unslop/SKILL.md) to the PR description and commit bodies. If deslop is unavailable, inspect the diff for narrating comments, unsupported guards, dead compatibility paths, and unrelated edits.
+
+For the code diff, `/deslop` walks the change against `main`:
+
+```text
+/deslop
+```
 
 For prose, `/unslop` takes a target and any extra rules you have:
 

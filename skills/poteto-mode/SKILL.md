@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Host contract
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. It defines delegation, model roles, persistence, transcript access, real-surface control, skill paths, and safety for the active host. The host contract and the host's own permission policy override any workflow shorthand in this skill or its playbooks. If the contract is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From any installed skill directory's realpath, the contract is at `../../HOST_CONTRACT.md` (two levels up from `skills/<name>`). It defines delegation, model roles, persistence, transcript access, real-surface control, skill paths, and safety for the active host. The host contract and the host's own permission policy override any workflow shorthand in this skill or its playbooks. If the contract is unavailable, stop and report an incomplete pstack installation.
 
 ## Non-negotiables
 
@@ -25,7 +25,7 @@ Remaining triggers:
 - Nontrivial multi-step → write the throughput checkpoint (Feature step 3).
 - Any prose surface → the **unslop** skill. Your reply is a prose surface; write it per **Writing the reply**. Agent-facing prose also uses the host's skill-authoring capability when available; otherwise follow the Agent Skills format and validate the result.
 - Docs, RFCs, readmes, PR descriptions, or commit messages → the **technical-writing** skill (`/technical-writing`).
-- Before commit → use the host's available diff-cleanup capability. If none exists, inspect the diff directly for narrating comments, unsupported guards, dead compatibility paths, and unrelated edits.
+- Before commit → use the **deslop** skill. If unavailable, inspect the diff for narrating comments, unsupported guards, dead compatibility paths, and unrelated edits.
 - Before review → the **no-comments** skill (`/no-comments`).
 - Shipping UI / IDE / CLI → use the host's real-surface browser, desktop, CLI, or TUI control capability. For bug fixes, reproduce first on the same surface yourself; hand to the user only under the narrow Bug fix step 1 exception. If the required surface is unavailable, follow the host contract's explicit manual-handoff rule.
 - Any PR-status request → the **Babysit** playbook (`playbooks/babysit.md`). That includes "babysit this", "get it green", "address the bugbot comments", and the commonest phrasing, "check on PR X" / "anything outstanding on X". Never triggered by merely opening a PR. Declare its mode before polling; the playbook's step 1 owns the request-to-mode mapping. Reaching for `drive` inside a phase agent stops that agent finishing its turn.

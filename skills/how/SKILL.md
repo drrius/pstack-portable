@@ -5,7 +5,7 @@ description: "Use for \"how does X work\", code walkthroughs before changing som
 
 # How
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. Use its delegation and model-role mappings for every worker. If it is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From any installed skill directory's realpath, the contract is at `../../HOST_CONTRACT.md` (two levels up from `skills/<name>`). Use its delegation and model-role mappings for every worker. If it is unavailable, stop and report an incomplete pstack installation.
 
 Explore the codebase to answer "how does X work?" questions. Produce clear architectural explanations at the level of a senior engineer onboarding onto a subsystem. Enough to build a working mental model, not annotated source code.
 
