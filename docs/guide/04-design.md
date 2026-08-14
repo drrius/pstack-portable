@@ -1,6 +1,6 @@
 # Design before you write code
 
-One attempt at a hard design locks in the first shape the model thought of. `/architect` settles types and boundaries before implementation. `/arena` runs several attempts at the same brief and merges the best parts. `/interrogate` has other models try to break the result. When the job is coverage rather than design synthesis, `/swarm` fans out slices or races and aggregates their results.
+One attempt at a hard design locks in the first shape the worker thought of. `/architect` settles types and boundaries before implementation. `/arena` pursues several directions toward the same goal and merges the best parts. `/interrogate` gives fresh-context judges distinct ways to try to break the result. When the job is coverage rather than design synthesis, `/swarm` fans out slices or races and aggregates their results.
 
 ![Three robots draft competing bridge models at their own tables under /architect, /arena, and /interrogate panels, while a judge robot with a clipboard inspects skeptically.](./images/design.jpg)
 
@@ -24,11 +24,11 @@ By default it proceeds straight from the synthesized design into implementation.
 /arena take my prompt to the arena verbatim. i want to compare their proposals with yours.
 ```
 
-[`/arena`](../../skills/arena/SKILL.md) is the general tool underneath. N subagents attempt the same design or code brief in parallel, each writing to its own worktree or directory. A read-only judge, on the most different model your host offers, scores every candidate against a rubric. The coordinator reads each candidate end to end, picks a base, grafts in the best ideas from the losers, and verifies the result.
+[`/arena`](../../skills/arena/SKILL.md) is the general tool underneath. N isolated workers receive one shared base contract — goal, context, acceptance criteria, and non-negotiable constraints — plus a distinct candidate direction, using `explore` for designs and `implement` for writable candidates. A controlled evaluation may deliberately keep the complete brief identical. A read-only `judge` scores every candidate against a rubric. The coordinator reads each candidate end to end, picks a base, grafts in the best ideas from the losers, then hands the result to `verify`.
 
 ```mermaid
 flowchart LR
-    A[One task] --> B[Configured panel]
+    A[One task] --> B[Distinct candidate briefs]
     B --> C[Candidate 1]
     B --> D[Candidate 2]
     B --> E[Candidate N]
@@ -40,7 +40,7 @@ flowchart LR
     H --> I[Verify]
 ```
 
-The panel comes from your [`/setup-ronin`](../../skills/setup-ronin/SKILL.md) configuration, and you can adjust it per task. Ask for more candidates when the decision matters, fewer when it doesn't:
+The workflow picks the task profiles. [`/setup-ronin`](../../skills/setup-ronin/SKILL.md) may tune their model or effort, but it does not set panel size. Ask for more candidates when the decision warrants more distinct directions, fewer when it doesn't:
 
 ```text
 /arena this, 5 candidates. the cache key format is expensive to change later.
@@ -54,7 +54,7 @@ The panel comes from your [`/setup-ronin`](../../skills/setup-ronin/SKILL.md) co
 
 [`/swarm`](../../skills/swarm/SKILL.md) fans N workers across independent slices, coverage matrices, gauntlet lanes, exploration partitions, or declared race arms. Each worker gets its own scope and check, then reports `PASS`, `ISSUES`, or `BLOCKED`. The parent waits for the workers and returns one compact report with any gaps or dropouts.
 
-Reach for it when parallelism buys coverage or lets independent checks race. `/arena` gives every worker the same design or code brief, then picks a base and grafts the best parts. `/swarm` covers slices or runs a race with a selection rule declared up front. It does not use the base-selection and grafting ceremony.
+Reach for it when parallelism buys coverage or lets independent checks race. `/arena` gives every worker the shared base contract plus a distinct candidate direction, then picks a base and grafts the best parts. A controlled evaluation may deliberately hold the complete brief identical. `/swarm` covers slices or runs a race with a selection rule declared up front. It does not use the base-selection and grafting ceremony.
 
 ## Break it with `/interrogate`
 
@@ -62,7 +62,7 @@ Reach for it when parallelism buys coverage or lets independent checks race. `/a
 /interrogate the whole branch, but skeptically. no nitpicks unless it's an actual bug or regression.
 ```
 
-[`/interrogate`](../../skills/interrogate/SKILL.md) sends the same diff, intent, and rubric to several reviewers spread across the most different models your host offers — on a single-provider host, different models in that provider's family. Model diversity is the point. Different models have different blind spots, so a finding two models raise independently is high-confidence signal. The lead sorts everything into `Act on`, `Consider`, `Noted`, and `Dismissed`, with a reason for each dismissal, and applies nothing automatically.
+[`/interrogate`](../../skills/interrogate/SKILL.md) sends the same diff, intent, and rubric to several fresh-context `judge` workers with different primary lenses. A model route may be chosen for a demonstrated capability fit, but the panel's breadth comes from the lenses and its confidence comes from reproducible evidence. The lead sorts everything into `Act on`, `Consider`, `Noted`, and `Dismissed`, and records review provenance without treating model identity or head count as proof.
 
 Read the dismissals too. The lead is a pragmatic senior engineer, not an oracle, and you can override it.
 

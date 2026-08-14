@@ -5,7 +5,7 @@ description: "Use for 'why does X work this way', 'why we picked Y', design rati
 
 # Why
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its delegation, model-role, connector, and safety rules for every investigator and synthesizer. If it is unavailable, stop and report that the ronin-core skill is not installed alongside this one.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its delegation, task-profile, connector, and safety rules for every investigator and synthesizer. If it is unavailable, stop and report that the ronin-core skill is not installed alongside this one.
 
 Investigate the motivation and intent behind code. Why was it built this way? What edge cases were considered? What product, business, or operational constraints shaped the design? What alternatives were rejected, and why?
 
@@ -117,7 +117,7 @@ Aim for a complete **coverage map**, not a minimal one. A null result from an is
 
 Launch all matching investigators concurrently through the host's subagent capability. One investigator per category lets each specialize in one tool's query vocabulary and result shape. Don't ask one worker to cover multiple connectors.
 
-Each investigator uses the configured `fast-code` role and receives a non-writing brief with its objective, evidence-source boundary, required connector access, verifier, stop condition, and returned citations. Request the least privilege that preserves read access to the needed connector. If the host couples connector access to broader agent permissions, the non-writing brief still applies and the host's safety policy wins. If delegation is unavailable, execute the category searches serially and disclose that concurrency was not exercised.
+Each investigator uses the `explore` profile and receives a non-writing brief with its objective, evidence-source boundary, required connector access, verifier, stop condition, and returned citations. Request the least privilege that preserves read access to the needed connector. If the host couples connector access to broader agent permissions, the non-writing brief still applies and the host's safety policy wins. If parallel execution is unavailable, use serial fresh-context workers and disclose lost concurrency; if delegation is unavailable, execute the searches in the coordinator and disclose lost review separation.
 
 Each investigator gets:
 1. The base prompt from `references/investigator-prompt.md`
@@ -159,7 +159,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
 
 ## Step 4. Synthesize
 
-Launch one synthesizer using the configured `judgment` role. Give it non-writing access to the cited evidence sources needed for spot checks, plus an objective, verifier, stop condition, and output contract. If delegation is unavailable, synthesize directly and disclose the substitution.
+Launch one synthesizer using the `explain` profile. Give it non-writing access to the cited evidence sources needed for spot checks, plus an objective, verifier, stop condition, and output contract. If delegation is unavailable, synthesize directly and disclose the substitution.
 
 The synthesizer gets:
 1. The investigator findings, including any null results and any categories skipped with justification

@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Host contract
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). It defines delegation, model roles, persistence, transcript access, real-surface control, skill paths, and safety for the active host. The host contract and the host's own permission policy override any workflow shorthand in this skill or its playbooks. If the contract is unavailable, stop and report an incomplete ronin installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). It defines delegation, task profiles, optional model routing, review provenance, persistence, transcript access, real-surface control, skill paths, and safety for the active host. The host contract and the host's own permission policy override any workflow shorthand in this skill or its playbooks. If the contract is unavailable, stop and report an incomplete ronin installation.
 
 ## Non-negotiables
 
@@ -21,7 +21,7 @@ Remaining triggers:
 - Any code → name the data shape first, and choose its organizing structure per **principle-model-the-domain**.
 - Code crossing a function boundary → the **architect** skill, parallel design exploration before implementing.
 - Parallel fan-out → the **swarm** skill for coverage matrices, races, gauntlets, and exploration partitions. Use **arena** for design or code bakeoffs with base selection and grafting.
-- Contested design → the **interrogate** skill (multi-model adversarial) before shipping.
+- Contested design → the **interrogate** skill for fresh-context adversarial review before shipping.
 - Nontrivial multi-step → write the throughput checkpoint (Feature step 3).
 - Any prose surface → the **unslop** skill. Your reply is a prose surface; write it per **Writing the reply**. Agent-facing prose also uses the host's skill-authoring capability when available; otherwise follow the Agent Skills format and validate the result.
 - Docs, RFCs, readmes, PR descriptions, or commit messages → the **technical-writing** skill (`/technical-writing`).
@@ -88,9 +88,9 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 **Use the Poteto Agent persona for playbook delegates** (code-writing delegates and ad-hoc helpers). Every such worker reads `../ronin-core/personas/poteto-agent.md`, `../ronin-core/HOST_CONTRACT.md`, and this skill before work. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) define their own worker contracts for independent review; respect those contracts instead of replacing them with the Poteto Agent persona.
 
-**Define every worker request completely.** Include its objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Prefer file pointers over inlined bulk context. Select stable model roles through the host adapter: `fast-code` for mechanical work, `deep-code` for precisely specified difficult implementation, `judgment` for cross-cutting or ambiguous work, `prose` for communication, and `independent-review` for fresh verification. If model selection or delegation is unavailable, inherit the current model or execute serially and disclose which diversity or concurrency was not exercised.
+**Define every worker request completely.** Include its objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Prefer file pointers over inlined bulk context. Assign one primary task profile from the host contract: `explore`, `implement`, `judge`, `explain`, or `verify`. The profile defines the job. Optional model and reasoning-effort routing only tune how the host runs it. If parallel execution is unavailable, use serial fresh-context workers when possible and disclose lost concurrency only. If no separate worker context exists, execute in the coordinator, disclose that fresh context was not exercised, and report concurrency separately.
 
-You own every subagent's work. Review the diff and write your own summary, don't pass through what it said. Interrupt-chained resumes silently drop directives, so fire a fresh subagent with consolidated scope rather than trusting a "done" summary. A second opinion is the same prompt against a different model. Agreement is high-signal.
+You own every subagent's work. Review the diff and write your own summary, don't pass through what it said. Interrupt-chained resumes silently drop directives, so fire a fresh subagent with consolidated scope rather than trusting a "done" summary. A second opinion needs a fresh context and an explicit `judge` or `verify` brief; another model is optional. Corroboration matters only when the passes cite evidence you can reproduce.
 
 ## Writing the reply
 

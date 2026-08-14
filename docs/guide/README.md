@@ -4,7 +4,7 @@ ronin works best when you stop micromanaging the agent. You describe what you wa
 
 Here's what you'll learn:
 
-1. [Set up ronin](./01-setup.md). Install ronin and pick your models.
+1. [Set up ronin](./01-setup.md). Install ronin and optionally tune task-profile routing.
 2. [Route work through `/ronin-mode`](./02-ronin-mode.md). Give it a goal and watch it pick a playbook.
 3. [Understand the code](./03-understand.md). `/how`, `/why`, `/teach`, and `/recall` before you edit anything.
 4. [Design the change](./04-design.md). `/architect`, `/arena`, `/swarm`, and `/interrogate` before code locks in a shape.

@@ -5,14 +5,14 @@ description: "Use for \"how does X work\", code walkthroughs before changing som
 
 # How
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its delegation and model-role mappings for every worker. If it is unavailable, stop and report that the ronin-core skill is not installed alongside this one.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its delegation, task-profile, and review-provenance rules for every worker. If it is unavailable, stop and report that the ronin-core skill is not installed alongside this one.
 
 Explore the codebase to answer "how does X work?" questions. Produce clear architectural explanations at the level of a senior engineer onboarding onto a subsystem. Enough to build a working mental model, not annotated source code.
 
 Two modes:
 
 1. **Explain** (default). Explore the codebase and produce a clear explanation
-2. **Critique.** Explain first, then spawn multiple models to independently identify architectural issues
+2. **Critique.** Explain first, then launch fresh-context critics with distinct lenses to identify architectural issues
 
 ## Explain Mode
 
@@ -44,7 +44,7 @@ Decompose the question into 2-4 parallel exploration angles, each a distinct sli
 
 The right decomposition depends on the question. Use your judgment. Narrow questions: 2 explorers is fine. Broad subsystems: up to 4.
 
-Launch all explorers concurrently through the host's subagent capability. Each worker uses the configured `fast-code` role and receives a non-writing exploration brief with the objective, file scope, verifier, stop condition, and evidence to return. If delegation is unavailable, execute the angles serially and disclose that concurrency was not exercised.
+Launch all explorers concurrently through the host's subagent capability. Each worker uses the `explore` profile and receives a non-writing brief with the objective, file scope, verifier, stop condition, and evidence to return. If parallel execution is unavailable, use serial fresh-context workers when possible and disclose lost concurrency; if delegation itself is unavailable, execute the angles in the coordinator and disclose lost review separation.
 
 Each explorer gets the same base prompt from `references/explorer-prompt.md` plus a specific exploration angle naming its slice. Each explorer should:
 - Start broad: Glob for relevant directories, Grep for key types/interfaces/class names
@@ -59,7 +59,7 @@ Then proceed to Step 3.
 
 ### Step 2b. Direct Explain (simple questions)
 
-Launch one non-writing worker using the configured `prose` role to explore and explain in one pass. Its brief names the objective, file scope, verifier, stop condition, and evidence to return. If delegation is unavailable, do the pass directly and disclose the substitution.
+Launch one non-writing worker using the `explain` profile to explore and explain in one pass. Its brief names the objective, file scope, verifier, stop condition, and evidence to return. If delegation is unavailable, do the pass directly and disclose the lost fresh context.
 
 The agent does its own exploration (Glob, Grep, Read) and writes the explanation directly. Read `references/explainer-prompt.md` for the communication style and output format. Same structure, just no explorer findings as input.
 
@@ -67,7 +67,7 @@ Proceed to Step 4.
 
 ### Step 3. Synthesize (complex questions only)
 
-Once all explorers return, launch one non-writing synthesizer using the configured `prose` role. Give it the explorer findings, relevant file pointers, the objective, and the required explanation contract. If delegation is unavailable, synthesize directly.
+Once all explorers return, launch one non-writing synthesizer using the `explain` profile. Give it the explorer findings, relevant file pointers, the objective, and the required explanation contract. If delegation is unavailable, synthesize directly.
 
 The explainer gets all explorers' findings and writes the human-facing explanation (output format below). Read `references/explainer-prompt.md` for the full prompt template. The explainer reconciles overlapping findings, resolves contradictions, and weaves the slices into a unified picture.
 
@@ -99,12 +99,15 @@ Run the full explain flow above (Steps 1-4). You must understand the architectur
 
 ### Step 2. Spawn Critics
 
-After the explanation is complete, launch the configured `independent-review` panel concurrently, defaulting to four non-writing critics. Spread critics across the most different models the host offers — different models within one provider's family count as full diversity. Only when the host offers no alternative model at all, inherit the current model and disclose that every critic shared the author's model. If delegation is unavailable, perform independent serial passes and disclose that limitation.
+After the explanation is complete, launch four non-writing critics with the `judge` profile. Give each a fresh context and a distinct primary lens from the critique rubric. Run them concurrently when available or as serial workers when the host still preserves fresh contexts. Model routing is optional and never changes the panel size. If delegation is unavailable, perform separate passes in the coordinator and report them as self-review rather than independent critics.
 
 Read `references/critic-prompt.md` for the prompt template. Each critic gets:
 1. The explanation from Step 1 (so they don't re-explore)
 2. The relevant file paths (so they can read the actual code)
 3. The architectural critique rubric from `references/critique-rubric.md`
+4. Its distinct primary lens in the `{PRIMARY_LENS}` placeholder
+
+Each critic leads with its assigned primary lens, then sweeps every other relevant rubric lens. The primary lens creates deliberate coverage without hiding a problem that crosses lenses.
 
 ### Step 3. Lead Judgment
 

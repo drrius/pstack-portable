@@ -52,7 +52,7 @@ When you're back, ask for the run in review form:
 /ronin-review catch me up on what you did last night
 ```
 
-Before the skill hands back its summary, it spawns a reviewer on the most different model your host offers to read the trail and the transcript, and the reply ends with an Attention section listing what deserves your scrutiny. Read that section first, then the log rows it points at. You're auditing decisions, not re-reading the whole night.
+Before the skill hands back its summary, it spawns a fresh-context `judge` to read the trail and transcript. The reply records whether that review was self-review, same-model fresh-context, same-provider different-model, cross-provider, or an unverified joint tier when the host cannot establish every relationship. Known axes — including whether the reviewer had a fresh context — remain reported separately. The reply then ends with an Attention section listing what deserves scrutiny. Read that section first, then the log rows it points at. You're auditing decisions, not re-reading the whole night.
 
 ## When the night holds a queue, not a task
 

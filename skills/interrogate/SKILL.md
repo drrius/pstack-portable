@@ -1,14 +1,14 @@
 ---
 name: interrogate
-description: "Use for \"interrogate\", \"adversarial review\", \"multi-model review\", \"challenge this\", \"stress test this code\", \"find blind spots\", or \"tear this apart\". Multiple LLM reviewers challenge changes from independent angles."
+description: "Use for \"interrogate\", \"adversarial review\", \"multi-model review\", \"challenge this\", \"stress test this code\", \"find blind spots\", or \"tear this apart\". Fresh-context reviewers challenge changes through distinct task lenses."
 disable-model-invocation: true
 ---
 
 # Interrogate
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its delegation, model-role, and safety rules for every reviewer. If it is unavailable, stop and report that the ronin-core skill is not installed alongside this one.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its delegation, `judge` profile, review-provenance, and safety rules for every reviewer. If it is unavailable, stop and report that the ronin-core skill is not installed alongside this one.
 
-Launch one reviewer per configured panel entry to adversarially review code changes. Each reviewer gets the same prompt and rubric. Model diversity adds signal when the host supports it, but independent passes remain useful when every worker inherits the same model. Agreement across reviewers is high-confidence signal; lone-reviewer findings are worth reading but lower confidence.
+Launch several fresh-context `judge` workers to adversarially review code changes. They share the intent and rubric but receive distinct primary lenses. A different model may be selected when its demonstrated capability fits a lens, but model identity does not define or validate the panel. Findings earn confidence through concrete, reproducible evidence, not reviewer count alone.
 
 The deliverable is a synthesized verdict. Do NOT auto-apply changes.
 
@@ -35,16 +35,16 @@ Write one clear paragraph. Reviewers challenge whether the work achieves the int
 
 ## Step 3, Spawn Reviewers
 
-Launch the host adapter's configured `independent-review` panel concurrently, extending or shrinking the Reviewer A/B/C/D labels below to the configured count. Default to four reviewers.
+Launch four `judge` workers concurrently by default. Change the count only because scope warrants it, not because model routes are configured.
 
-| Reviewer | Default role |
+| Reviewer | Primary task profile and lens |
 |----------|--------------|
-| Reviewer A | `independent-review` |
-| Reviewer B | `independent-review` |
-| Reviewer C | `independent-review` |
-| Reviewer D | `independent-review` |
+| Reviewer A | `judge`, correctness and data flow |
+| Reviewer B | `judge`, security and failure boundaries |
+| Reviewer C | `judge`, maintainability and architecture |
+| Reviewer D | `judge`, simplicity and scope |
 
-Every reviewer gets a non-writing request with the objective, review scope, permissions, verifier, stop condition, and required findings. Spread reviewers across the most different models the host offers — different models within one provider's family count as full diversity. Only when the host offers no alternative model at all, inherit the current model and disclose that every reviewer shared the author's model. If delegation is unavailable, perform separate serial review passes and disclose that concurrency was not exercised.
+Every reviewer gets a fresh-context, non-writing request with the objective, review scope, primary lens, permissions, verifier, stop condition, and required findings. Run the workers serially if the host cannot run them concurrently but can preserve separate contexts; disclose lost concurrency only. If delegation is unavailable, perform distinct passes in the coordinator and report `self-review` provenance. Record model/provider provenance only when the host establishes it, and never choose a weaker model merely to create a different label.
 
 Read `references/reviewer-prompt.md` and fill in the template with:
 1. The stated intent
@@ -52,7 +52,7 @@ Read `references/reviewer-prompt.md` and fill in the template with:
 3. The review rubric from `references/rubric.md`
 4. The code-quality lens from `references/code-quality-review.md`
 
-The same filled template goes to all reviewers, so every model applies the code-quality lens.
+The same filled template goes to all reviewers, with each reviewer's primary lens added, so coverage differs without changing the shared rubric.
 
 Each reviewer produces structured findings as described in the prompt template.
 
@@ -61,10 +61,10 @@ Each reviewer produces structured findings as described in the prompt template.
 As results come back, build a unified picture:
 
 1. **Parse all findings** from the reviewers
-2. **Identify consensus**. Findings raised by 2+ models independently are highest signal.
-3. **Identify lone-model findings**. Still worth reading, but weight accordingly.
-4. **Deduplicate**. Different models may describe the same issue differently. Merge these and note which models raised it.
-5. **Note disagreements**. If one model flags something and another explicitly says the opposite, that's useful context for the verdict.
+2. **Reproduce the evidence**. A concrete execution path or failing check outranks agreement.
+3. **Identify corroboration**. Several fresh-context passes citing the same evidence strengthen the case; head count without evidence does not.
+4. **Deduplicate**. Different passes may describe the same issue differently. Merge them and retain each evidence pointer.
+5. **Note disagreements**. Conflicting findings identify an assumption, evidence gap, or rubric edge the lead must resolve.
 
 ## Step 5, Lead Judgment
 
@@ -80,7 +80,7 @@ Categorize every finding using these buckets:
 - **Dismissed**. Wrong, nitpicky, or missing context. Brief explanation why.
 
 For each finding, include:
-- Which model(s) raised it
+- Which reviewer passes raised it and their provenance when known
 - The category (act on / consider / noted / dismissed)
 - A one-line rationale for the categorization
 
@@ -92,13 +92,13 @@ Present the verdict in this structure:
 > [The stated intent paragraph from Step 2]
 
 ### Reviewers
-- Reviewer [label]: [model name], [N findings] (one bullet per reviewer)
+- Reviewer [label]: [provenance tier], [model when known], [N findings] (one bullet per reviewer)
 
 ### Act On
-[Findings that should be addressed. For each: description, which models raised it, why it matters.]
+[Findings that should be addressed. For each: description, evidence, which passes raised it, why it matters.]
 
 ### Consider
-[Findings worth thinking about. For each: description, which models raised it, tradeoff involved.]
+[Findings worth thinking about. For each: description, evidence, which passes raised it, tradeoff involved.]
 
 ### Noted
 [Valid but low-priority. Brief list.]
@@ -106,5 +106,5 @@ Present the verdict in this structure:
 ### Dismissed
 [Rejected findings with brief rationale. This shows the user what was filtered out and why, so they can override your judgment if they disagree.]
 
-### Agreement Map
-[Where did models agree, where did they diverge, and what does the pattern of agreement/disagreement tell us?]
+### Evidence Map
+[Which findings were reproduced, which were only corroborated, where passes disagreed, and what evidence resolved the disagreement?]

@@ -8,13 +8,27 @@ A requested checklist means the host's plan or durable state mechanism. A reques
 
 ## Delegation
 
-A worker request defines an objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Use the host's subagent facility when authorized. If unavailable, execute the lane serially and disclose that concurrency or model diversity was not exercised.
+A worker request defines an objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Use the host's subagent facility when authorized. If parallel execution is unavailable, run independent lanes serially when the host can still provide fresh worker contexts. If no separate worker context is available, execute in the coordinator and disclose that fresh-context review was not exercised. Lost concurrency and lost review separation are different limitations; report them separately.
 
 Named ronin workers are portable personas. A Poteto Agent worker reads the ronin-core skill's `personas/poteto-agent.md`, this contract, and `skills/ronin-mode/SKILL.md` before work. A Comment Sicko worker reads the ronin-core skill's `personas/comment-sicko.md`, this contract, and `skills/no-comments/SKILL.md` before review. Host-specific generated wrappers may point to those canonical files.
 
-## Model roles
+## Task profiles
 
-Canonical workflows select stable roles such as `fast-code`, `deep-code`, `judgment`, `prose`, and `independent-review`. Reviewer diversity means the most different model the host offers from the author's: on a single-provider host, a different model in the provider's family is the intended state, not a degraded one. Disclose a diversity substitution only when the reviewer had to run on the author's own model. `~/.config/ronin/models.yaml` is the user-authored role map, keyed by host since identifiers are host-specific; the active host reads its own section, and a role may pin a reasoning effort where the host supports one. Workers and setup read it when choosing models. A host adapter may inject or enforce it when the host supports that. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them. If model selection is unavailable, inherit the current model and disclose the substitution when diversity was part of the verifier.
+Every delegated leaf task lane has one primary behavioral profile. A profile defines the job; it does not promise a distinct model. Operational coordinators and control-plane roles that only frame work, route briefs, drain queues, wait, or maintain durable state sit outside the profile system. If one of those roles also executes a leaf task, assign that leaf work its own profile.
+
+- `explore`: investigate read-only, map the relevant surface, and return evidence plus uncertainties.
+- `implement`: own one bounded write scope, produce the change, and run the checks available inside that scope.
+- `judge`: compare or challenge artifacts against an explicit rubric without writing to the target.
+- `explain`: translate grounded evidence for the intended audience without changing the source.
+- `verify`: independently exercise acceptance criteria on the required surface and return pass, fail, or blocked with receipts.
+
+The machine-readable definitions live in `task-profiles.json` beside this contract. `targetWrites: false` forbids modifying the source, candidate, or implementation under examination; it does not prevent a worker from returning or writing its explicitly assigned local report, scorecard, explanation, or verification artifact. External writes remain approval-gated under the Safety section; a task profile never authorizes them. A worker request still supplies the concrete objective, boundaries, verifier, and evidence for the lane; naming a profile is not a substitute for the brief.
+
+## Optional model routing and review provenance
+
+`~/.config/ronin/models.yaml` optionally maps task profiles to host-specific model identifiers and reasoning effort. Missing configuration means every profile inherits the current model, which is a complete supported setup. Choose another model only because its capability, latency, cost, or tool compatibility fits the profile. Never choose a weaker model merely to manufacture diversity, and never make distinct-model access a condition of independent review.
+
+Review reports name the joint provenance actually achieved when its relationships are known: `self-review`, `same-model-fresh-context`, `same-provider-different-model`, or `cross-provider`. Report each axis independently: whether fresh context was exercised, whether the model was the same or different, and whether the provider was the same or different. If the host does not reveal model or provider identity, mark only those relationships `unverified`; do not discard a known fresh-context result. Use `review provenance: unverified` for the joint tier until enough relationships are established instead of guessing. Fresh context requires a separate agent or session; repeating a pass inside the author's context remains self-review. Reviewer count, model count, and agreement are supporting context, not proof by themselves. Confidence comes from reproducible evidence and verified acceptance criteria.
 
 ## Persistence
 

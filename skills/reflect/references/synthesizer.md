@@ -15,7 +15,7 @@ Apply each criterion to every finding:
 - Durability: still true in 6 months once paths, SHAs, tool versions, and code shapes have changed.
 - Specificity: broad enough to apply across tasks, precise enough that a future agent recognizes when to use it. Reject vague platitudes ("write good code") and hyper-specific facts ("`<specific-skill-name>` has 175 tokens at limit 80").
 - Existing-skill-first: propose `new skill:` only when no existing skill is a real home, the pattern recurs, and the topic deserves its own skill.
-- Convergence: findings echoed by 2+ reviewers carry higher confidence. Singletons must clear a higher bar on the other criteria.
+- Corroboration: findings echoed by fresh-context reviewers gain weight only when they cite compatible evidence. Head count alone does not raise confidence; singletons and repeated findings face the same evidence bar.
 - Decision-changing: a future agent does something different because of the edit, not just reads more text.
 - Structural-mechanism check: route to Backlog when a lint rule, script, metadata flag, or runtime check already enforces the rule or could enforce it cheaply. Skill prose is for things mechanisms cannot enforce.
 - Skill-was-used: only accept findings that route to a skill, tool, or MCP the parent actually invoked in the transcript. If the skill wasn't used but should have been, route to `tune description: <skill path>` so it triggers next time. If neither, reject as `skill-not-used`.
@@ -49,7 +49,7 @@ One row per finding. The user approves row by row.
 
 For each rejected finding:
 - Principle: <one sentence>
-- Reason: <durability | specificity | existing-skill-first | convergence | decision-changing | structural | duplicate | skill-not-used | already-covered>
+- Reason: <durability | specificity | existing-skill-first | corroborated-evidence | decision-changing | structural | duplicate | skill-not-used | already-covered>
 
 ## Backlog
 

@@ -25,7 +25,7 @@ Resolve what is in scope vs explicitly out, technical or platform constraints, p
 Delegate codebase exploration (the **guard-the-context-window** principle skill).
 
 - Prefer a Poteto Agent worker, which reads the ronin-core skill's `personas/poteto-agent.md` and `HOST_CONTRACT.md`, plus `skills/ronin-mode/SKILL.md`, before work. A general worker is the fallback when the host cannot load named personas.
-- Select the configured stable role explicitly: `fast-code` or `deep-code` for source exploration, and `judgment` for architectural interpretation. If model routing is unavailable, inherit the current model and disclose the substitution when diversity mattered.
+- Assign `explore` to source investigation and `judge` to architectural interpretation. Optional model routing may tune either profile, but missing routing simply inherits the current model.
 
 Each explorer returns file pointers, conventions, dependencies, test infrastructure, and entry points. No inlined dumps.
 

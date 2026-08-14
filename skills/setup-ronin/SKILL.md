@@ -1,61 +1,64 @@
 ---
 name: setup-ronin
-description: Configure ronin's stable model roles. Use for /setup-ronin, "configure ronin models", or changing ronin's model choices.
+description: Configure optional model and reasoning-effort routing for ronin task profiles. Use for /setup-ronin, "configure ronin models", or changing ronin's profile routing.
 ---
 
 # Setup ronin
 
-Configure the mapping from ronin's stable roles to models the user can run. Canonical workflows name roles, never provider-specific model IDs. Agents read `~/.config/ronin/models.yaml` when selecting models. A host adapter may inject or enforce that map when the host supports it. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them.
+Configure optional routing from ronin's behavioral task profiles to models the user can run. Profiles define the job and remain the same on every host. Agents read `~/.config/ronin/models.yaml` only to choose a model or reasoning effort for that job. Without the file, every profile inherits the current model and ronin remains fully usable.
 
-The roles are:
+## Task profiles
 
-- `fast-code`: cheap, mechanical implementation and corpus search.
-- `deep-code`: precisely specified, difficult implementation and debugging.
-- `judgment`: ambiguous design, prioritization, and synthesis.
-- `prose`: explanations and user-facing writing.
-- `independent-review`: adversarial review and comparison; this may map to a list when the host supports model diversity.
+The profiles are:
+
+- `explore`: read-only investigation with evidence and uncertainties.
+- `implement`: one bounded write scope plus local checks.
+- `judge`: read-only comparison or challenge against a rubric.
+- `explain`: grounded communication for an intended audience.
+- `verify`: independent acceptance testing with pass, fail, or blocked evidence.
+
+Do not recommend a weaker model merely to give profiles different identifiers. Route to a cheaper or faster model only when the user wants that tradeoff and the task fits it; route to a stronger model when the task needs it. One frontier model across all five profiles is a valid default.
 
 ## Steps
 
 ### 1. Inspect host capabilities
 
-Inspect the host's model-routing capability, current role mapping, and models available to this user. Treat that response as authoritative. Do not infer model access from documentation, model names seen in prose, or another host's configuration.
+Inspect the host's model-routing capability, current profile mapping, and models available to this user. Treat that response as authoritative. Do not infer model access from documentation, model names seen in prose, or another host's configuration.
 
-If the host cannot enumerate models but accepts a user-configured model identifier, ask the user for the identifiers they want to use and explain that availability can be verified only when a worker is launched. If the host cannot select models at all, explain that every role will inherit the current model and that reviewer diversity is unavailable until the host offers a second model. This is a supported capability fallback, not an error.
+If the host cannot enumerate models but accepts a user-configured model identifier, ask the user for the identifiers they want to use and explain that availability can be verified only when a worker is launched. If the host cannot select models at all, explain that every profile inherits the current model. That is the supported default, not a degraded mode.
 
 ### 2. Load current state
 
-Read `~/.config/ronin/models.yaml` when it exists. This host-neutral user configuration lives outside the replaceable installation tree. Never search another host's private configuration directories. Missing roles inherit the current model.
+Read `~/.config/ronin/models.yaml` when it exists. This host-neutral user configuration lives outside the replaceable installation tree. Never search another host's private configuration directories. Missing profiles inherit the current model.
 
 ### 3. Map and confirm
 
-Show every stable role with its current mapping. Mark a concrete identifier as unverified when the host could not enumerate availability. Use the host's user-input mechanism to ask whether to keep the mapping or change specific roles.
+Show every task profile with its current mapping. Mark a concrete identifier as unverified when the host could not enumerate availability. Use the host's user-input mechanism to ask whether to keep the mapping or change specific profiles.
 
-For `independent-review`, preserve a configured list when the host supports selecting a model per worker; its length sets the default review-panel size. When the host supports only one model or no explicit selection, keep the workflow's fan-out but inherit the current model and disclose that the panel shared one model. Different models within one provider's family count as full diversity; a single-provider host is not a degraded host.
+Fan-out count belongs to the calling workflow, not this model map. Several `judge` or `verify` workers may therefore share one configured route. Do not expand a panel or select a different model just to claim diversity. Review output reports the achieved provenance separately from the task profile.
 
 ### 4. Validate and write
 
 Validate the complete mapping before writing it. Every concrete identifier must be in the host's enumerated set when enumeration is available. If enumeration is unavailable, preserve the user's identifiers as explicitly unverified rather than claiming they work.
 
-Write `~/.config/ronin/models.yaml` atomically and preserve the other hosts' sections unchanged. Re-running this skill must produce the same state for the same choices. The file is keyed by host — each top-level key names a host (`claude`, `codex`, or another adapter name) and holds that host's complete role map, because model identifiers are host-specific and one user works across hosts. A host reads only its own section; a host with no section inherits the current model for every role. The file has this shape:
+Write `~/.config/ronin/models.yaml` atomically and preserve the other hosts' sections unchanged. Re-running this skill must produce the same state for the same choices. The file is keyed by host — each top-level key names a host (`claude`, `codex`, or another adapter name) and holds that host's profile routes, because model identifiers are host-specific and one user works across hosts. A host reads only its own section; a host with no section inherits the current model for every profile. The file has this shape:
 
 ```yaml
 claude:
-  fast-code: inherit-current
-  deep-code: inherit-current
-  judgment: inherit-current
-  prose: inherit-current
-  independent-review:
-    - inherit-current
+  explore: inherit-current
+  implement: inherit-current
+  judge: inherit-current
+  explain: inherit-current
+  verify: inherit-current
 codex:
-  deep-code: { model: example-identifier, effort: xhigh }
+  implement: { model: example-identifier, effort: xhigh }
 ```
 
-A role value is a model identifier, `inherit-current`, or a mapping with `model` and optional `effort` when the host supports selecting reasoning effort per worker; a bare identifier uses the host's default effort. `inherit-current` is a ronin semantic value, not a model identifier. Apply it by omitting explicit model selection. A host may inject the same omission when it can. Validate any `effort` against the host's supported levels for that model when the host enumerates them.
+A profile route is a model identifier, `inherit-current`, or a mapping with `model` and optional `effort` when the host supports selecting reasoning effort per worker; a bare identifier uses the host's default effort. `inherit-current` is a ronin semantic value, not a model identifier. Apply it by omitting explicit model selection. A host may inject the same omission when it can. Validate any `effort` against the host's supported levels for that model when the host enumerates them.
 
 ### 5. Confirm
 
-Tell the user which roles inherit the current model, which identifiers remain unverified, and whether the host applies the change immediately or only to new sessions. Never claim reviewer diversity when every role inherited the same model.
+Tell the user which profiles inherit the current model, which identifiers remain unverified, and whether the host applies the change immediately or only to new sessions. State that task behavior comes from the profile contract, not from using distinct models. Do not claim model or provider diversity that the host did not establish.
 
 ### 6. Offer a verification skill (optional)
 

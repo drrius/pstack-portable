@@ -11,7 +11,7 @@ bun run install:tools
 bun run check
 ```
 
-For focused work, `bun test` runs the native unit suite, `bun run verify` exercises the distribution lifecycle, and `bun run typecheck:tools` checks the complete TypeScript tooling tree.
+For focused work, `bun test ./tests` runs every repository-level test under `tests/`, `bun run test:tools` runs the tooling tests, `bun run verify` exercises the distribution lifecycle, and `bun run typecheck:tools` checks the complete TypeScript tooling tree. Use `bun run test` when you want both native test suites; a bare `bun test` follows `bunfig.toml` and is intentionally limited to the tooling tree.
 
 ## Updating from upstream
 

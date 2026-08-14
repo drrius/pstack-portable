@@ -30,6 +30,79 @@ function frontmatter(text) {
   }));
 }
 
+const taskProfileIds = ['explore', 'implement', 'judge', 'explain', 'verify'];
+const reviewProvenanceIds = ['self-review', 'same-model-fresh-context', 'same-provider-different-model', 'cross-provider'];
+const workerContractFields = ['objective', 'ownershipBoundary', 'permissions', 'isolation', 'verifier', 'stopCondition', 'returnedEvidence'];
+
+function validateTaskProfiles(path, label) {
+  check(existsSync(path), `${label} task profile contract is missing`);
+  if (!existsSync(path)) return;
+  let contract;
+  try {
+    contract = JSON.parse(readFileSync(path, 'utf8'));
+  } catch {
+    check(false, `${label} task profile contract is invalid JSON`);
+    return;
+  }
+  check(contract.version === 1, `${label} task profile contract has an unsupported version`);
+  check(JSON.stringify(Object.keys(contract.profiles ?? {}).sort()) === JSON.stringify([...taskProfileIds].sort()), `${label} task profile IDs changed`);
+  for (const id of taskProfileIds) {
+    const profile = contract.profiles?.[id];
+    check(Boolean(profile), `${label} task profile is missing: ${id}`);
+    if (!profile) continue;
+    for (const field of workerContractFields) check(Boolean(profile[field]), `${label} ${id} profile lacks ${field}`);
+    check(profile.modelRouting === 'optional', `${label} ${id} profile makes model routing mandatory`);
+    check(profile.requiresDistinctModel === false, `${label} ${id} profile requires a distinct model`);
+    check(profile.targetWrites === (id === 'implement'), `${label} ${id} profile has the wrong target-write policy`);
+    if (id !== 'implement') check(`${profile.ownershipBoundary} ${profile.permissions}`.includes('artifact'), `${label} ${id} profile lacks an explicit output-artifact boundary`);
+  }
+  const expectedProvenance = [
+    ['self-review', false, true, true],
+    ['same-model-fresh-context', true, true, true],
+    ['same-provider-different-model', true, false, true],
+    ['cross-provider', true, false, false]
+  ];
+  const actualProvenance = (contract.reviewProvenance ?? []).map(({ id, freshContext, sameModel, sameProvider }) => [id, freshContext, sameModel, sameProvider]);
+  check(JSON.stringify(actualProvenance) === JSON.stringify(expectedProvenance), `${label} review provenance tiers changed`);
+  const reporting = contract.provenanceReporting ?? {};
+  check(reporting.modelRelationship?.includes('unverified'), `${label} provenance reporting cannot represent an unknown model relationship`);
+  check(reporting.providerRelationship?.includes('unverified'), `${label} provenance reporting cannot represent an unknown provider relationship`);
+  check(Boolean(reporting.jointTierRule), `${label} provenance reporting lacks its joint-tier rule`);
+}
+
+function markdownSection(text, heading) {
+  const lines = text.split('\n');
+  const start = lines.findIndex((line) => /^(#{1,6})\s+/.test(line) && line.replace(/^#{1,6}\s+/, '') === heading);
+  if (start < 0) return null;
+  const level = lines[start].match(/^(#{1,6})/)[1].length;
+  let end = lines.length;
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const match = lines[index].match(/^(#{1,6})\s+/);
+    if (match && match[1].length <= level) {
+      end = index;
+      break;
+    }
+  }
+  return lines.slice(start + 1, end).join('\n');
+}
+
+function validateHostContractSemantics(text, label) {
+  const profileSection = markdownSection(text, 'Task profiles');
+  check(profileSection !== null, `${label} host contract lacks the Task profiles section`);
+  if (profileSection !== null) {
+    for (const id of taskProfileIds) check(profileSection.includes(`- \`${id}\`:`), `${label} host contract lacks prose for the ${id} profile`);
+    check(profileSection.includes('task-profiles.json'), `${label} host contract does not bind its prose to task-profiles.json`);
+  }
+
+  const provenanceSection = markdownSection(text, 'Optional model routing and review provenance');
+  check(provenanceSection !== null, `${label} host contract lacks review provenance`);
+  if (provenanceSection !== null) {
+    for (const id of reviewProvenanceIds) check(provenanceSection.includes(`\`${id}\``), `${label} host contract lacks the ${id} provenance tier`);
+    check(/report each axis independently/i.test(provenanceSection), `${label} host contract does not preserve known provenance axes independently`);
+    check(/model or provider identity[^.]*unverified/i.test(provenanceSection), `${label} host contract does not disclose unknown model or provider identity`);
+  }
+}
+
 function validateLinks(markdownPath, root) {
   const text = readFileSync(markdownPath, 'utf8');
   for (const match of text.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
@@ -81,6 +154,12 @@ function validateSource(root) {
     check(!new RegExp(['ben', 'ny'].join(''), 'i').test(text), `Excluded automation reference in ${relativePath}`);
     check(!/\/Users\/[A-Za-z0-9._-]+\//.test(text), `Private absolute path in ${relativePath}`);
     check(!/(BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|ghp_[A-Za-z0-9]{30,}|sk-[A-Za-z0-9]{20,})/.test(text), `Possible secret in ${relativePath}`);
+    if (/^(README\.md|PORTING\.md|docs\/|skills\/|adapters\/)/.test(relativePath)) {
+      for (const pattern of [/counts? in full/i, /most different model/i, /spawn multiple models/i, /multiple model perspectives/i, /single[- ]provider.{0,50}degraded|degraded.{0,50}single[- ]provider/i]) {
+        check(!pattern.test(text), `Manufactured-diversity rule remains in ${relativePath}: ${pattern}`);
+      }
+      check(!/`(?:fast-code|deep-code|judgment|prose|independent-review)`/.test(text), `Legacy model role remains in ${relativePath}`);
+    }
   }
 
   for (const path of filesUnder(join(root, 'skills'), sourceOptions)) {
@@ -102,6 +181,12 @@ function validateSource(root) {
   const rootPackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
   check(rootPackage.packageManager === 'bun@1.3.14', 'Root package manager is not pinned to Bun 1.3.14');
   check(Object.values(rootPackage.scripts).every((script) => !/\b(?:node|npm|npx|tsx|vitest)\b/.test(script)), 'Root package scripts still invoke the Node/npm toolchain');
+  check(rootPackage.scripts['typecheck:tests'] === 'bun skills/ronin-mode/scripts/node_modules/typescript/bin/tsc --project tsconfig.tests.json', 'Repository-test typecheck does not use the pinned nested TypeScript compiler');
+  check(rootPackage.scripts.check.includes('bun run typecheck:tests'), 'Complete check omits the repository-test typecheck');
+  const testsTypeScript = JSON.parse(readFileSync(join(root, 'tsconfig.tests.json'), 'utf8'));
+  check(testsTypeScript.compilerOptions?.strict === true && testsTypeScript.compilerOptions?.noEmit === true, 'Repository-test typecheck is not strict and no-emit');
+  check(testsTypeScript.compilerOptions?.typeRoots?.includes('./skills/ronin-mode/scripts/node_modules/@types'), 'Repository-test typecheck does not use the pinned nested type definitions');
+  check(testsTypeScript.include?.includes('tests/**/*.ts'), 'Repository-test typecheck does not include the complete tests tree');
   const toolsRoot = join(root, 'skills/ronin-mode/scripts');
   const toolsPackage = JSON.parse(readFileSync(join(toolsRoot, 'package.json'), 'utf8'));
   const toolDependencies = { ...toolsPackage.dependencies, ...toolsPackage.devDependencies };
@@ -127,11 +212,31 @@ function validateSource(root) {
   }
   const capabilities = JSON.parse(readFileSync(join(root, 'tests/fixtures/capabilities.json'), 'utf8'));
   const contract = readFileSync(join(root, 'skills/ronin-core/HOST_CONTRACT.md'), 'utf8');
+  validateHostContractSemantics(contract, 'Source');
   for (const capability of capabilities.capabilities) {
     check(contract.includes(capability.contractNeedle), `Host contract lacks ${capability.name}`);
     const source = join(root, capability.fallbackFile);
     check(existsSync(source), `Capability fallback file is missing: ${capability.fallbackFile}`);
     if (existsSync(source)) check(readFileSync(source, 'utf8').includes(capability.fallbackNeedle), `Capability fallback is not explicit for ${capability.name}`);
+  }
+  validateTaskProfiles(join(root, 'skills/ronin-core/task-profiles.json'), 'Source');
+  const profileRouting = JSON.parse(readFileSync(join(root, 'tests/fixtures/profile-routing.json'), 'utf8'));
+  for (const route of profileRouting.routes) {
+    const source = join(root, route.file);
+    check(existsSync(source), `Task-profile routing file is missing: ${route.file}`);
+    if (!existsSync(source)) continue;
+    const section = markdownSection(readFileSync(source, 'utf8'), route.heading);
+    check(section !== null, `Task-profile routing heading is missing in ${route.file}: ${route.heading}`);
+    if (section === null) continue;
+    for (const profile of route.profiles) check(section.includes(`\`${profile}\``), `Task-profile route ${profile} is not explicit under ${route.heading} in ${route.file}`);
+  }
+  check(JSON.stringify([...new Set(profileRouting.routes.flatMap((route) => route.profiles))].sort()) === JSON.stringify([...taskProfileIds].sort()), 'Task-profile routing fixtures do not retain the complete profile union');
+  for (const doc of profileRouting.provenanceDocs ?? []) {
+    const source = join(root, doc.file);
+    check(existsSync(source), `Review-provenance documentation is missing: ${doc.file}`);
+    if (!existsSync(source)) continue;
+    const text = readFileSync(source, 'utf8');
+    for (const needle of doc.needles) check(text.includes(needle), `Review-provenance documentation in ${doc.file} lacks ${JSON.stringify(needle)}`);
   }
   validateNamedSkillReferences(root, skillDirectories);
   check(readFileSync(join(root, 'skills/ronin-core/personas/poteto-agent.md'), 'utf8').includes('ronin-mode'), 'Poteto Agent persona cannot route to Ronin Mode');
@@ -190,14 +295,16 @@ function validateInstallation(home) {
   check(existsSync(installedSibling) && readFileSync(installedSibling, 'utf8').includes('HOST_CONTRACT.md'), 'Installed architect skill cannot resolve the host contract');
   const architectDir = realpathSync(dirname(installedSibling));
   const contractFromSkill = resolve(architectDir, '../ronin-core/HOST_CONTRACT.md');
+  const profilesFromSkill = resolve(architectDir, '../ronin-core/task-profiles.json');
   check(existsSync(contractFromSkill), 'HOST_CONTRACT.md is not reachable as ../ronin-core/HOST_CONTRACT.md from installed skills/architect');
   if (existsSync(contractFromSkill)) {
     try {
-      readFileSync(contractFromSkill, 'utf8');
+      validateHostContractSemantics(readFileSync(contractFromSkill, 'utf8'), 'Installed');
     } catch {
       check(false, 'HOST_CONTRACT.md at the skill locator path is unreadable');
     }
   }
+  validateTaskProfiles(profilesFromSkill, 'Installed');
   check(existsSync(installedPersona) && readFileSync(installedPersona, 'utf8').includes('ronin-mode'), 'Installed Poteto Agent cannot resolve Ronin Mode');
 }
 

@@ -6,9 +6,9 @@ disable-model-invocation: true
 
 # Architect
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its planning, delegation, model-role, isolation, and safety rules throughout. If it is unavailable, stop and report that the ronin-core skill is not installed alongside this one.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the ronin installation root. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its planning, delegation, task-profile, isolation, and safety rules throughout. If it is unavailable, stop and report that the ronin-core skill is not installed alongside this one.
 
-Design before implementing. Sketch types, function signatures, class shapes, and module boundaries with `not implemented` bodies and pseudocode. Synthesize across multiple model perspectives, then fill in code against the chosen sketch. If implementation proves the sketch wrong, throw it out and redesign.
+Design before implementing. Sketch types, function signatures, class shapes, and module boundaries with `not implemented` bodies and pseudocode. Compare structurally distinct perspectives, then fill in code against the chosen sketch. If implementation proves the sketch wrong, throw it out and redesign.
 
 ## Start
 
@@ -32,7 +32,7 @@ Skip Phase A only when the work is genuinely greenfield with no surrounding syst
 
 Run the **arena** skill with the design-sketch task and the Phase A grounding artifacts. Pass `references/runner-prompt.md` as each runner's prompt. Each candidate produces a design package shaped per `references/rationale-template.md`: the caller's usage written first, then the type sketch, function signatures, module map, and prose rationale derived from it.
 
-Use the host adapter's configured architect panel. Otherwise use the arena defaults across `judgment`, `deep-code`, `fast-code`, and `independent-review`, inheriting the current model where model selection is unavailable.
+Run design candidates with the `explore` profile and the comparison worker with `judge`. Optional host routing may tune model or effort for either profile, but candidate breadth comes from explicitly different structures and constraints, not model identifiers.
 
 Design it twice. Require at least two structurally distinct candidates before synthesis, even when the first looks sufficient. This is the **exhaust-the-design-space** principle skill made concrete. Whole-shape alternatives, not point fixes inside one shape.
 

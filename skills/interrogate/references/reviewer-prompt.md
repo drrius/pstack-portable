@@ -26,9 +26,13 @@ You are reviewing whether the code achieves this intent well. Do NOT question th
 
 {CODE_QUALITY_CONTENTS}
 
+## Primary Lens
+
+{PRIMARY_LENS}
+
 ## Instructions
 
-Review the code through every lens in the rubric and the code-quality lens above that you find relevant. Do not force lenses that don't apply. A simple bug fix does not need paragraphs about architectural integrity.
+Lead with the assigned primary lens, then sweep every other relevant lens in the rubric and the code-quality lens above. Do not force lenses that don't apply, but do not suppress a concrete problem merely because another reviewer owns that primary lens. A simple bug fix does not need paragraphs about architectural integrity.
 
 For each finding, provide:
 

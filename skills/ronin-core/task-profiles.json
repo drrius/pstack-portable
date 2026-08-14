@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "profiles": {
+    "explore": {
+      "objective": "Investigate a bounded question and map the relevant surface.",
+      "ownershipBoundary": "No target-source ownership; any written output is limited to the assigned local report artifact.",
+      "permissions": "Read and run non-mutating inspection commands, then return or write the assigned local findings artifact without modifying the target source.",
+      "isolation": "Use a fresh worker context when available.",
+      "verifier": "Every material claim points to resolvable evidence.",
+      "stopCondition": "Stop when the scoped question is answered or the evidence gap is named.",
+      "returnedEvidence": "Findings, source pointers, uncertainties, and checks run.",
+      "targetWrites": false,
+      "modelRouting": "optional",
+      "requiresDistinctModel": false
+    },
+    "implement": {
+      "objective": "Produce one bounded change that satisfies explicit acceptance criteria.",
+      "ownershipBoundary": "One exclusive write scope and isolated output target.",
+      "permissions": "Write only inside the assigned scope and run its checks.",
+      "isolation": "Use an exclusive worktree, branch, or non-overlapping file boundary.",
+      "verifier": "Run the checks available to the worker and return their receipts.",
+      "stopCondition": "Stop when acceptance passes or a concrete blocker prevents further safe progress.",
+      "returnedEvidence": "Changed paths, diff summary, checks run, results, and deviations.",
+      "targetWrites": true,
+      "modelRouting": "optional",
+      "requiresDistinctModel": false
+    },
+    "judge": {
+      "objective": "Compare or challenge artifacts against an explicit rubric.",
+      "ownershipBoundary": "Do not modify candidates or target source; any written output is limited to the assigned local evaluation artifact.",
+      "permissions": "Read evidence, run non-mutating checks needed to score the rubric, then return or write the assigned local scorecard or review artifact.",
+      "isolation": "Use a fresh context and blind candidate identity when practical.",
+      "verifier": "Every score or finding cites the rubric and supporting evidence.",
+      "stopCondition": "Stop after every candidate or claim in scope has a reasoned disposition.",
+      "returnedEvidence": "Scores, findings, evidence, uncertainties, and recommendation.",
+      "targetWrites": false,
+      "modelRouting": "optional",
+      "requiresDistinctModel": false
+    },
+    "explain": {
+      "objective": "Translate grounded evidence for the intended audience.",
+      "ownershipBoundary": "Do not change the source being explained; any written output is limited to the assigned local explanation artifact.",
+      "permissions": "Read the supplied evidence and relevant source pointers, then return or write the assigned local explanation artifact.",
+      "isolation": "Use a separate synthesis context when the input is large or contested.",
+      "verifier": "The explanation is traceable to source evidence and fits the requested audience.",
+      "stopCondition": "Stop when the question is answered without unsupported claims or unnecessary detail.",
+      "returnedEvidence": "Explanation plus the source pointers needed to verify it.",
+      "targetWrites": false,
+      "modelRouting": "optional",
+      "requiresDistinctModel": false
+    },
+    "verify": {
+      "objective": "Independently exercise acceptance criteria on the required surface.",
+      "ownershipBoundary": "Do not modify the implementation under test; any written output is limited to the assigned local verification artifact.",
+      "permissions": "Read the implementation, operate only the tools or surfaces needed for proof, then return or write the assigned local receipts or verification artifact.",
+      "isolation": "Use a fresh context that did not author the implementation when available.",
+      "verifier": "Reproduce the acceptance workflow and return pass, fail, or blocked with receipts.",
+      "stopCondition": "Stop when every criterion has a verdict or an exact capability gap is proven.",
+      "returnedEvidence": "Verdict, commands or interaction steps, outputs or artifacts, and uncovered gaps.",
+      "targetWrites": false,
+      "modelRouting": "optional",
+      "requiresDistinctModel": false
+    }
+  },
+  "provenanceReporting": {
+    "freshContext": ["yes", "no"],
+    "modelRelationship": ["same", "different", "unverified"],
+    "providerRelationship": ["same", "different", "unverified"],
+    "jointTierRule": "Use a reviewProvenance id only when its relationships are established; otherwise report the joint tier as unverified without discarding known axes."
+  },
+  "reviewProvenance": [
+    {
+      "id": "self-review",
+      "freshContext": false,
+      "sameModel": true,
+      "sameProvider": true
+    },
+    {
+      "id": "same-model-fresh-context",
+      "freshContext": true,
+      "sameModel": true,
+      "sameProvider": true
+    },
+    {
+      "id": "same-provider-different-model",
+      "freshContext": true,
+      "sameModel": false,
+      "sameProvider": true
+    },
+    {
+      "id": "cross-provider",
+      "freshContext": true,
+      "sameModel": false,
+      "sameProvider": false
+    }
+  ]
+}

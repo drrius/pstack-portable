@@ -30,17 +30,17 @@ Confirm the candidate belongs to this conversation by matching its metadata or o
 
 Define three worker requests and launch them in parallel when the host's delegation facility is available and authorized. Each request owns one lens, may read the transcript or digest and query only connected sources it references, must not modify files or external state, stops after 3-5 durable findings, and returns the template's numbered evidence list. Grant read access to relevant connected services without granting write authority.
 
-| Lens | Stable model role | Prompt template |
+| Lens | Task profile | Prompt template |
 |---|---|---|
-| Judgment | `judgment` | `references/judgment-reviewer.md` |
-| Tooling | `deep-code` | `references/tooling-reviewer.md` |
-| Divergent | `independent-review` | `references/divergent-reviewer.md` |
+| Judgment | `judge` | `references/judgment-reviewer.md` |
+| Tooling | `judge` | `references/tooling-reviewer.md` |
+| Divergent | `judge` | `references/divergent-reviewer.md` |
 
-Pass each template verbatim, substituting the transcript path or digest where marked. If delegation is unavailable, run the three lenses serially and disclose that independence was procedural rather than agent-isolated. If the host offers no alternative model, inherit the current model and disclose that the lenses shared the author's model.
+Pass each template verbatim, substituting the transcript path or digest where marked. If parallel execution is unavailable, run serial fresh-context workers and disclose lost concurrency. If delegation is unavailable, run the three lenses in the coordinator and report self-review provenance.
 
 ### 3. Synthesize
 
-Run a separate synthesis worker with the `judgment` role when delegation is available. Its request permits read-only citation checks through connected services but forbids repository or external writes. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. If delegation is unavailable, synthesize serially and disclose the fallback. The result is a structured Accepted / Rejected / Backlog list.
+Run a separate synthesis worker with the `judge` profile when delegation is available. Its request permits read-only citation checks through connected services but forbids repository or external writes. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. If delegation is unavailable, synthesize serially and disclose the fallback. The result is a structured Accepted / Rejected / Backlog list.
 
 ### 4. Structural enforcement check
 

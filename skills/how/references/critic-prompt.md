@@ -18,9 +18,13 @@ You are reviewing the architecture of a codebase subsystem. An explanation of ho
 
 {CRITIQUE_RUBRIC_CONTENTS}
 
+## Primary Lens
+
+{PRIMARY_LENS}
+
 ## Instructions
 
-Read the files listed above. Use the explanation as a map, but form your own opinions from the code itself. The explanation might miss things or frame them charitably.
+Read the files listed above. Use the explanation as a map, but form your own opinions from the code itself. The explanation might miss things or frame them charitably. Lead with the assigned primary lens, then sweep every other relevant rubric lens. Do not ignore a concrete problem merely because another critic was assigned its lens.
 
 Find architectural problems, not line-level bugs or style issues. Ask whether this subsystem is built well for what it needs to do and how it will need to evolve.
 

@@ -20,7 +20,7 @@
     },
     {
       "name": "model routing",
-      "contractNeedle": "Model roles",
+      "contractNeedle": "Optional model routing",
       "fallbackFile": "skills/setup-ronin/SKILL.md",
       "fallbackNeedle": "current model"
     },

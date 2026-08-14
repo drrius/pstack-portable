@@ -62,18 +62,18 @@ At the end of the run, before handing back, check the log told the truth. Use th
 
 Fix the log, not the story. If the work diverged from what a row claims, the row is wrong.
 
-## Cross-model review of the trail
+## Fresh-context review of the trail
 
-Before handing back, spawn a subagent through the host's delegation capability, on the most different model the host offers from the one that did the work — a different model in the same provider's family counts in full. Self-review is not a substitute; the point is fresh eyes you cannot bring yourself. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
+Before handing back, spawn a fresh-context subagent with the `judge` profile. The point is review separation: the reviewer did not author the work and does not inherit its reasoning. It reads the audit trail and the run's transcript, then flags what the user should pay attention to. This is not a redo of the work, but a scan for what is suboptimal or risky. Optional model routing may add another perspective, but a distinct model is not required.
 
-If the host offers no alternative model, spawn the reviewer on the inherited model and disclose that it shared the author's model. If delegation is unavailable, run the review as its own separate pass over the trail and disclose that independent review was not exercised. Substituted review is weaker review; report the substitution rather than letting the Attention section imply fresh eyes it never had.
+If the host can delegate only serially, keep the separate worker context and disclose lost concurrency only. If no separate context is available, review the trail in the coordinator and label it `self-review`; do not imply fresh eyes. Report the fresh-context, model-relationship, and provider-relationship axes independently. Mark an identity relationship `unverified` when the host does not establish it without erasing a known fresh-context result.
 
 - Decisions logged with weak or absent evidence.
 - Verification steps skipped or claimed without proof in the transcript.
 - Choices that look risky in hindsight (premature, scope-creeping, papering over a symptom).
 - Gaps the user would otherwise miss on a casual skim.
 
-Every reply for a run that produced a trail ends with an "Attention" section. Lead with the reviewer's model on its own line (`reviewed by <model>`), carrying the disclosure when the host forced a substitution (`reviewed by <model>, same model as the author` or `reviewed by <model>, self-review; host cannot delegate`), then list each flag pointing to specific rows or moments. "No flags" is a valid value; an unnamed reviewer is not. The self-audit asks if the log told the truth; this asks what the user should still scrutinize even when it did.
+Every reply for a run that produced a trail ends with an "Attention" section. Lead with `review provenance: <tier>` using the host contract's joint tier when all required relationships are known; otherwise use `review provenance: unverified`. Follow it with `fresh context: yes|no`, `model relationship: same|different|unverified`, and `provider relationship: same|different|unverified`. Add the reviewer model only when the host reports it. Then list each flag pointing to specific rows or moments. "No flags" is valid; unnamed provenance is not. The self-audit asks if the log told the truth; this asks what the user should still scrutinize even when it did.
 
 ## Reviewing the trail
 

@@ -16,7 +16,7 @@ That gap is why this exists. Moving the skills across was the easy half. Two pro
 
 My work repos live in Azure DevOps. Every PR step in pstack speaks `gh`. ronin reads the git remote and speaks `az repos` when the remote is Azure, `gh` when it's GitHub. Same playbooks either way.
 
-Then there's review. Cursor can hand your code to a different lab's model, so pstack treats a single provider as a degraded setup. Claude Code and Codex each ship one family. I don't think that's degraded. ronin asks for the most different model the host actually has, counts a sibling in the same family as real diversity, and says so in the reply when the reviewer ended up on the author's own model.
+Then there's parallelism. Cursor can spread a panel across model providers. Claude Code and Codex are strongest at something more basic: isolated agents with different jobs. ronin names those jobs `explore`, `implement`, `judge`, `explain`, and `verify`, gives each one a real contract, and lets the host run them on its best available model. Another model is useful when it is actually available. It is not where the trust comes from.
 
 The rest follows from those two. I don't use Graphite, so stacks are plain `gh` and `az` with bases retargeted by hand. Any skill that can't get what it needs says so instead of pretending it did.
 
@@ -34,9 +34,9 @@ Three commands carry their own names. `ronin-mode`, `setup-ronin`, `ronin-review
 
 The skills CLI ships the skill tree and nothing else. Three steps unlock the rest. Skip them and everything still runs, just with less.
 
-**Models.** Run `/setup-ronin`. It writes `~/.config/ronin/models.yaml`, keyed by host, with an optional reasoning effort per role. Without it every role inherits your current model.
+**Optional routing.** Every task profile inherits your current model by default. Run `/setup-ronin` only when you want a host to route a profile to another model or reasoning effort for capability, latency, or cost. It never picks a weaker model just to make the panel look diverse.
 
-**Codex fan-out.** Run `codex features enable multi_agent`. Without it `how`, `arena`, `interrogate`, and `swarm` run one worker at a time and tell you they did.
+**Codex fan-out.** Run `codex features enable multi_agent`. Without it `how`, `arena`, `interrogate`, and `swarm` execute their lanes serially. The reply distinguishes lost concurrency from lost fresh-context review.
 
 **Claude personas.** Link them so Claude Code can spawn them by name.
 
@@ -78,7 +78,8 @@ You don't name a playbook. `/ronin-mode` matches one, copies the steps into a to
 | Hosts | Cursor | Claude Code, Codex, anything that reads Agent Skills |
 | Forge | GitHub | GitHub or Azure DevOps, picked from the remote |
 | Stacks | Graphite | Plain `gh` and `az`, bases retargeted by hand |
-| Review panel | Another provider's model | The most different model the host has |
+| Parallel work | Model-diverse Cursor agents | Task-profiled agents; optional model routing |
+| Review provenance | Another provider's model | Self-review, same-model fresh-context, same-provider different-model, cross-provider, or an unverified joint tier with every known axis still reported |
 | Missing capability | Assumed present | Named in the reply |
 
 [`PORTING.md`](./PORTING.md) records every divergence and the reason for it.
@@ -91,12 +92,13 @@ ronin derives from pstack 0.14.1. I watch upstream and cherry-pick. I don't trac
 bun run check
 ```
 
-You need Bun 1.3.14 or newer. That runs 58 tests, a strict typecheck, a dependency audit, and the distribution verifier. The verifier builds twice and compares digests, installs into a throwaway home, proves the installer refuses to touch anything it doesn't own, then uninstalls and checks nothing got left behind.
+You need Bun 1.3.14 or newer. That runs the test suite, a strict typecheck, a dependency audit, and the distribution verifier. The verifier builds twice and compares digests, installs into a throwaway home, proves the installer refuses to touch anything it doesn't own, then uninstalls and checks nothing got left behind.
 
 ## How it's built
 
 - `skills/` is the canonical tree, host-neutral.
 - [`skills/ronin-core/HOST_CONTRACT.md`](./skills/ronin-core/HOST_CONTRACT.md) is the capability contract every skill reads first.
+- [`skills/ronin-core/task-profiles.json`](./skills/ronin-core/task-profiles.json) is the machine-checkable profile and review-provenance contract.
 - `adapters/` maps that contract onto Claude Code, Codex, and generic hosts.
 - `docs/` is the guide.
 - `scripts/` builds, installs, and verifies.

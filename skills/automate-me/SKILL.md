@@ -28,7 +28,7 @@ Update mode changes the rest of the flow:
 
 Ask the active host adapter for transcripts scoped to the current workspace or task, or use an explicit in-scope path supplied by the user. Never infer a storage layout or glob across private home-directory state. If no readable transcript is available, report the capability gap, skip mining, and rely on direct questions; do not imply that the resulting mode reflects historical evidence.
 
-Survey recent agent conversations within that scope for recurring patterns. For a large corpus, define bounded worker requests across slices of history, using the `fast-code` role and read-only access. Each worker returns a short structured list with evidence pointers. If delegation is unavailable, process the slices serially; if model routing is unavailable, inherit the current model. Disclose either substitution. Default signals worth hunting:
+Survey recent agent conversations within that scope for recurring patterns. For a large corpus, define bounded `explore` worker requests across slices of history with read-only access. Each worker returns a short structured list with evidence pointers. If parallel execution is unavailable, run serial fresh-context workers; if delegation is unavailable, process the slices in the coordinator. Disclose the capability actually lost. Default signals worth hunting:
 
 - Response preferences (length, tone, format, "dumb it down" corrections)
 - Delegation habits (subagents, models, specialized workflows, parallelism)
