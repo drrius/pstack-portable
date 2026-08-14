@@ -24,7 +24,7 @@ Resolve what is in scope vs explicitly out, technical or platform constraints, p
 
 Delegate codebase exploration (the **ronin-principle-guard-the-context-window** principle skill).
 
-- Prefer a Poteto Agent worker, which reads the ronin-core skill's `personas/poteto-agent.md` and `HOST_CONTRACT.md`, plus `skills/ronin/SKILL.md`, before work. A general worker is the fallback when the host cannot load named personas.
+- Prefer a ronin agent, which reads the ronin-core skill's `personas/ronin-agent.md` and `HOST_CONTRACT.md`, plus `skills/ronin/SKILL.md`, before work. A general worker is the fallback when the host cannot load named personas.
 - Assign `explore` to source investigation and `judge` to architectural interpretation. Both inherit the active model.
 
 Each explorer returns file pointers, conventions, dependencies, test infrastructure, and entry points. No inlined dumps.
@@ -98,7 +98,7 @@ In the overview, name which ronin non-negotiables the implementer must apply, by
 - the **ronin-interrogate** skill for adversarial review on contested designs before shipping.
 - the **ronin-deslop** skill over each diff before commit; the **ronin-unslop** skill over any prose surface.
 - the **ronin-review** skill to keep a decision trail when the plan is large enough to need an auditable record.
-- the Poteto `playbooks/babysit.md` workflow after opening the PR, using the configured forge-monitoring capability.
+- the ronin `playbooks/babysit.md` workflow after opening the PR, using the configured forge-monitoring capability.
 
 ## 7. Hand back
 

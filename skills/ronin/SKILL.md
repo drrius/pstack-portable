@@ -1,6 +1,6 @@
 ---
 name: ronin
-description: poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /ronin, or requests to work in this style.
+description: Rigorous engineering workflows for concise plans, deliberate subagents, simple code, and verified results. Use for /ronin or any non-trivial task that should be planned, executed, and proven end to end.
 disable-model-invocation: true
 ---
 
@@ -86,7 +86,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 ## Subagents
 
-**Use the Poteto Agent persona for playbook delegates** (code-writing delegates and ad-hoc helpers). Every such worker reads `../ronin-core/personas/poteto-agent.md`, `../ronin-core/HOST_CONTRACT.md`, and this skill before work. Routed workflow skills (`ronin-how`, `ronin-why`, `ronin-interrogate`, `ronin-reflect`, `ronin-swarm`) define their own worker contracts for independent review; respect those contracts instead of replacing them with the Poteto Agent persona.
+**Use the ronin agent persona for playbook delegates** (code-writing delegates and ad-hoc helpers). Every such worker reads `../ronin-core/personas/ronin-agent.md`, `../ronin-core/HOST_CONTRACT.md`, and this skill before work. Routed workflow skills (`ronin-how`, `ronin-why`, `ronin-interrogate`, `ronin-reflect`, `ronin-swarm`) define their own worker contracts for independent review; respect those contracts instead of replacing them with the ronin agent persona.
 
 **Define every worker request completely.** Include its objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Prefer file pointers over inlined bulk context. Assign one primary task profile from the host contract: `explore`, `implement`, `judge`, `explain`, or `verify`. The profile defines the job. Every worker inherits the active model. If parallel execution is unavailable, use serial fresh-context workers when possible and disclose lost concurrency only. If no separate worker context exists, execute in the coordinator, disclose that fresh context was not exercised, and report concurrency separately.
 

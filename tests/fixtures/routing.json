@@ -11,7 +11,7 @@
       "needles": ["ronin-architect"]
     },
     {
-      "from": "skills/ronin-core/personas/poteto-agent.md",
+      "from": "skills/ronin-core/personas/ronin-agent.md",
       "to": "skills/ronin/SKILL.md",
       "needles": ["/ronin"]
     }

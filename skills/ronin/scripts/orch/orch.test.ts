@@ -284,7 +284,7 @@ describe("Store", () => {
     const updated = await store.units.set({
       id: "u1",
       state: "done",
-      branch: "poteto/u1",
+      branch: "ronin/u1",
       pr: 184530,
       sha: "abc123",
     });
@@ -292,7 +292,7 @@ describe("Store", () => {
       id: "u1",
       track: "build",
       state: "done",
-      branch: "poteto/u1",
+      branch: "ronin/u1",
       pr: "184530",
       sha: "abc123",
       brief: "briefs/u1.md",
