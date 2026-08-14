@@ -4,19 +4,22 @@
   "private": true,
   "description": "Unofficial cross-agent port of Lauren Tan's pstack workflows",
   "type": "module",
+  "packageManager": "bun@1.3.14",
   "engines": {
-    "node": ">=22"
+    "bun": ">=1.3.14"
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "install:global": "node scripts/install.mjs",
-    "uninstall:global": "node scripts/uninstall.mjs",
-    "audit:tools": "npm audit --prefix skills/poteto-mode/scripts",
-    "test": "node scripts/verify.mjs",
-    "test:tools": "npm test --prefix skills/poteto-mode/scripts",
-    "typecheck:tools": "npm run typecheck --prefix skills/poteto-mode/scripts",
-    "verify": "node scripts/verify.mjs",
-    "verify:installed": "node scripts/verify.mjs --installed"
+    "build": "bun scripts/build.mjs",
+    "install:global": "bun scripts/install.mjs",
+    "uninstall:global": "bun scripts/uninstall.mjs",
+    "install:tools": "cd skills/poteto-mode/scripts && bun install --frozen-lockfile",
+    "audit:tools": "cd skills/poteto-mode/scripts && bun audit",
+    "test": "bun test",
+    "test:tools": "bun test",
+    "typecheck:tools": "cd skills/poteto-mode/scripts && bun run typecheck",
+    "verify": "bun scripts/verify.mjs",
+    "verify:installed": "bun scripts/verify.mjs --installed",
+    "check": "bun run verify && bun run test:tools && bun run typecheck:tools && bun run audit:tools"
   },
   "license": "MIT"
 }

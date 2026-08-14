@@ -6,7 +6,7 @@ import { repositoryRoot } from './lib.mjs';
 const argv = process.argv.slice(2);
 const sourceIndex = argv.indexOf('--source');
 if (sourceIndex < 0 || !argv[sourceIndex + 1] || argv[sourceIndex + 1].startsWith('--')) {
-  throw new Error('Usage: node scripts/audit-upstream.mjs --source /path/to/pstack');
+  throw new Error('Usage: bun scripts/audit-upstream.mjs --source /path/to/pstack');
 }
 
 const sourceRoot = resolve(argv[sourceIndex + 1]);

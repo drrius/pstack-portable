@@ -9,7 +9,7 @@ const home = parseHomeArgument(argv, homedir());
 const paths = installationPaths(home);
 const bundleRoot = join(repositoryRoot, 'dist', 'pstack-portable');
 const sourceManifestPath = join(bundleRoot, 'manifest.json');
-if (!existsSync(sourceManifestPath)) throw new Error('Build output is missing. Run `npm run build` first.');
+if (!existsSync(sourceManifestPath)) throw new Error('Build output is missing. Run `bun run build` first.');
 const sourceManifest = JSON.parse(await import('node:fs').then(({ readFileSync }) => readFileSync(sourceManifestPath, 'utf8')));
 if (sourceManifest.marker !== installMarker) throw new Error('Build output has an invalid ownership marker');
 

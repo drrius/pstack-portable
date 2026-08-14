@@ -4,24 +4,21 @@ Keep `skills/`, `personas/`, and `docs/` host-neutral. Concrete host paths, tool
 
 ## Development checks
 
-Use Node.js 22 or newer for the portable baseline:
+Install Bun 1.3.14 or newer, then reproduce the pinned dependencies and run the complete gate:
 
 ```sh
-npm test
-npm ci --prefix skills/poteto-mode/scripts
-npm run audit:tools
-npm run test:tools
-npm run typecheck:tools
+bun run install:tools
+bun run check
 ```
 
-Bun is optional. If installed, run the tooling suite and typecheck with `bun run test` and `bun run typecheck` from `skills/poteto-mode/scripts` as a compatibility check.
+For focused work, `bun test` runs the native unit suite, `bun run verify` exercises the distribution lifecycle, and `bun run typecheck:tools` checks the complete TypeScript tooling tree.
 
 ## Updating from upstream
 
 `upstream.json` pins the public repository, commit, version, allowlist, and original import digest. Fetch the exact public commit into a clean checkout, then verify it before reviewing any update:
 
 ```sh
-node scripts/audit-upstream.mjs --source /path/to/cursor-plugins/pstack
+bun scripts/audit-upstream.mjs --source /path/to/cursor-plugins/pstack
 ```
 
 For a new version, update one portability surface at a time: inventory the upstream diff, preserve the exact MIT notice, copy only the explicit allowlist, reapply semantic adaptations deliberately, and update the routing and capability fixtures. Never bulk-copy cache artifacts, generated dependencies, plugin packaging, or the excluded automation subtree.
@@ -30,4 +27,4 @@ The installed Cursor cache is evidence, not a build dependency. A clean contribu
 
 ## Change discipline
 
-Run `npm test` after each meaningful adaptation. Do not weaken a failing exclusion or capability test to make the suite green; either implement the portable behavior or document and test the capability gap. Changes to install ownership, collision handling, or uninstall require an isolated-home regression test because those paths touch global agent directories.
+Run `bun run check` after each meaningful adaptation. Do not weaken a failing exclusion or capability test to make the suite green; either implement the portable behavior or document and test the capability gap. Changes to install ownership, collision handling, or uninstall require an isolated-home regression test because those paths touch global agent directories.

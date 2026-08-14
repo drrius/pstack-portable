@@ -4,6 +4,8 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { filesUnder, installationPaths, parseHomeArgument, repositoryRoot, sha256, treeDigest, treeManifest } from './lib.mjs';
 
+if (!process.versions.bun) throw new Error('pstack-portable verification requires Bun 1.3.14 or newer');
+
 const failures = [];
 const check = (condition, message) => { if (!condition) failures.push(message); };
 const run = (script, args = []) => {
@@ -69,7 +71,7 @@ function validateSource(root) {
   const trackedResult = spawnSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: root, encoding: 'buffer' });
   check(trackedResult.status === 0, 'Unable to enumerate tracked publication files');
   const publishable = trackedResult.status === 0
-    ? trackedResult.stdout.toString('utf8').split('\0').filter(Boolean).map((path) => join(root, path))
+    ? trackedResult.stdout.toString('utf8').split('\0').filter(Boolean).map((path) => join(root, path)).filter(existsSync)
     : [];
   for (const path of publishable) {
     const relativePath = relative(root, path);
@@ -94,6 +96,20 @@ function validateSource(root) {
   check(license.includes('Copyright (c) 2026 Lauren Tan'), 'Lauren Tan copyright notice is missing');
   const upstream = JSON.parse(readFileSync(join(root, 'upstream.json'), 'utf8'));
   check(upstream.version === '0.14.1' && upstream.commit === '2a8044425c7bddf429c3bdedf3ab61e791d34d65', 'Pinned upstream provenance changed');
+  const rootPackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  check(rootPackage.packageManager === 'bun@1.3.14', 'Root package manager is not pinned to Bun 1.3.14');
+  check(Object.values(rootPackage.scripts).every((script) => !/\b(?:node|npm|npx|tsx|vitest)\b/.test(script)), 'Root package scripts still invoke the Node/npm toolchain');
+  const toolsRoot = join(root, 'skills/poteto-mode/scripts');
+  const toolsPackage = JSON.parse(readFileSync(join(toolsRoot, 'package.json'), 'utf8'));
+  const toolDependencies = { ...toolsPackage.dependencies, ...toolsPackage.devDependencies };
+  check(toolsPackage.packageManager === 'bun@1.3.14', 'Tool package manager is not pinned to Bun 1.3.14');
+  check(existsSync(join(toolsRoot, 'bun.lock')), 'Pinned Bun tool lockfile is missing');
+  check(!existsSync(join(toolsRoot, 'package-lock.json')), 'Legacy npm lockfile remains');
+  for (const removed of ['tsx', 'vitest']) check(!(removed in toolDependencies), `Legacy ${removed} dependency remains`);
+  for (const path of ['orch/orch', 'watch-pr/watch-pr']) {
+    const launcher = readFileSync(join(toolsRoot, path), 'utf8');
+    check(launcher.includes('bun') && !/\b(?:npm|npx|tsx)\b/.test(launcher), `Tool launcher is not Bun-native: ${path}`);
+  }
   const fixture = JSON.parse(readFileSync(join(root, 'tests/fixtures/delegation.json'), 'utf8'));
   for (const field of ['objective', 'ownershipBoundary', 'permissions', 'isolation', 'verifier', 'stopCondition', 'returnedEvidence']) check(Boolean(fixture[field]), `Delegation fixture lacks ${field}`);
   check(existsSync(join(root, fixture.persona)), 'Delegation fixture persona is missing');
@@ -155,6 +171,21 @@ function validateInstallation(home) {
   check(existsSync(installedPersona) && readFileSync(installedPersona, 'utf8').includes('poteto-mode'), 'Installed Poteto Agent cannot resolve Poteto Mode');
 }
 
+function validateToolLaunchers(home) {
+  const toolsRoot = join(installationPaths(home).root, 'skills/poteto-mode/scripts');
+  for (const [relativePath, expected] of [['orch/orch', 'Usage:'], ['watch-pr/watch-pr', 'Usage:']]) {
+    const path = join(toolsRoot, relativePath);
+    const result = spawnSync(path, ['--help'], {
+      cwd: toolsRoot,
+      encoding: 'utf8',
+      env: { ...process.env, BUN_BIN: process.execPath }
+    });
+    check(result.status === 0, `Installed Bun launcher failed: ${relativePath}: ${(result.stderr || result.stdout).trim()}`);
+    check((result.stdout || '').includes(expected), `Installed Bun launcher returned unexpected help: ${relativePath}`);
+  }
+  check(existsSync(join(toolsRoot, 'node_modules/commander/package.json')), 'Installed Bun launcher did not bootstrap pinned dependencies');
+}
+
 validateSource(repositoryRoot);
 run('build.mjs');
 const firstBuildDigest = existsSync(join(repositoryRoot, 'dist/pstack-portable')) ? treeDigest(join(repositoryRoot, 'dist/pstack-portable')) : '';
@@ -181,6 +212,7 @@ if (argv.includes('--installed')) {
     run('install.mjs', ['--home', testHome, '--dry-run']);
     run('install.mjs', ['--home', testHome]);
     validateInstallation(testHome);
+    validateToolLaunchers(testHome);
     run('install.mjs', ['--home', testHome]);
     validateInstallation(testHome);
     const unrelated = join(testHome, '.agents/skills/unrelated');
@@ -200,4 +232,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log('Verified Agent Skills metadata, provenance, exclusions, local references, and capability fixtures.');
-console.log('Verified deterministic build plus isolated-home install, reinstall, installed-file integrity, discovery links, dry-run, and exact uninstall.');
+console.log('Verified deterministic build plus isolated-home install, Bun tool bootstrap, reinstall, installed-file integrity, discovery links, dry-run, and exact uninstall.');

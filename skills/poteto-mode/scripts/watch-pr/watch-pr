@@ -1,7 +1,14 @@
 #!/bin/sh
 set -eu
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
-if [ ! -x "$script_dir/node_modules/.bin/tsx" ]; then
-  npm ci --prefix "$script_dir" --ignore-scripts --no-audit --no-fund
+if [ -n "${BUN_BIN:-}" ] && [ -x "$BUN_BIN" ]; then
+  bun_bin=$BUN_BIN
+elif command -v bun >/dev/null 2>&1; then
+  bun_bin=$(command -v bun)
+elif [ -x "${HOME:?}/.bun/bin/bun" ]; then
+  bun_bin="${HOME:?}/.bun/bin/bun"
+else
+  echo "pstack tooling requires Bun 1.3.14 or newer: https://bun.com/docs/installation" >&2
+  exit 127
 fi
-exec "$script_dir/node_modules/.bin/tsx" "$script_dir/watch-pr/entry.ts" "$@"
+exec "$bun_bin" "$script_dir/watch-pr/entry.ts" "$@"

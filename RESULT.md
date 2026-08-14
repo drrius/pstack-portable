@@ -1,31 +1,30 @@
 # Release-candidate result
 
-pstack-portable is a verified local release candidate derived from Lauren Tan's MIT-licensed pstack 0.14.1. The implementation commit is `06786f64e745994520479da00d9a114d1d50814a`; the final evidence commit and publication decision are recorded in the handoff.
+pstack-portable is a verified Bun-native local release candidate derived from Lauren Tan's MIT-licensed pstack 0.14.1. The exact candidate commit and publication decision are recorded in the handoff.
 
 ## Provenance
 
 - Public source: `cursor/plugins`, `pstack/` subtree, commit `2a8044425c7bddf429c3bdedf3ab61e791d34d65`.
 - Original complete cache digest: `5459c768cf630db9a37372240169d2d8cf15aa55b48611cad85c774904f677b7` before and after the port.
 - Explicit imported allowlist digest: `9e3347061e86a60d73138e839c6a4cd419fbefa50932bba50a0964e477d83251`, reproduced from a fresh public checkout.
-- Deterministic distribution digest: `410c4ed7f8ab10408466201db1d21d179bda15ff9874a11f48e2ca8b5d88d49e`.
+- Deterministic distribution digest: `278ce90a1289aa1995685a39967dc4898ec07243b34383d29b4ca9b9eef441eb`.
 - Inventory: 44 skills, two personas, 23 Poteto Mode playbooks, 34 skill references, and 17 documentation files.
 
 ## Verification evidence
 
 | Command | Result |
 | --- | --- |
-| `npm test` | Passed metadata, provenance, exclusions, links, routing and capability fixtures, deterministic build, collision refusal, isolated install/reinstall, file-integrity/readback, and exact uninstall |
-| `npm ci --prefix skills/poteto-mode/scripts` | Reproduced the pinned tooling dependency graph |
-| `npm run audit:tools` | Zero vulnerabilities |
-| `npm run test:tools` | 52 tests passed under Node.js 22.23.1 |
-| `npm run typecheck:tools` | Strict TypeScript check passed |
-| `bun run test` and `bun run typecheck` | 52 tests and strict typecheck passed under Bun 1.3.14, revision `1.3.14+0d9b296af` |
-| `node scripts/audit-upstream.mjs --source ...` | Public 0.14.1 inventory and allowlist digest matched |
-| `npm run install:global -- --dry-run` | No real-home collisions |
-| `npm run install:global` and `npm run verify:installed` | Installed and read back 44 skills and two personas |
+| `bun run install:tools` | Reproduced the pinned `bun.lock` dependency graph |
+| `bun test` | 52 native tests passed under Bun 1.3.14, revision `1.3.14+0d9b296af` |
+| `bun run verify` | Passed metadata, provenance, exclusions, links, routing and capability fixtures, deterministic build, collision refusal, isolated install, Bun tool bootstrap, reinstall, file-integrity/readback, and exact uninstall |
+| `bun run typecheck:tools` | Strict TypeScript check passed across bootstrap, orchestration, and PR-watcher sources and tests |
+| `bun run audit:tools` | Zero vulnerabilities |
+| `bun scripts/audit-upstream.mjs --source ...` | Public 0.14.1 inventory and allowlist digest matched |
+| `bun run install:global -- --dry-run` | No real-home collisions |
+| `bun run install:global` and `bun run verify:installed` | Installed and read back 44 skills and two personas |
 | `skills list -g` | Discovered representative pstack skills through the canonical global Agent Skills tree |
 
-The same Node verification, dependency installation, 52-test suite, strict typecheck, and public-source audit passed from a clean local clone with no ignored working-tree dependencies.
+The same Bun-only dependency installation, native test suite, strict typecheck, audit, lifecycle verification, installed command bootstrap, and public-source audit passed from a clean local clone with no ignored working-tree dependencies.
 
 ## Intentional differences
 

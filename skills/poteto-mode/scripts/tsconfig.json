@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext",
-    "types": ["node"]
+    "types": ["bun"]
   },
-  "include": ["*.ts"]
+  "include": ["bootstrap.ts", "orch/**/*.ts", "watch-pr/**/*.ts"]
 }

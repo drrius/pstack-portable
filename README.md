@@ -8,17 +8,17 @@ This port currently tracks pstack 0.14.1. It includes all 44 upstream skills, bo
 
 ## Status
 
-The local release candidate supports Agent Skills-compatible hosts, Codex, and Claude. Node.js 22 or newer is the portable baseline; Bun is optional and is exercised as a compatibility runtime.
+The local release candidate supports Agent Skills-compatible hosts, Codex, and Claude. Bun 1.3.14 or newer is the runtime for building, testing, installing, and running the bundled command-line tooling.
 
 ## Install
 
 Clone the repository, then build and inspect the global installation before applying it:
 
 ```sh
-npm run build
-npm run install:global -- --dry-run
-npm run install:global
-npm run verify:installed
+bun run build
+bun run install:global -- --dry-run
+bun run install:global
+bun run verify:installed
 ```
 
 The installer places the owned distribution at `~/.agents/pstack-portable`, links all skills into `~/.agents/skills`, and creates Claude aliases in `~/.claude/skills` plus persona definitions in `~/.claude/agents`. It refuses unrelated files or links instead of overwriting them.
@@ -26,8 +26,8 @@ The installer places the owned distribution at `~/.agents/pstack-portable`, link
 To remove only manifest-owned files and links:
 
 ```sh
-npm run uninstall:global -- --dry-run
-npm run uninstall:global
+bun run uninstall:global -- --dry-run
+bun run uninstall:global
 ```
 
 Pass `--home /explicit/home` to the install, uninstall, or installed-verification command to test another home directory.
@@ -41,14 +41,14 @@ The workflows request capabilities through `HOST_CONTRACT.md`. If a host cannot 
 ## Verify
 
 ```sh
-npm test
-npm ci --prefix skills/poteto-mode/scripts
-npm run audit:tools
-npm run test:tools
-npm run typecheck:tools
+bun run install:tools
+bun test
+bun run verify
+bun run typecheck:tools
+bun run audit:tools
 ```
 
-The primary verifier checks metadata, links, exclusions, provenance, routing fixtures, deterministic builds, collision refusal, isolated-home install and reinstall, installed file integrity and workflow readback, and exact uninstall. See `CONTRIBUTING.md` for upstream auditing and `RELEASING.md` for the release gate.
+`bun test` runs the 52 native unit tests. `bun run verify` checks metadata, links, exclusions, provenance, routing fixtures, deterministic builds, collision refusal, isolated-home install and reinstall, installed file integrity and workflow readback, and exact uninstall. `bun run check` runs the complete test, verifier, typecheck, and audit gate. See `CONTRIBUTING.md` for upstream auditing and `RELEASING.md` for the release gate.
 
 ## Design
 
