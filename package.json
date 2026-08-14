@@ -11,6 +11,7 @@
     "build": "node scripts/build.mjs",
     "install:global": "node scripts/install.mjs",
     "uninstall:global": "node scripts/uninstall.mjs",
+    "audit:tools": "npm audit --prefix skills/poteto-mode/scripts",
     "test": "node scripts/verify.mjs",
     "test:tools": "npm test --prefix skills/poteto-mode/scripts",
     "typecheck:tools": "npm run typecheck --prefix skills/poteto-mode/scripts",

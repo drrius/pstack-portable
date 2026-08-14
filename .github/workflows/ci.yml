@@ -19,5 +19,6 @@ jobs:
           cache-dependency-path: skills/poteto-mode/scripts/package-lock.json
       - run: npm test
       - run: npm ci --prefix skills/poteto-mode/scripts
+      - run: npm run audit:tools
       - run: npm run test:tools
       - run: npm run typecheck:tools

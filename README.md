@@ -43,6 +43,7 @@ The workflows request capabilities through `HOST_CONTRACT.md`. If a host cannot 
 ```sh
 npm test
 npm ci --prefix skills/poteto-mode/scripts
+npm run audit:tools
 npm run test:tools
 npm run typecheck:tools
 ```

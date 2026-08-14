@@ -9,6 +9,7 @@ Use Node.js 22 or newer for the portable baseline:
 ```sh
 npm test
 npm ci --prefix skills/poteto-mode/scripts
+npm run audit:tools
 npm run test:tools
 npm run typecheck:tools
 ```
