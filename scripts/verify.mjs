@@ -94,6 +94,9 @@ function validateSource(root) {
 
   const license = readFileSync(join(root, 'LICENSE'), 'utf8');
   check(license.includes('Copyright (c) 2026 Lauren Tan'), 'Lauren Tan copyright notice is missing');
+  const teamKitLicense = readFileSync(join(root, 'LICENSE-cursor-team-kit'), 'utf8');
+  check(teamKitLicense.includes('Copyright (c) 2026 Cursor'), 'Cursor Team Kit copyright notice is missing');
+  check(existsSync(join(root, 'skills/deslop/SKILL.md')), 'Imported deslop skill is missing');
   const upstream = JSON.parse(readFileSync(join(root, 'upstream.json'), 'utf8'));
   check(upstream.version === '0.14.1' && upstream.commit === '2a8044425c7bddf429c3bdedf3ab61e791d34d65', 'Pinned upstream provenance changed');
   const rootPackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));

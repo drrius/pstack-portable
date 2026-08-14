@@ -14,7 +14,7 @@ for (const name of ['skills', 'personas', 'docs', 'adapters']) {
     filter: (source) => !source.split('/').includes('node_modules')
   });
 }
-for (const name of ['HOST_CONTRACT.md', 'LICENSE', 'NOTICE.md', 'README.md', 'UPSTREAM.md', 'upstream.json']) {
+for (const name of ['HOST_CONTRACT.md', 'LICENSE', 'LICENSE-cursor-team-kit', 'NOTICE.md', 'README.md', 'UPSTREAM.md', 'upstream.json']) {
   cpSync(join(repositoryRoot, name), join(bundleRoot, name));
 }
 

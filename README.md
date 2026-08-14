@@ -4,7 +4,7 @@ An unofficial, cross-agent port of [pstack](https://github.com/cursor/plugins/tr
 
 The repository keeps one canonical [Agent Skills](https://agentskills.io/) tree in `skills/`. Host adapters translate capabilities such as delegation, persistence, model selection, transcript access, and real-surface control without forking the underlying workflows. The original Cursor plugin remains the best native Cursor experience and is not modified by this project.
 
-This port currently tracks pstack 0.14.1. It includes the 44 upstream skills plus the portable `deslop` skill (45 total), both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
+This port currently tracks pstack 0.14.1. It includes the 44 upstream skills plus MIT-imported `deslop` from Cursor Team Kit (45 total), both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
 
 ## Status
 
@@ -64,4 +64,4 @@ See `PORTING.md` for the semantic adaptation map and deliberate differences from
 
 ## Licensing
 
-The adapted pstack material remains under Lauren Tan's MIT license in `LICENSE`. This community port is not affiliated with or endorsed by Lauren Tan or Cursor. See `NOTICE.md` for provenance and adaptation details.
+The adapted pstack material remains under Lauren Tan's MIT license in `LICENSE`. Imported `deslop` remains under Cursor's MIT license in `LICENSE-cursor-team-kit`. This community port is not affiliated with or endorsed by Lauren Tan or Cursor. See `NOTICE.md` for provenance and adaptation details.

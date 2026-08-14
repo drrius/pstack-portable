@@ -1,31 +1,22 @@
 ---
 name: deslop
-description: Clean a code diff of narrating comments, unsupported guards, dead compatibility paths, type-bypass casts, and unrelated edits. Use before commit, for /deslop, or when a diff looks padded.
-disable-model-invocation: true
+description: Remove AI-generated code slop and clean up code style
 ---
 
-# Deslop
+# Remove AI code slop
 
-Clean the current code change. This is the code-diff counterpart of **unslop**, which edits prose. For an adversarial comment review, use **no-comments**.
+Check the diff against main and remove AI-generated slop introduced in the branch.
 
-## Scope
+## Focus Areas
 
-Diff the working tree against the repository default branch, usually `main`. Include staged and unstaged edits. Stay inside that diff.
-
-## What to remove or reshape
-
-- Narrating or restating comments that the next line already says
-- Unsupported guards and abnormal try/catch on trusted internal paths
-- Dead compatibility branches no remaining caller needs
-- Unrelated edits that landed in the same change
-- `any` casts that only silence the type checker
-- Nesting that an early return would flatten
-- Style that disagrees with the surrounding file
+- Extra comments that are unnecessary or inconsistent with local style
+- Defensive checks or try/catch blocks that are abnormal for trusted code paths
+- Casts to `any` used only to bypass type issues
+- Deeply nested code that should be simplified with early returns
+- Other patterns inconsistent with the file and surrounding codebase
 
 ## Guardrails
 
-Keep behavior unchanged unless the diff contains a clear bug. Make the smallest focused edits. After the pass, write a concise 1-3 sentence summary of what changed and what you left alone.
-
-## When nothing remains
-
-If the diff is already tight, say so and stop. Do not invent cleanup.
+- Keep behavior unchanged unless fixing a clear bug.
+- Prefer minimal, focused edits over broad rewrites.
+- Keep the final summary concise (1-3 sentences).
