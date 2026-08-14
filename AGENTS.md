@@ -4,6 +4,6 @@ Read `.codex/ronin/goal.md` and `.codex/ronin/plan.md` when they are present. Ke
 
 Treat the installed Cursor pstack cache as immutable source material. Never edit, install over, remove, or relink the Cursor plugin.
 
-Keep `skills/` canonical and host-neutral. Put concrete host mechanics in `adapters/`, preserve Lauren Tan's MIT notice, do not redistribute Cursor built-ins without a clear license, and do not add the excluded automation pack.
+Keep `skills/` canonical and host-neutral. Ask for capabilities through `skills/ronin-core/HOST_CONTRACT.md`. Do not add host adapters or model-routing configuration. Preserve Lauren Tan's MIT notice, do not redistribute Cursor built-ins without a clear license, and do not add the excluded automation pack.
 
-Run `bun run check` before claiming completion. Installation behavior must also pass in an isolated temporary home, and uninstall must remove only manifest-owned artifacts.
+Run `bun run check` before claiming completion. The build must remain deterministic and free of cached dependencies.
