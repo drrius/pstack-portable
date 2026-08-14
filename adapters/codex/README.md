@@ -2,7 +2,7 @@
 
 Codex discovers the canonical tree through `~/.agents/skills`, so it does not need a second skill copy.
 
-- Delegated lanes map to Codex subagents with explicit scope, verifier, stop condition, and returned evidence.
+- Delegated lanes map to Codex subagents with explicit scope, verifier, stop condition, and returned evidence. Subagents require Codex's `multi_agent` feature flag (`codex features enable multi_agent`); without it, lanes execute serially with disclosure.
 - Durable runs map to Codex goals and their workspace-backed goal and plan files.
 - User questions map to Codex's user-input mechanism when the answer cannot be discovered safely.
 - Personas are supplied in a subagent brief because Codex does not require Claude-style agent definition files.

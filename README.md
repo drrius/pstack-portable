@@ -36,6 +36,19 @@ cd your-project && npx skills add drrius/pstack-portable --skill '*' -a codex -y
 
 That lands in the project's `.agents/skills`; note Cursor also reads project `.agents/skills`, so a repo you open in both hosts will show both copies there. The native Cursor plugin remains the intended experience inside Cursor.
 
+### After install
+
+The skills CLI delivers only the skill tree. Three optional host steps unlock full capability; every skill degrades honestly without them:
+
+- **Model roles.** Run `/setup-pstack` (or invoke the `setup-pstack` skill) to write `~/.config/pstack/models.yaml` — per-host role maps with optional reasoning efforts. Without it, every role inherits the current model and review panels disclose that they shared one model.
+- **Codex fan-out.** Subagent delegation on Codex requires its feature flag: `codex features enable multi_agent`. Codex's newer `multi_agent_v2` coexists with it and can be enabled alongside. Without the flag, fan-out skills (`how`, `arena`, `interrogate`, `swarm`) execute serially and disclose the lost concurrency.
+- **Claude personas.** The persona files ship inside `skills/pstack-core/personas/`. To register them as Claude agent definitions, link them into `~/.claude/agents/` (the maintainer installer below does this automatically):
+
+  ```sh
+  ln -s ~/.claude/skills/pstack-core/personas/poteto-agent.md ~/.claude/agents/poteto-agent.md
+  ln -s ~/.claude/skills/pstack-core/personas/comment-sicko.md ~/.claude/agents/comment-sicko.md
+  ```
+
 ### Maintainer install
 
 The repository also ships a manifest-owned installer used for development and release verification:
