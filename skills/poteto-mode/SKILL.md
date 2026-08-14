@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Host contract
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. It defines delegation, model roles, persistence, transcript access, real-surface control, skill paths, and safety for the active host. The host contract and the host's own permission policy override any workflow shorthand in this skill or its playbooks. If the contract is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From this skill's installed directory, the contract is at `../pstack-core/HOST_CONTRACT.md` (the sibling pstack-core skill; resolve this skill's realpath first if the path does not resolve directly). It defines delegation, model roles, persistence, transcript access, real-surface control, skill paths, and safety for the active host. The host contract and the host's own permission policy override any workflow shorthand in this skill or its playbooks. If the contract is unavailable, stop and report an incomplete pstack installation.
 
 ## Non-negotiables
 
@@ -25,7 +25,7 @@ Remaining triggers:
 - Nontrivial multi-step → write the throughput checkpoint (Feature step 3).
 - Any prose surface → the **unslop** skill. Your reply is a prose surface; write it per **Writing the reply**. Agent-facing prose also uses the host's skill-authoring capability when available; otherwise follow the Agent Skills format and validate the result.
 - Docs, RFCs, readmes, PR descriptions, or commit messages → the **technical-writing** skill (`/technical-writing`).
-- Before commit → use the host's available diff-cleanup capability. If none exists, inspect the diff directly for narrating comments, unsupported guards, dead compatibility paths, and unrelated edits.
+- Before commit → use the **deslop** skill. If unavailable, inspect the diff for narrating comments, unsupported guards, dead compatibility paths, and unrelated edits.
 - Before review → the **no-comments** skill (`/no-comments`).
 - Shipping UI / IDE / CLI → use the host's real-surface browser, desktop, CLI, or TUI control capability. For bug fixes, reproduce first on the same surface yourself; hand to the user only under the narrow Bug fix step 1 exception. If the required surface is unavailable, follow the host contract's explicit manual-handoff rule.
 - Any PR-status request → the **Babysit** playbook (`playbooks/babysit.md`). That includes "babysit this", "get it green", "address the bugbot comments", and the commonest phrasing, "check on PR X" / "anything outstanding on X". Never triggered by merely opening a PR. Declare its mode before polling; the playbook's step 1 owns the request-to-mode mapping. Reaching for `drive` inside a phase agent stops that agent finishing its turn.
@@ -86,7 +86,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 ## Subagents
 
-**Use the Poteto Agent persona for playbook delegates** (code-writing delegates and ad-hoc helpers). Every such worker reads `personas/poteto-agent.md`, `HOST_CONTRACT.md`, and this skill before work. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) define their own worker contracts for independent review; respect those contracts instead of replacing them with the Poteto Agent persona.
+**Use the Poteto Agent persona for playbook delegates** (code-writing delegates and ad-hoc helpers). Every such worker reads `../pstack-core/personas/poteto-agent.md`, `../pstack-core/HOST_CONTRACT.md`, and this skill before work. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) define their own worker contracts for independent review; respect those contracts instead of replacing them with the Poteto Agent persona.
 
 **Define every worker request completely.** Include its objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Prefer file pointers over inlined bulk context. Select stable model roles through the host adapter: `fast-code` for mechanical work, `deep-code` for precisely specified difficult implementation, `judgment` for cross-cutting or ambiguous work, `prose` for communication, and `independent-review` for fresh verification. If model selection or delegation is unavailable, inherit the current model or execute serially and disclose which diversity or concurrency was not exercised.
 
@@ -128,11 +128,11 @@ A large or cross-cutting effort (a migration across many call sites, an ambitiou
 - **Authoring or modifying a skill.** Writing or editing a SKILL.md. `playbooks/authoring-a-skill.md`.
 - **Eval.** Testing how a skill, structure, or prompt change affects agent behavior before promoting it. `playbooks/eval.md`.
 - **Babysit.** Driving a PR or a stack to merge-ready: conflicts, review threads, CI. `playbooks/babysit.md`.
-- **Shipping.** The half after Babysit. Independently verifying a green stack, then landing the contiguous verified run with Graphite merge-when-ready. `playbooks/shipping.md`.
+- **Shipping.** The half after Babysit. Independently verifying a green stack, then landing the contiguous verified run one PR at a time from the bottom. `playbooks/shipping.md`.
 - **Autonomous run.** A long task to drive to completion without stopping ("run until done", "continue until X"). `playbooks/autonomous-run.md`.
 - **Orchestrate.** A standing project handed to one coordinator chat: multi-day, many stacked PRs, dozens to hundreds of subagents, minimal human turns ("run this whole project", "own this migration until it lands"). Distinct from Autonomous run, which drives one task to a predicate; work one agent could finish inside the session's budget routes there, not here, however program-shaped the phrasing sounds. `playbooks/orchestrate.md`.
 - **Autopilot-full.** A queue of independent PRs run to merged with full autonomy: one owner per PR carries build through merge, and the root swarm-verifies each merge-ready head before its owner merges ("autopilot this queue", "full autopilot", one-owner-per-PR programs). `playbooks/autopilot-full.md`.
-- **Autopilot-stack.** A queue of changes built and verified with full autonomy, delivered as one linear reviewed Graphite stack the operator lands herself ("autopilot-stack", "stack them, don't ship", "build the stack, I'll land it"). `playbooks/autopilot-stack.md`.
+- **Autopilot-stack.** A queue of changes built and verified with full autonomy, delivered as one linear reviewed stack the operator lands herself ("autopilot-stack", "stack them, don't ship", "build the stack, I'll land it"). `playbooks/autopilot-stack.md`.
 - **Session pickup.** Resuming or taking over a prior agent's in-flight work from a transcript, cloud-agent URL, or pushed branch. `playbooks/session-pickup.md`.
 - **Pause safely.** Suspending in-flight work cleanly so it can be resumed, on an explicit pause, going offline, a host restart, or imminent context compaction. The complement to Session pickup. Full steps: `playbooks/pause-safely.md`.
 - **Multi-phase or multi-PR plan.** Work that spans phases or stacked PRs. `playbooks/multi-phase-plan.md`.

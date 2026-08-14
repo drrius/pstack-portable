@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Architect
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. Use its planning, delegation, model-role, isolation, and safety rules throughout. If it is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From this skill's installed directory, the contract is at `../pstack-core/HOST_CONTRACT.md` (the sibling pstack-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its planning, delegation, model-role, isolation, and safety rules throughout. If it is unavailable, stop and report that the pstack-core skill is not installed alongside this one.
 
 Design before implementing. Sketch types, function signatures, class shapes, and module boundaries with `not implemented` bodies and pseudocode. Synthesize across multiple model perspectives, then fill in code against the chosen sketch. If implementation proves the sketch wrong, throw it out and redesign.
 

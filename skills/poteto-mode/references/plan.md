@@ -24,7 +24,7 @@ Resolve what is in scope vs explicitly out, technical or platform constraints, p
 
 Delegate codebase exploration (the **guard-the-context-window** principle skill).
 
-- Prefer a Poteto Agent worker, which reads `personas/poteto-agent.md`, `HOST_CONTRACT.md`, and `skills/poteto-mode/SKILL.md` before work. A general worker is the fallback when the host cannot load named personas.
+- Prefer a Poteto Agent worker, which reads the pstack-core skill's `personas/poteto-agent.md` and `HOST_CONTRACT.md`, plus `skills/poteto-mode/SKILL.md`, before work. A general worker is the fallback when the host cannot load named personas.
 - Select the configured stable role explicitly: `fast-code` or `deep-code` for source exploration, and `judgment` for architectural interpretation. If model routing is unavailable, inherit the current model and disclose the substitution when diversity mattered.
 
 Each explorer returns file pointers, conventions, dependencies, test infrastructure, and entry points. No inlined dumps.
@@ -96,7 +96,7 @@ In the overview, name which poteto-mode non-negotiables the implementer must app
 
 - the **how** skill over each unfamiliar subsystem before changing it.
 - the **interrogate** skill for adversarial review on contested designs before shipping.
-- the host's diff-cleanup capability over each diff before commit; the **unslop** skill over any prose surface.
+- the **deslop** skill over each diff before commit; the **unslop** skill over any prose surface.
 - the **show-me-your-work** skill to keep a decision trail when the plan is large enough to need an auditable record.
 - the Poteto `playbooks/babysit.md` workflow after opening the PR, using the configured forge-monitoring capability.
 

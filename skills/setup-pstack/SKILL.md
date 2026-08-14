@@ -1,11 +1,11 @@
 ---
 name: setup-pstack
-description: Configure pstack's stable model roles through the active host adapter. Use for /setup-pstack, "configure pstack models", or changing pstack's model choices.
+description: Configure pstack's stable model roles. Use for /setup-pstack, "configure pstack models", or changing pstack's model choices.
 ---
 
 # Setup pstack
 
-Configure the mapping from pstack's stable roles to models the user can run. Canonical workflows name roles, never provider-specific model IDs; the active host adapter resolves those roles when it launches a worker.
+Configure the mapping from pstack's stable roles to models the user can run. Canonical workflows name roles, never provider-specific model IDs. Agents read `~/.config/pstack/models.yaml` when selecting models. A host adapter may inject or enforce that map when the host supports it. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them.
 
 The roles are:
 
@@ -19,7 +19,7 @@ The roles are:
 
 ### 1. Inspect host capabilities
 
-Ask the active host adapter for its model-routing capability, current role mapping, and models available to this user. Treat that response as authoritative. Do not infer model access from documentation, model names seen in prose, or another host's configuration.
+Inspect the host's model-routing capability, current role mapping, and models available to this user. Treat that response as authoritative. Do not infer model access from documentation, model names seen in prose, or another host's configuration.
 
 If the host cannot enumerate models but accepts a user-configured model identifier, ask the user for the identifiers they want to use and explain that availability can be verified only when a worker is launched. If the host cannot select models at all, explain that every role will inherit the current model and identify model diversity as unavailable. This is a supported capability fallback, not an error.
 
@@ -35,7 +35,7 @@ For `independent-review`, preserve a configured list when the host supports sele
 
 ### 4. Validate and write
 
-Validate the complete mapping through the adapter before writing it. Every concrete identifier must be in the host's enumerated set when enumeration is available. If enumeration is unavailable, preserve the user's identifiers as explicitly unverified rather than claiming they work.
+Validate the complete mapping before writing it. Every concrete identifier must be in the host's enumerated set when enumeration is available. If enumeration is unavailable, preserve the user's identifiers as explicitly unverified rather than claiming they work.
 
 Write `~/.config/pstack/models.yaml` atomically and preserve no unrelated keys. Re-running this skill must produce the same state for the same choices. The file has this shape:
 
@@ -48,7 +48,7 @@ independent-review:
   - inherit-current
 ```
 
-`inherit-current` is a pstack semantic value, not a model identifier. An adapter implements it by omitting explicit model selection.
+`inherit-current` is a pstack semantic value, not a model identifier. Apply it by omitting explicit model selection. A host may inject the same omission when it can.
 
 ### 5. Confirm
 

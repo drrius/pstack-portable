@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Interrogate
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. Use its delegation, model-role, and safety rules for every reviewer. If it is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From this skill's installed directory, the contract is at `../pstack-core/HOST_CONTRACT.md` (the sibling pstack-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its delegation, model-role, and safety rules for every reviewer. If it is unavailable, stop and report that the pstack-core skill is not installed alongside this one.
 
 Launch one reviewer per configured panel entry to adversarially review code changes. Each reviewer gets the same prompt and rubric. Model diversity adds signal when the host supports it, but independent passes remain useful when every worker inherits the same model. Agreement across reviewers is high-confidence signal; lone-reviewer findings are worth reading but lower confidence.
 

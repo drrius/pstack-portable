@@ -79,6 +79,7 @@ interface GateResolveOptions {
 
 interface FrontierSetOptions {
   readonly repo?: string;
+  readonly branch?: string;
   readonly prs?: readonly number[];
 }
 
@@ -470,14 +471,18 @@ function createProgram(io: Io): Command {
 
   const frontier = program
     .command("frontier")
-    .description("manage the Graphite stack frontier")
+    .description("manage the pull request stack frontier")
     .action(() => requireSubcommand(program));
-  leaf(frontier, "set", "discover the Graphite stack and set the frontier")
+  leaf(frontier, "set", "walk the pull request stack and set the frontier")
     .addOption(
       new Option(
         "--repo <dir>",
         "repository directory (or ORCH_REPO)"
       ).env("ORCH_REPO")
+    )
+    .option(
+      "--branch <name>",
+      "stack branch to resolve from (default: the repo checkout's current branch)"
     )
     .option(
       "--prs <n,...>",
@@ -491,6 +496,7 @@ function createProgram(io: Io): Command {
         (store) =>
           store.frontier.set({
             repo: frontierRepo(options),
+            branch: options.branch,
             prs: options.prs,
           }),
         frontierLine

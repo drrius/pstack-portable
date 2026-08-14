@@ -17,7 +17,7 @@ for (const name of manifest.skillNames) {
   links.push([join(paths.claudeSkills, name), join(paths.root, 'skills', name)]);
 }
 for (const name of manifest.personaNames) {
-  links.push([join(paths.claudeAgents, `${name}.md`), join(paths.root, 'personas', `${name}.md`)]);
+  links.push([join(paths.claudeAgents, `${name}.md`), join(paths.root, 'skills', 'pstack-core', 'personas', `${name}.md`)]);
 }
 for (const [link, target] of links) {
   const status = safeLstat(link);

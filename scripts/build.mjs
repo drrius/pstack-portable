@@ -8,13 +8,13 @@ if (dirname(distRoot) !== repositoryRoot || basename(distRoot) !== 'dist') throw
 rmSync(distRoot, { recursive: true, force: true });
 mkdirSync(bundleRoot, { recursive: true });
 
-for (const name of ['skills', 'personas', 'docs', 'adapters']) {
+for (const name of ['skills', 'docs', 'adapters']) {
   cpSync(join(repositoryRoot, name), join(bundleRoot, name), {
     recursive: true,
     filter: (source) => !source.split('/').includes('node_modules')
   });
 }
-for (const name of ['HOST_CONTRACT.md', 'LICENSE', 'NOTICE.md', 'README.md', 'UPSTREAM.md', 'upstream.json']) {
+for (const name of ['LICENSE', 'LICENSE-cursor-team-kit', 'NOTICE.md', 'README.md', 'UPSTREAM.md', 'upstream.json']) {
   cpSync(join(repositoryRoot, name), join(bundleRoot, name));
 }
 
@@ -22,7 +22,7 @@ const skillNames = treeManifest(join(bundleRoot, 'skills'))
   .filter((entry) => entry.path.endsWith('/SKILL.md') && !entry.path.slice(0, -9).includes('/'))
   .map((entry) => entry.path.split('/')[0])
   .sort();
-const personaNames = treeManifest(join(bundleRoot, 'personas'))
+const personaNames = treeManifest(join(bundleRoot, 'skills', 'pstack-core', 'personas'))
   .filter((entry) => entry.path.endsWith('.md'))
   .map((entry) => basename(entry.path, '.md'))
   .sort();

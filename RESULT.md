@@ -7,8 +7,8 @@ pstack-portable is a verified Bun-native local release candidate derived from La
 - Public source: `cursor/plugins`, `pstack/` subtree, commit `2a8044425c7bddf429c3bdedf3ab61e791d34d65`.
 - Original complete cache digest: `5459c768cf630db9a37372240169d2d8cf15aa55b48611cad85c774904f677b7` before and after the port.
 - Explicit imported allowlist digest: `9e3347061e86a60d73138e839c6a4cd419fbefa50932bba50a0964e477d83251`, reproduced from a fresh public checkout.
-- Deterministic distribution digest: `278ce90a1289aa1995685a39967dc4898ec07243b34383d29b4ca9b9eef441eb`.
-- Inventory: 44 skills, two personas, 23 Poteto Mode playbooks, 34 skill references, and 17 documentation files.
+- Deterministic distribution digest: `790825ff21c254e282c9b0a987206332941da7426037b378a4a22dfdf45c2d3b`.
+- Inventory: 46 skills (44 upstream, MIT-imported `deslop`, first-party `pstack-core`), two personas, 23 Poteto Mode playbooks, 34 skill references, and 17 documentation files.
 
 ## Verification evidence
 
@@ -21,7 +21,7 @@ pstack-portable is a verified Bun-native local release candidate derived from La
 | `bun run audit:tools` | Zero vulnerabilities |
 | `bun scripts/audit-upstream.mjs --source ...` | Public 0.14.1 inventory and allowlist digest matched |
 | `bun run install:global -- --dry-run` | No real-home collisions |
-| `bun run install:global` and `bun run verify:installed` | Installed and read back 44 skills and two personas |
+| `bun run install:global` and `bun run verify:installed` | Installed and read back 45 skills and two personas |
 | `skills list -g` | Discovered representative pstack skills through the canonical global Agent Skills tree |
 
 The same Bun-only dependency installation, native test suite, strict typecheck, audit, lifecycle verification, installed command bootstrap, and public-source audit passed from a clean local clone with no ignored working-tree dependencies.

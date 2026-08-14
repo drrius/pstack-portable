@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Arena
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. Use its delegation, isolation, model-role, and safety rules for every candidate and judge. If it is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From this skill's installed directory, the contract is at `../pstack-core/HOST_CONTRACT.md` (the sibling pstack-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its delegation, isolation, model-role, and safety rules for every candidate and judge. If it is unavailable, stop and report that the pstack-core skill is not installed alongside this one.
 
 Fan out N parallel attempts at the same task. Read every candidate end to end. Pick the strongest as the base. Graft the best ideas from the others into it. Verify the synthesized result.
 
