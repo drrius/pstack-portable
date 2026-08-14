@@ -1,0 +1,17 @@
+{
+  "name": "pstack-portable",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Unofficial cross-agent port of Lauren Tan's pstack workflows",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/verify.mjs",
+    "verify": "node scripts/verify.mjs",
+    "verify:installed": "node scripts/verify.mjs --installed"
+  },
+  "license": "MIT"
+}
