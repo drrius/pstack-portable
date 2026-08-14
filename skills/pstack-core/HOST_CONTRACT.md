@@ -14,7 +14,7 @@ Named pstack workers are portable personas. A Poteto Agent worker reads the psta
 
 ## Model roles
 
-Canonical workflows select stable roles such as `fast-code`, `deep-code`, `judgment`, `prose`, and `independent-review`. `~/.config/pstack/models.yaml` is the user-authored role map. Workers and setup read it when choosing models. A host adapter may inject or enforce it when the host supports that. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them. If model selection is unavailable, inherit the current model and disclose the substitution when diversity was part of the verifier.
+Canonical workflows select stable roles such as `fast-code`, `deep-code`, `judgment`, `prose`, and `independent-review`. Reviewer diversity means the most different model the host offers from the author's: on a single-provider host, a different model in the provider's family is the intended state, not a degraded one. Disclose a diversity substitution only when the reviewer had to run on the author's own model. `~/.config/pstack/models.yaml` is the user-authored role map. Workers and setup read it when choosing models. A host adapter may inject or enforce it when the host supports that. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them. If model selection is unavailable, inherit the current model and disclose the substitution when diversity was part of the verifier.
 
 ## Persistence
 

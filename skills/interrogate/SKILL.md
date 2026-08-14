@@ -44,7 +44,7 @@ Launch the host adapter's configured `independent-review` panel concurrently, ex
 | Reviewer C | `independent-review` |
 | Reviewer D | `independent-review` |
 
-Every reviewer gets a non-writing request with the objective, review scope, permissions, verifier, stop condition, and required findings. Ask the host adapter for model-family diversity when available. If model selection is unavailable, inherit the current model and disclose that cross-model diversity was not exercised. If delegation is unavailable, perform separate serial review passes and disclose that concurrency was not exercised.
+Every reviewer gets a non-writing request with the objective, review scope, permissions, verifier, stop condition, and required findings. Spread reviewers across the most different models the host offers — different models within one provider's family count as full diversity. Only when the host offers no alternative model at all, inherit the current model and disclose that every reviewer shared the author's model. If delegation is unavailable, perform separate serial review passes and disclose that concurrency was not exercised.
 
 Read `references/reviewer-prompt.md` and fill in the template with:
 1. The stated intent

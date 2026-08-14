@@ -36,7 +36,7 @@ Define three worker requests and launch them in parallel when the host's delegat
 | Tooling | `deep-code` | `references/tooling-reviewer.md` |
 | Divergent | `independent-review` | `references/divergent-reviewer.md` |
 
-Pass each template verbatim, substituting the transcript path or digest where marked. If delegation is unavailable, run the three lenses serially and disclose that independence was procedural rather than agent-isolated. If model selection is unavailable, inherit the current model and disclose that model diversity was not exercised.
+Pass each template verbatim, substituting the transcript path or digest where marked. If delegation is unavailable, run the three lenses serially and disclose that independence was procedural rather than agent-isolated. If the host offers no alternative model, inherit the current model and disclose that the lenses shared the author's model.
 
 ### 3. Synthesize
 
