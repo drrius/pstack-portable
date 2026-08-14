@@ -79,6 +79,7 @@ interface GateResolveOptions {
 
 interface FrontierSetOptions {
   readonly repo?: string;
+  readonly branch?: string;
   readonly prs?: readonly number[];
 }
 
@@ -480,6 +481,10 @@ function createProgram(io: Io): Command {
       ).env("ORCH_REPO")
     )
     .option(
+      "--branch <name>",
+      "stack branch to resolve from (default: the repo checkout's current branch)"
+    )
+    .option(
       "--prs <n,...>",
       "optional expected pull request order pin",
       prList
@@ -491,6 +496,7 @@ function createProgram(io: Io): Command {
         (store) =>
           store.frontier.set({
             repo: frontierRepo(options),
+            branch: options.branch,
             prs: options.prs,
           }),
         frontierLine

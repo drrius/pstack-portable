@@ -167,6 +167,7 @@ export interface ResolveGateParams {
 
 export interface SetFrontierParams {
   readonly repo: string;
+  readonly branch?: string;
   readonly prs?: readonly number[];
 }
 
@@ -1061,8 +1062,64 @@ function parseGhPullRequests(value: unknown): readonly GhPullRequestRow[] {
   });
 }
 
-function githubFrontier(repo: string): readonly FrontierEntry[] {
+function currentBranch(repo: string): string {
+  let raw: string;
+  try {
+    raw = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+      cwd: repo,
+      encoding: "utf8",
+      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (error) {
+    throw new UserError(
+      `git rev-parse --abbrev-ref HEAD failed: ${errorMessage(error)}`
+    );
+  }
+  const branch = raw.trim();
+  if (branch.length === 0 || branch === "HEAD") {
+    throw new UserError(
+      "the repo checkout is detached; check out a stack branch or pass --branch"
+    );
+  }
+  return branch;
+}
+
+function prForHead({
+  head,
+  rows,
+}: {
+  head: string;
+  rows: readonly GhPullRequestRow[];
+}): GhPullRequestRow | undefined {
+  const matches = rows.filter((row) => row.head === head);
+  const open = matches.filter((row) => row.state === "OPEN");
+  if (open.length > 1) {
+    throw new UserError(
+      `gh pr list shows ${open.length} open pull requests with head branch ${head}: ${open
+        .map((row) => row.pr)
+        .join(",")}`
+    );
+  }
+  if (open.length === 1) return open[0];
+  if (matches.length === 0) return undefined;
+  return matches.reduce((best, row) => (row.pr > best.pr ? row : best));
+}
+
+function githubFrontier({
+  branch,
+  repo,
+}: {
+  branch: string | undefined;
+  repo: string;
+}): readonly FrontierEntry[] {
   const trunk = githubTrunk(repo);
+  const start = branch ?? currentBranch(repo);
+  if (start === trunk) {
+    throw new UserError(
+      `the checkout is on trunk (${trunk}); check out a stack branch or pass --branch`
+    );
+  }
   const rows = parseGhPullRequests(
     ghJson({
       args: [
@@ -1071,7 +1128,7 @@ function githubFrontier(repo: string): readonly FrontierEntry[] {
         "--state",
         "all",
         "--limit",
-        "200",
+        "1000",
         "--json",
         "number,headRefName,baseRefName,state",
       ],
@@ -1079,33 +1136,52 @@ function githubFrontier(repo: string): readonly FrontierEntry[] {
       what: "gh pr list",
     })
   );
-  const byBase = new Map<string, GhPullRequestRow[]>();
-  for (const row of rows) {
-    const bucket = byBase.get(row.base);
-    if (bucket === undefined) {
-      byBase.set(row.base, [row]);
-    } else {
-      bucket.push(row);
-    }
+
+  const startPr = prForHead({ head: start, rows });
+  if (startPr === undefined) {
+    throw new UserError(
+      `gh pr list has no pull request with head branch ${start}; push the branch and open its PR, or pass --branch`
+    );
   }
-  const frontier: FrontierEntry[] = [];
-  const seen = new Set<string>([trunk]);
-  let base = trunk;
+
+  const seen = new Set<string>([startPr.head]);
+  const below: GhPullRequestRow[] = [];
+  let cursor = startPr;
+  while (cursor.base !== trunk) {
+    if (seen.has(cursor.base)) {
+      throw new UserError(
+        `gh pr list describes a base cycle at branch ${cursor.base}`
+      );
+    }
+    const parent = prForHead({ head: cursor.base, rows });
+    if (parent === undefined) {
+      throw new UserError(
+        `stack gap: base branch ${cursor.base} of PR ${cursor.pr} has no pull request and is not trunk (${trunk})`
+      );
+    }
+    seen.add(parent.head);
+    below.unshift(parent);
+    cursor = parent;
+  }
+
+  const above: GhPullRequestRow[] = [];
+  cursor = startPr;
   for (;;) {
-    const candidates = byBase.get(base) ?? [];
+    const candidates = rows.filter((row) => row.base === cursor.head);
     const open = candidates.filter((row) => row.state === "OPEN");
     if (open.length > 1) {
       throw new UserError(
-        `gh pr list shows ${open.length} open pull requests based on ${base}: ${open
+        `gh pr list shows ${open.length} open pull requests based on ${cursor.head}: ${open
           .map((row) => row.pr)
           .join(",")} is a fork, not a stack`
       );
     }
-    const next = open[0] ?? (candidates.length === 1 ? candidates[0] : undefined);
+    const next =
+      open[0] ?? (candidates.length === 1 ? candidates[0] : undefined);
     if (next === undefined) {
       if (candidates.length > 1) {
         throw new UserError(
-          `gh pr list shows no open successor and ${candidates.length} terminal pull requests based on ${base}; retarget the stack before resolving the frontier`
+          `gh pr list shows no open successor and ${candidates.length} terminal pull requests based on ${cursor.head}; retarget the stack before resolving the frontier`
         );
       }
       break;
@@ -1116,10 +1192,15 @@ function githubFrontier(repo: string): readonly FrontierEntry[] {
       );
     }
     seen.add(next.head);
-    frontier.push({ pr: next.pr, branches: next.head, state: next.state });
-    base = next.head;
+    above.push(next);
+    cursor = next;
   }
-  return frontier;
+
+  return [...below, startPr, ...above].map((row) => ({
+    pr: row.pr,
+    branches: row.head,
+    state: row.state,
+  }));
 }
 
 function branchSha({
@@ -1149,8 +1230,14 @@ function branchSha({
   return sha;
 }
 
-function resolveFrontier(repo: string): readonly FrontierPr[] {
-  return githubFrontier(repo).map((row) => ({
+function resolveFrontier({
+  branch,
+  repo,
+}: {
+  branch: string | undefined;
+  repo: string;
+}): readonly FrontierPr[] {
+  return githubFrontier({ branch, repo }).map((row) => ({
     ...row,
     sha: branchSha({ branch: row.branches, repo }),
   }));
@@ -1483,7 +1570,11 @@ export function openStore(
           throw new UserError("--prs must not contain duplicates");
         }
         const old = await readFrontier(store);
-        const prs = resolveFrontier(repo);
+        const branch =
+          params.branch === undefined
+            ? undefined
+            : requiredLine(params.branch, "branch");
+        const prs = resolveFrontier({ branch, repo });
         if (pin !== undefined) {
           validateFrontierPin({
             actual: prs.map((row) => row.pr),

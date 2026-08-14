@@ -7,7 +7,7 @@ pstack-portable is a verified Bun-native local release candidate derived from La
 - Public source: `cursor/plugins`, `pstack/` subtree, commit `2a8044425c7bddf429c3bdedf3ab61e791d34d65`.
 - Original complete cache digest: `5459c768cf630db9a37372240169d2d8cf15aa55b48611cad85c774904f677b7` before and after the port.
 - Explicit imported allowlist digest: `9e3347061e86a60d73138e839c6a4cd419fbefa50932bba50a0964e477d83251`, reproduced from a fresh public checkout.
-- Deterministic distribution digest: `75418658a46a619aa8f777592c8c625c9d2e15d02c85ed6514f8f3761dfb7e75`.
+- Deterministic distribution digest: `790825ff21c254e282c9b0a987206332941da7426037b378a4a22dfdf45c2d3b`.
 - Inventory: 46 skills (44 upstream, MIT-imported `deslop`, first-party `pstack-core`), two personas, 23 Poteto Mode playbooks, 34 skill references, and 17 documentation files.
 
 ## Verification evidence

@@ -132,7 +132,7 @@ case "$*" in
   "repo view --json defaultBranchRef")
     printf '{"defaultBranchRef":{"name":"${trunk}"}}\\n'
     ;;
-  "pr list --state all --limit 200 --json number,headRefName,baseRefName,state")
+  "pr list --state all --limit 1000 --json number,headRefName,baseRefName,state")
     cat "${outputPath}"
     ;;
   *)
@@ -495,7 +495,7 @@ describe("Store", () => {
     });
   });
 
-  it("stops the frontier walk at a merged link the stack has moved past", async () => {
+  it("scopes the walk to the checkout's stack and ignores unrelated trunk PRs", async () => {
     const { directory, store } = await initializedStore();
     const stack = await makeGitStack(directory);
     const output = `${JSON.stringify([
@@ -508,6 +508,12 @@ describe("Store", () => {
       {
         number: 11,
         headRefName: "stack/open",
+        baseRefName: "main",
+        state: "OPEN",
+      },
+      {
+        number: 20,
+        headRefName: "feature/unrelated",
         baseRefName: "main",
         state: "OPEN",
       },
@@ -533,7 +539,7 @@ describe("Store", () => {
     });
   });
 
-  it("rejects a fork of open pull requests sharing one base", async () => {
+  it("rejects a fork of open pull requests above the resolved branch", async () => {
     const { directory, store } = await initializedStore();
     const stack = await makeGitStack(directory);
     const output = `${JSON.stringify([
@@ -546,6 +552,37 @@ describe("Store", () => {
       {
         number: 11,
         headRefName: "stack/open",
+        baseRefName: "stack/merged",
+        state: "OPEN",
+      },
+      {
+        number: 13,
+        headRefName: "stack/closed",
+        baseRefName: "stack/merged",
+        state: "OPEN",
+      },
+    ])}\n`;
+
+    await withFakeGh({
+      directory,
+      output,
+      operation: async () => {
+        await expect(
+          store.frontier.set({ repo: stack.repo, branch: "stack/merged" })
+        ).rejects.toThrow(
+          "gh pr list shows 2 open pull requests based on stack/merged: 11,13 is a fork, not a stack"
+        );
+      },
+    });
+  });
+
+  it("errors when the resolved branch has no pull request", async () => {
+    const { directory, store } = await initializedStore();
+    const stack = await makeGitStack(directory);
+    const output = `${JSON.stringify([
+      {
+        number: 10,
+        headRefName: "stack/merged",
         baseRefName: "main",
         state: "OPEN",
       },
@@ -558,7 +595,7 @@ describe("Store", () => {
         await expect(
           store.frontier.set({ repo: stack.repo })
         ).rejects.toThrow(
-          "gh pr list shows 2 open pull requests based on main: 10,11 is a fork, not a stack"
+          "gh pr list has no pull request with head branch stack/open"
         );
       },
     });
