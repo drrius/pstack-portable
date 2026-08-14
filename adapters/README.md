@@ -1,9 +1,9 @@
 # Host adapters
 
-Adapters translate `HOST_CONTRACT.md` into host-specific discovery and runtime mechanics. They do not contain divergent copies of canonical skills.
+The canonical skills live in `skills/`. Adapters make them discoverable on a host. They do not fork the workflow.
 
-- `agents/` defines the default Agent Skills installation.
-- `codex/` documents Codex delegation, goals, questions, and discovery behavior.
-- `claude/` defines Claude skill links and generated persona wrappers.
+- `agents/` describes the default Agent Skills install.
+- `codex/` describes Codex workers, goals, questions, and discovery.
+- `claude/` describes Claude links and persona wrappers.
 
-The generic Agent Skills distribution is the source of truth. A host adapter may add metadata or symlinks, but it must not weaken the canonical safety, verification, or ownership rules.
+The generic Agent Skills tree is the source of truth. An adapter may add host metadata or symlinks. It must keep the canonical safety, verification, and ownership rules intact.

@@ -1,5 +1,5 @@
 # Agent Skills adapter
 
-Install each canonical directory from `skills/` under `~/.agents/skills/`. Hosts that support the Agent Skills specification discover the `name` and `description` from each `SKILL.md` and load the full instructions on activation.
+Install each canonical directory from `skills/` under `~/.agents/skills/`. Agent Skills hosts read `name` and `description` from `SKILL.md`, then load the rest when a skill is activated.
 
-Hosts without named-agent packaging spawn personas by passing the canonical persona path and required skill paths in the worker brief.
+Hosts without named-agent packaging can still spawn personas. Pass the canonical persona path and required skill paths in the worker brief.
