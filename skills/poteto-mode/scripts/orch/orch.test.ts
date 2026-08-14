@@ -899,7 +899,14 @@ describe("parseForgeRemote", () => {
       project: "proj one",
       repository: "repo1",
     });
-    expect(parseForgeRemote("git@ssh.dev.azure.com:v3/org1/proj1/repo1")).toEqual({
+    expect(parseForgeRemote("ssh://git@github.com/o/r.git")).toEqual({ kind: "github" });
+    expect(parseForgeRemote("git@ssh.dev.azure.com:v3/org1/proj%20one/repo1")).toEqual({
+      kind: "azure",
+      organization: "org1",
+      project: "proj one",
+      repository: "repo1",
+    });
+    expect(parseForgeRemote("ssh://git@ssh.dev.azure.com/v3/org1/proj1/repo1")).toEqual({
       kind: "azure",
       organization: "org1",
       project: "proj1",

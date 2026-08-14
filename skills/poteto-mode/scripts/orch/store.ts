@@ -1023,7 +1023,11 @@ export type ForgeIdentity =
 
 export function parseForgeRemote(url: string): ForgeIdentity | null {
   const trimmed = url.trim();
-  if (/^(https:\/\/([^@/]+@)?github\.com\/|git@github\.com:)/.test(trimmed)) {
+  if (
+    /^(https:\/\/([^@/]+@)?github\.com\/|ssh:\/\/([^@/]+@)?github\.com\/|git@github\.com:)/.test(
+      trimmed
+    )
+  ) {
     return { kind: "github" };
   }
   const azureHttps =
@@ -1039,15 +1043,15 @@ export function parseForgeRemote(url: string): ForgeIdentity | null {
     };
   }
   const azureSsh =
-    /^git@ssh\.dev\.azure\.com:v3\/([^/]+)\/([^/]+)\/(.+?)(?:\.git)?$/.exec(
+    /^(?:ssh:\/\/(?:[^@/]+@)?ssh\.dev\.azure\.com\/v3|git@ssh\.dev\.azure\.com:v3)\/([^/]+)\/([^/]+)\/(.+?)(?:\.git)?$/.exec(
       trimmed
     );
   if (azureSsh !== null) {
     return {
       kind: "azure",
-      organization: azureSsh[1] ?? "",
-      project: azureSsh[2] ?? "",
-      repository: azureSsh[3] ?? "",
+      organization: decodeURIComponent(azureSsh[1] ?? ""),
+      project: decodeURIComponent(azureSsh[2] ?? ""),
+      repository: decodeURIComponent(azureSsh[3] ?? ""),
     };
   }
   const azureLegacy =
