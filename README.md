@@ -10,9 +10,9 @@ Unofficial and unaffiliated. A ronin serves no house, which is the point.
 
 ## Why
 
-I use pstack every day. I don't use Cursor.
+I'm a big fan of pstack. It's a Cursor plugin, and I work in Claude Code and Codex.
 
-Moving the skills across was the easy half. Two problems the original never had to solve turned out to matter more.
+That gap is why this exists. Moving the skills across was the easy half. Two problems the original never had to solve turned out to matter more.
 
 My work repos live in Azure DevOps. Every PR step in pstack speaks `gh`. ronin reads the git remote and speaks `az repos` when the remote is Azure, `gh` when it's GitHub. Same playbooks either way.
 
