@@ -2,7 +2,7 @@ import { existsSync, lstatSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import { tmpdir, homedir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { filesUnder, installationPaths, parseHomeArgument, repositoryRoot, treeDigest, treeManifest } from './lib.mjs';
+import { filesUnder, installationPaths, parseHomeArgument, repositoryRoot, sha256, treeDigest, treeManifest } from './lib.mjs';
 
 const failures = [];
 const check = (condition, message) => { if (!condition) failures.push(message); };
@@ -123,6 +123,16 @@ function validateInstallation(home) {
   check(existsSync(manifestPath), `Installed ownership manifest is missing: ${manifestPath}`);
   if (!existsSync(manifestPath)) return;
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  const distributionManifestPath = join(paths.root, 'manifest.json');
+  check(existsSync(distributionManifestPath), `Installed distribution manifest is missing: ${distributionManifestPath}`);
+  if (existsSync(distributionManifestPath)) {
+    const distributionManifest = JSON.parse(readFileSync(distributionManifestPath, 'utf8'));
+    for (const entry of distributionManifest.files) {
+      const path = resolve(paths.root, entry.path);
+      check(path.startsWith(`${resolve(paths.root)}/`) && existsSync(path), `Installed manifest path is missing or unsafe: ${entry.path}`);
+      if (path.startsWith(`${resolve(paths.root)}/`) && existsSync(path)) check(sha256(readFileSync(path)) === entry.sha256, `Installed file digest changed: ${entry.path}`);
+    }
+  }
   for (const name of manifest.skillNames) {
     for (const base of [paths.agentsSkills, paths.claudeSkills]) {
       const link = join(base, name);
@@ -190,4 +200,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log('Verified Agent Skills metadata, provenance, exclusions, local references, and capability fixtures.');
-console.log('Verified deterministic build plus isolated-home install, reinstall, discovery links, dry-run, and exact uninstall.');
+console.log('Verified deterministic build plus isolated-home install, reinstall, installed-file integrity, discovery links, dry-run, and exact uninstall.');

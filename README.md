@@ -48,7 +48,7 @@ npm run test:tools
 npm run typecheck:tools
 ```
 
-The primary verifier checks metadata, links, exclusions, provenance, routing fixtures, deterministic builds, collision refusal, isolated-home install and reinstall, installed workflow readback, and exact uninstall. See `CONTRIBUTING.md` for upstream auditing and `RELEASING.md` for the release gate.
+The primary verifier checks metadata, links, exclusions, provenance, routing fixtures, deterministic builds, collision refusal, isolated-home install and reinstall, installed file integrity and workflow readback, and exact uninstall. See `CONTRIBUTING.md` for upstream auditing and `RELEASING.md` for the release gate.
 
 ## Design
 

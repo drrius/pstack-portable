@@ -14,7 +14,7 @@ pstack-portable is a verified local release candidate derived from Lauren Tan's 
 
 | Command | Result |
 | --- | --- |
-| `npm test` | Passed metadata, provenance, exclusions, links, routing and capability fixtures, deterministic build, collision refusal, isolated install/reinstall/readback, and exact uninstall |
+| `npm test` | Passed metadata, provenance, exclusions, links, routing and capability fixtures, deterministic build, collision refusal, isolated install/reinstall, file-integrity/readback, and exact uninstall |
 | `npm ci --prefix skills/poteto-mode/scripts` | Reproduced the pinned tooling dependency graph |
 | `npm run audit:tools` | Zero vulnerabilities |
 | `npm run test:tools` | 52 tests passed under Node.js 22.23.1 |
