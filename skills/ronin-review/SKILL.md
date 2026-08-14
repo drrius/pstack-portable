@@ -33,7 +33,7 @@ ts	phase	decision	why	evidence	result
 
 ## Logging a row
 
-Write each entry the way you'd tell a teammate what you did. Plain words, concrete actions, no AI speak or abstract jargon (the **unslop** skill applies to log text too). A reviewer should understand each row without decoding it.
+Write each entry the way you'd tell a teammate what you did. Plain words, concrete actions, no AI speak or abstract jargon (the **ronin-unslop** skill applies to log text too). A reviewer should understand each row without decoding it.
 
 Use the helper so rows stay well-formed: `scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>`. It stamps `ts`, writes the header on first use, strips stray tabs/newlines, and prefixes any cell starting with `=`, `+`, `-`, or `@` with a single quote so a reviewer opening the log in a spreadsheet doesn't trigger formula execution. A bare `printf` appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
 
@@ -49,7 +49,7 @@ Commit it only when the work is ambitious enough that a reviewer needs the trail
 
 - One row is one decision or checkpoint. If it doesn't fit on one line, the decision isn't crisp yet.
 - Append-only. A wrong call gets a new row that supersedes it. Never edit or delete history.
-- Prefer evidence produced by committed scripts over hand-made one-offs, so a reviewer can re-run it (the **encode-lessons-in-structure** principle skill).
+- Prefer evidence produced by committed scripts over hand-made one-offs, so a reviewer can re-run it (the **ronin-principle-encode-lessons-in-structure** principle skill).
 
 ## Audit the log against the transcript
 
@@ -64,16 +64,16 @@ Fix the log, not the story. If the work diverged from what a row claims, the row
 
 ## Fresh-context review of the trail
 
-Before handing back, spawn a fresh-context subagent with the `judge` profile. The point is review separation: the reviewer did not author the work and does not inherit its reasoning. It reads the audit trail and the run's transcript, then flags what the user should pay attention to. This is not a redo of the work, but a scan for what is suboptimal or risky. Optional model routing may add another perspective, but a distinct model is not required.
+Before handing back, spawn a fresh-context subagent with the `judge` profile. The point is review separation: the reviewer did not author the work and does not inherit its reasoning. It reads the audit trail and the run's transcript, then flags what the user should pay attention to. This is not a redo of the work, but a scan for what is suboptimal or risky.
 
-If the host can delegate only serially, keep the separate worker context and disclose lost concurrency only. If no separate context is available, review the trail in the coordinator and label it `self-review`; do not imply fresh eyes. Report the fresh-context, model-relationship, and provider-relationship axes independently. Mark an identity relationship `unverified` when the host does not establish it without erasing a known fresh-context result.
+If the host can delegate only serially, keep the separate worker context and disclose lost concurrency only. If no separate context is available, review the trail in the coordinator and label it `self-review`; do not imply fresh eyes.
 
 - Decisions logged with weak or absent evidence.
 - Verification steps skipped or claimed without proof in the transcript.
 - Choices that look risky in hindsight (premature, scope-creeping, papering over a symptom).
 - Gaps the user would otherwise miss on a casual skim.
 
-Every reply for a run that produced a trail ends with an "Attention" section. Lead with `review provenance: <tier>` using the host contract's joint tier when all required relationships are known; otherwise use `review provenance: unverified`. Follow it with `fresh context: yes|no`, `model relationship: same|different|unverified`, and `provider relationship: same|different|unverified`. Add the reviewer model only when the host reports it. Then list each flag pointing to specific rows or moments. "No flags" is valid; unnamed provenance is not. The self-audit asks if the log told the truth; this asks what the user should still scrutinize even when it did.
+Every reply for a run that produced a trail ends with an "Attention" section. Lead with `review separation: fresh-context-review` when a separate worker judged the trail, or `review separation: self-review` when the coordinator did it. Then list each flag with the row or moment it points to. "No flags" is valid. The self-audit asks if the log told the truth; this asks what the user should still scrutinize even when it did.
 
 ## Reviewing the trail
 

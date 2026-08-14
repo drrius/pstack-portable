@@ -7,7 +7,7 @@ const contract = JSON.parse(readFileSync(join(root, 'skills/ronin-core/task-prof
 const hostContract = readFileSync(join(root, 'skills/ronin-core/HOST_CONTRACT.md'), 'utf8');
 const routing = JSON.parse(readFileSync(join(root, 'tests/fixtures/profile-routing.json'), 'utf8'));
 const profileIds = ['explore', 'implement', 'judge', 'explain', 'verify'];
-const provenanceTierIds = ['self-review', 'same-model-fresh-context', 'same-provider-different-model', 'cross-provider'];
+const reviewSeparationIds = ['self-review', 'fresh-context-review'];
 const workerFields = ['objective', 'ownershipBoundary', 'permissions', 'isolation', 'verifier', 'stopCondition', 'returnedEvidence'];
 
 function markdownSection(text: string, heading: string): string {
@@ -31,11 +31,12 @@ describe('task profile contract', () => {
     expect(Object.keys(contract.profiles).sort()).toEqual([...profileIds].sort());
   });
 
-  test('keeps model routing optional and never requires distinct models', () => {
-    for (const profile of Object.values(contract.profiles) as Record<string, unknown>[]) {
-      expect(profile.modelRouting).toBe('optional');
-      expect(profile.requiresDistinctModel).toBe(false);
-    }
+  test('inherits the active model without routing controls', () => {
+    expect(contract.delegation.model).toBe('inherit-active');
+    const serialized = JSON.stringify(contract);
+    expect(serialized).not.toContain('modelRouting');
+    expect(serialized).not.toContain('requiresDistinctModel');
+    expect(serialized).not.toContain('provider');
   });
 
   test('gives every profile a complete worker contract', () => {
@@ -66,25 +67,18 @@ describe('task profile contract', () => {
   });
 });
 
-describe('review provenance', () => {
-  test('defines distinct structured tiers', () => {
-    const tiers = Object.fromEntries(contract.reviewProvenance.map((entry: { id: string }) => [entry.id, entry]));
-    expect(Object.keys(tiers)).toEqual(provenanceTierIds);
+describe('review separation', () => {
+  test('defines only self-review and fresh-context review', () => {
+    const tiers = Object.fromEntries(contract.reviewSeparation.map((entry: { id: string }) => [entry.id, entry]));
+    expect(Object.keys(tiers)).toEqual(reviewSeparationIds);
     expect(tiers['self-review'].freshContext).toBe(false);
-    expect(tiers['same-model-fresh-context'].freshContext).toBe(true);
-    expect(tiers['same-provider-different-model'].sameProvider).toBe(true);
-    expect(tiers['cross-provider'].sameProvider).toBe(false);
-    expect(tiers['same-provider-different-model']).not.toEqual(tiers['cross-provider']);
+    expect(tiers['fresh-context-review'].freshContext).toBe(true);
   });
 
-  test('binds every known tier to prose and keeps unknown axes independent', () => {
-    const section = markdownSection(hostContract, 'Optional model routing and review provenance');
-    for (const id of provenanceTierIds) expect(section, id).toContain(`\`${id}\``);
-    expect(section).toMatch(/report each axis independently/i);
-    expect(section).toMatch(/model or provider identity[^.]*unverified/i);
-    expect(contract.provenanceReporting.modelRelationship).toContain('unverified');
-    expect(contract.provenanceReporting.providerRelationship).toContain('unverified');
-    expect(contract.provenanceReporting.jointTierRule).toBeTruthy();
+  test('binds both review paths to prose', () => {
+    const section = markdownSection(hostContract, 'Review separation');
+    for (const id of reviewSeparationIds) expect(section, id).toContain(`\`${id}\``);
+    expect(section).toMatch(/separate subagent or session/i);
   });
 });
 
@@ -102,9 +96,9 @@ describe('workflow routing', () => {
   });
 });
 
-describe('user-facing provenance', () => {
-  for (const doc of routing.provenanceDocs as { file: string; needles: string[] }[]) {
-    test(`${doc.file} preserves unknown and known axes`, () => {
+describe('user-facing review separation', () => {
+  for (const doc of routing.reviewSeparationDocs as { file: string; needles: string[] }[]) {
+    test(`${doc.file} names both review paths`, () => {
       const text = readFileSync(join(root, doc.file), 'utf8');
       for (const needle of doc.needles) expect(text).toContain(needle);
     });

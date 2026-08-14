@@ -1,6 +1,6 @@
 # Host capability contract
 
-Canonical skills describe outcomes and capability requirements. The active host adapter supplies concrete tools when available, and the host's safety and permission policy always wins.
+Canonical skills describe outcomes and capability requirements. Use the host's native tools. The host's safety and permission policy always wins.
 
 ## Planning and questions
 
@@ -8,13 +8,15 @@ A requested checklist means the host's plan or durable state mechanism. A reques
 
 ## Delegation
 
-A worker request defines an objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Use the host's subagent facility when authorized. If parallel execution is unavailable, run independent lanes serially when the host can still provide fresh worker contexts. If no separate worker context is available, execute in the coordinator and disclose that fresh-context review was not exercised. Lost concurrency and lost review separation are different limitations; report them separately.
+A worker request defines an objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Use the host's native subagent facility when authorized. Every subagent inherits the active model. Ronin does not select or configure models.
 
-Named ronin workers are portable personas. A Poteto Agent worker reads the ronin-core skill's `personas/poteto-agent.md`, this contract, and `skills/ronin-mode/SKILL.md` before work. A Comment Sicko worker reads the ronin-core skill's `personas/comment-sicko.md`, this contract, and `skills/no-comments/SKILL.md` before review. Host-specific generated wrappers may point to those canonical files.
+Run independent lanes concurrently when the host supports it. Otherwise run them serially in fresh worker contexts. If no separate worker context is available, execute in the coordinator and disclose that fresh-context review was not exercised. Lost concurrency and lost review separation are different limitations. Report them separately.
+
+Named ronin workers are prompt files, not host registrations. A Poteto Agent worker reads the ronin-core skill's `personas/poteto-agent.md`, this contract, and `skills/ronin-mode/SKILL.md` before work. A Comment Sicko worker reads the ronin-core skill's `personas/comment-sicko.md`, this contract, and `skills/ronin-no-comments/SKILL.md` before review.
 
 ## Task profiles
 
-Every delegated leaf task lane has one primary behavioral profile. A profile defines the job; it does not promise a distinct model. Operational coordinators and control-plane roles that only frame work, route briefs, drain queues, wait, or maintain durable state sit outside the profile system. If one of those roles also executes a leaf task, assign that leaf work its own profile.
+Every delegated leaf task lane has one primary behavioral profile. A profile defines the job. It does not change the inherited model. Operational coordinators and control-plane roles that only frame work, route briefs, drain queues, wait, or maintain durable state sit outside the profile system. If one of those roles also executes a leaf task, assign that leaf work its own profile.
 
 - `explore`: investigate read-only, map the relevant surface, and return evidence plus uncertainties.
 - `implement`: own one bounded write scope, produce the change, and run the checks available inside that scope.
@@ -24,11 +26,11 @@ Every delegated leaf task lane has one primary behavioral profile. A profile def
 
 The machine-readable definitions live in `task-profiles.json` beside this contract. `targetWrites: false` forbids modifying the source, candidate, or implementation under examination; it does not prevent a worker from returning or writing its explicitly assigned local report, scorecard, explanation, or verification artifact. External writes remain approval-gated under the Safety section; a task profile never authorizes them. A worker request still supplies the concrete objective, boundaries, verifier, and evidence for the lane; naming a profile is not a substitute for the brief.
 
-## Optional model routing and review provenance
+## Review separation
 
-`~/.config/ronin/models.yaml` optionally maps task profiles to host-specific model identifiers and reasoning effort. Missing configuration means every profile inherits the current model, which is a complete supported setup. Choose another model only because its capability, latency, cost, or tool compatibility fits the profile. Never choose a weaker model merely to manufacture diversity, and never make distinct-model access a condition of independent review.
+A review is either `self-review` or `fresh-context-review`. Fresh context requires a separate subagent or session that did not author the work. Repeating a pass inside the author's context remains self-review.
 
-Review reports name the joint provenance actually achieved when its relationships are known: `self-review`, `same-model-fresh-context`, `same-provider-different-model`, or `cross-provider`. Report each axis independently: whether fresh context was exercised, whether the model was the same or different, and whether the provider was the same or different. If the host does not reveal model or provider identity, mark only those relationships `unverified`; do not discard a known fresh-context result. Use `review provenance: unverified` for the joint tier until enough relationships are established instead of guessing. Fresh context requires a separate agent or session; repeating a pass inside the author's context remains self-review. Reviewer count, model count, and agreement are supporting context, not proof by themselves. Confidence comes from reproducible evidence and verified acceptance criteria.
+Report which one happened. Reviewer count and agreement are supporting context, not proof. Confidence comes from reproducible evidence and verified acceptance criteria.
 
 ## Persistence
 
@@ -36,7 +38,7 @@ A durable or autonomous run requires an observable finish condition, recorded st
 
 ## Transcript access
 
-Transcript-dependent workflows use only a host adapter or an explicit user-provided path constrained to the current workspace or task. If the host exposes no readable transcript, report the capability gap instead of searching private home-directory state.
+Transcript-dependent workflows use the host's native transcript access or an explicit user-provided path constrained to the current workspace or task. If the host exposes no readable transcript, report the capability gap instead of searching private home-directory state.
 
 ## Real-surface control
 

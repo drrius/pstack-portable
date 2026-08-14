@@ -6,7 +6,7 @@ Skip the ceremony. The agent still needs a finish condition, and this guide does
 
 Start here:
 
-1. [Set up ronin](./01-setup.md). Install it and choose task-profile routing.
+1. [Set up ronin](./01-setup.md). Install it for one host and enable native workers.
 2. [Route work through `/ronin-mode`](./02-ronin-mode.md). Give it a goal and let it choose the playbook.
 3. [Understand the code](./03-understand.md). Read before editing.
 4. [Design the change](./04-design.md). Set the shape before implementation.
@@ -14,7 +14,7 @@ Start here:
 6. [Verify and ship](./06-verify-and-ship.md). Prove the behavior, then open a focused PR.
 7. [Run work while you sleep](./07-overnight.md). Set a contract and leave an auditable decision log.
 8. [Steer with principle names](./08-principles.md). Redirect a run without rewriting the prompt.
-9. [Make it yours](./09-make-it-yours.md). Create and test a local mode.
+9. [Teach ronin what lasts](./09-make-it-yours.md). Capture lessons and build focused skills.
 10. [Recipes and pitfalls](./10-recipes-and-pitfalls.md). Copy the useful prompts. Skip the traps.
 
 Read the pages in order once. Each page stands alone after that.

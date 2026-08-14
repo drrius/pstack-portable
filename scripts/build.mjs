@@ -1,6 +1,6 @@
 import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
-import { installMarker, repositoryRoot, treeManifest } from './lib.mjs';
+import { repositoryRoot, treeManifest } from './lib.mjs';
 
 const distRoot = join(repositoryRoot, 'dist');
 const bundleRoot = join(distRoot, 'ronin');
@@ -8,7 +8,7 @@ if (dirname(distRoot) !== repositoryRoot || basename(distRoot) !== 'dist') throw
 rmSync(distRoot, { recursive: true, force: true });
 mkdirSync(bundleRoot, { recursive: true });
 
-for (const name of ['skills', 'docs', 'adapters']) {
+for (const name of ['skills', 'docs']) {
   cpSync(join(repositoryRoot, name), join(bundleRoot, name), {
     recursive: true,
     filter: (source) => !source.split('/').includes('node_modules')
@@ -28,7 +28,6 @@ const personaNames = treeManifest(join(bundleRoot, 'skills', 'ronin-core', 'pers
   .sort();
 const manifest = {
   schemaVersion: 1,
-  marker: installMarker,
   packageVersion: '0.1.0',
   upstream: JSON.parse(await import('node:fs').then(({ readFileSync }) => readFileSync(join(repositoryRoot, 'upstream.json'), 'utf8'))),
   skillNames,

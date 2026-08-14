@@ -21,10 +21,10 @@ Walk through what each line buys you:
 - "done means..." turns the goal into checks every iteration can run.
 - "fresh worktree off `<base>`" keeps the run from colliding with anything else you have open.
 - "don't ask me before committing" pre-answers the permission the agent would otherwise block on.
-- The durable-run line asks the host adapter for a goal, monitor, or wait/wake mechanism. The [Autonomous run playbook](../../skills/ronin-mode/playbooks/autonomous-run.md) re-checks the finish condition on events or a heartbeat; without persistence it writes a resume packet and stops honestly.
+- The durable-run line asks the host for a goal, monitor, or wait mechanism. The [Autonomous run playbook](../../skills/ronin-mode/playbooks/autonomous-run.md) rechecks the finish condition on events or a heartbeat. Without persistence, it writes a resume packet and stops.
 - The escape hatch lets it stop at a genuine dead end and write up why, which beats eight hours of creative goal reinterpretation.
 
-Because you'll review this work after stepping away, `/ronin-mode` routes it through [`/figure-it-out`](../../skills/figure-it-out/SKILL.md), which designs the run's phases before any code and wires in the decision log.
+Because you'll review this work later, `/ronin-mode` routes it through [`/ronin-figure-it-out`](../../skills/ronin-figure-it-out/SKILL.md), which designs the phases before code and wires in the decision log.
 
 ## What the loop does all night
 
@@ -52,7 +52,7 @@ When you're back, ask for the run in review form:
 /ronin-review catch me up on what you did last night
 ```
 
-Before the skill hands back its summary, it spawns a fresh-context `judge` to read the trail and transcript. The reply records whether that review was self-review, same-model fresh-context, same-provider different-model, cross-provider, or an unverified joint tier when the host cannot establish every relationship. Known axes — including whether the reviewer had a fresh context — remain reported separately. The reply then ends with an Attention section listing what deserves scrutiny. Read that section first, then the log rows it points at. You're auditing decisions, not re-reading the whole night.
+Before handoff, the skill asks a fresh-context `judge` to read the trail and transcript. The reply labels the result `fresh-context review`. If no separate context was available, it labels it `self-review`. The Attention section names what deserves scrutiny. Read that first, then the rows it cites.
 
 ## When the night holds a queue, not a task
 

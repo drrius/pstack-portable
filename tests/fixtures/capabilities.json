@@ -3,7 +3,7 @@
     {
       "name": "delegation",
       "contractNeedle": "Delegation",
-      "fallbackFile": "skills/swarm/SKILL.md",
+      "fallbackFile": "skills/ronin-swarm/SKILL.md",
       "fallbackNeedle": "serially"
     },
     {
@@ -15,14 +15,8 @@
     {
       "name": "transcripts",
       "contractNeedle": "Transcript",
-      "fallbackFile": "skills/recall/SKILL.md",
+      "fallbackFile": "skills/ronin-recall/SKILL.md",
       "fallbackNeedle": "unavailable"
-    },
-    {
-      "name": "model routing",
-      "contractNeedle": "Optional model routing",
-      "fallbackFile": "skills/setup-ronin/SKILL.md",
-      "fallbackNeedle": "current model"
     },
     {
       "name": "real-surface control",

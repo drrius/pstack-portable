@@ -32,49 +32,49 @@ Each of these routes to its playbook ([Bug fix](../../skills/ronin-mode/playbook
 
 For sustained improvement of one number, there's the [Hillclimb playbook](../../skills/ronin-mode/playbooks/hillclimb.md). Give it the metric, a target, and a floor on attempts, and it loops one hypothesis at a time with a frozen measurement harness. It keeps wins and reverts everything else.
 
-## Write the failing test first with `/tdd`
+## Write the failing test first with `/ronin-tdd`
 
 When a bug has a cheap local test path, the whole prompt can be two words:
 
 ```text
-/tdd implement
+/ronin-tdd implement
 ```
 
-In context, that's enough. [`/tdd`](../../skills/tdd/SKILL.md) writes the smallest test that fails for the intended reason, then the fix, then reruns the test. If a test would need broad harness setup or brittle mocks, the skill says so and uses the closest executable check instead. Don't force a test where a real command is stronger evidence.
+In context, that's enough. [`/ronin-tdd`](../../skills/ronin-tdd/SKILL.md) writes the smallest test that fails for the intended reason, then the fix, then reruns the test. If the test needs a broad harness or brittle mocks, it uses the closest executable check instead.
 
 ## Let the TypeScript rules load themselves
 
-[`typescript-best-practices`](../../skills/typescript-best-practices/SKILL.md) has no slash command in your workflow. It loads whenever the agent touches a `.ts` or `.tsx` file and turns the type-system principles into concrete rules: discriminated unions, `unknown` at boundaries, exhaustive variants, schema-derived types.
+[`ronin-typescript-best-practices`](../../skills/ronin-typescript-best-practices/SKILL.md) loads when the agent touches a `.ts` or `.tsx` file. It turns type-system principles into discriminated unions, `unknown` at boundaries, exhaustive variants, and schema-derived types.
 
 ## Clean before you commit
 
-The [Opening a PR playbook](../../skills/ronin-mode/playbooks/opening-a-pr.md) applies the [`deslop`](../../skills/deslop/SKILL.md) skill before each commit and [`/unslop`](../../skills/unslop/SKILL.md) to the PR description and commit bodies. If deslop is unavailable, inspect the diff for narrating comments, unsupported guards, dead compatibility paths, and unrelated edits.
+The [Opening a PR playbook](../../skills/ronin-mode/playbooks/opening-a-pr.md) applies [`ronin-deslop`](../../skills/ronin-deslop/SKILL.md) before each commit and [`/ronin-unslop`](../../skills/ronin-unslop/SKILL.md) to the PR description and commit bodies.
 
-For the code diff, `/deslop` walks the change against `main`:
+For the code diff, `/ronin-deslop` walks the change against `main`:
 
 ```text
-/deslop
+/ronin-deslop
 ```
 
-For prose, `/unslop` takes a target and any extra rules you have:
+For prose, `/ronin-unslop` takes a target and any extra rules you have:
 
 ```text
-/unslop the readme changes, no emdashes
+/ronin-unslop the readme changes. no em dashes.
 ```
 
 You'll develop your own shorthand. The skill reads intent fine from terse prompts like `unslop that, tighten it`.
 
-## Strip the comments with `/no-comments`
+## Strip the comments with `/ronin-no-comments`
 
 Comments need their own pass, and not from the agent that wrote them. An author defends its comments the way you'd defend yours. So before review, hand them to fresh eyes:
 
 ```text
-/no-comments the diff
+/ronin-no-comments the diff
 ```
 
-[`/no-comments`](../../skills/no-comments/SKILL.md) spawns [Comment Sicko](../../skills/ronin-core/personas/comment-sicko.md), a bounded comment-editing `implement` worker with a short keep list: license headers, doc comments on a public API, links that explain what code can't, behavior forced by an external dependency you can't reshape. It may edit comments inside the assigned scope, but it may not edit application code. Everything else goes. A surprise in your own code gets no such pass. The comment comes back as a refactor flag, and `/no-comments` fixes the flags it accepts at the root cause. When a comment claims a constraint, "do not remove", the skill offers to encode the claim as a type, test, or lint. Either way, the comment comes out.
+[`/ronin-no-comments`](../../skills/ronin-no-comments/SKILL.md) gives the diff to [Comment Sicko](../../skills/ronin-core/personas/comment-sicko.md). It keeps license headers, public API docs, essential links, and external constraints. Everything else goes or comes back as a refactor flag.
 
-The division of labor is worth keeping straight. `/deslop` cleans slop out of the code, `/unslop` cleans it out of prose, and `/no-comments` hands the comments to a reviewer who didn't write them.
+`/ronin-deslop` cleans code. `/ronin-unslop` cleans prose. `/ronin-no-comments` gives comments to a fresh reader.
 
 **Pitfall:** cleanup is not optional polish. A diff with narrating comments and defensive dead weight reads as unfinished to reviewers, and the extra code is where the next bug hides. If the diff feels padded, say `deslop it` before you commit, not after review calls it out.
 

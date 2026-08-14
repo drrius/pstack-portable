@@ -1,5 +1,8 @@
 {
   "version": 1,
+  "delegation": {
+    "model": "inherit-active"
+  },
   "profiles": {
     "explore": {
       "objective": "Investigate a bounded question and map the relevant surface.",
@@ -9,9 +12,7 @@
       "verifier": "Every material claim points to resolvable evidence.",
       "stopCondition": "Stop when the scoped question is answered or the evidence gap is named.",
       "returnedEvidence": "Findings, source pointers, uncertainties, and checks run.",
-      "targetWrites": false,
-      "modelRouting": "optional",
-      "requiresDistinctModel": false
+      "targetWrites": false
     },
     "implement": {
       "objective": "Produce one bounded change that satisfies explicit acceptance criteria.",
@@ -21,9 +22,7 @@
       "verifier": "Run the checks available to the worker and return their receipts.",
       "stopCondition": "Stop when acceptance passes or a concrete blocker prevents further safe progress.",
       "returnedEvidence": "Changed paths, diff summary, checks run, results, and deviations.",
-      "targetWrites": true,
-      "modelRouting": "optional",
-      "requiresDistinctModel": false
+      "targetWrites": true
     },
     "judge": {
       "objective": "Compare or challenge artifacts against an explicit rubric.",
@@ -33,9 +32,7 @@
       "verifier": "Every score or finding cites the rubric and supporting evidence.",
       "stopCondition": "Stop after every candidate or claim in scope has a reasoned disposition.",
       "returnedEvidence": "Scores, findings, evidence, uncertainties, and recommendation.",
-      "targetWrites": false,
-      "modelRouting": "optional",
-      "requiresDistinctModel": false
+      "targetWrites": false
     },
     "explain": {
       "objective": "Translate grounded evidence for the intended audience.",
@@ -45,9 +42,7 @@
       "verifier": "The explanation is traceable to source evidence and fits the requested audience.",
       "stopCondition": "Stop when the question is answered without unsupported claims or unnecessary detail.",
       "returnedEvidence": "Explanation plus the source pointers needed to verify it.",
-      "targetWrites": false,
-      "modelRouting": "optional",
-      "requiresDistinctModel": false
+      "targetWrites": false
     },
     "verify": {
       "objective": "Independently exercise acceptance criteria on the required surface.",
@@ -57,41 +52,17 @@
       "verifier": "Reproduce the acceptance workflow and return pass, fail, or blocked with receipts.",
       "stopCondition": "Stop when every criterion has a verdict or an exact capability gap is proven.",
       "returnedEvidence": "Verdict, commands or interaction steps, outputs or artifacts, and uncovered gaps.",
-      "targetWrites": false,
-      "modelRouting": "optional",
-      "requiresDistinctModel": false
+      "targetWrites": false
     }
   },
-  "provenanceReporting": {
-    "freshContext": ["yes", "no"],
-    "modelRelationship": ["same", "different", "unverified"],
-    "providerRelationship": ["same", "different", "unverified"],
-    "jointTierRule": "Use a reviewProvenance id only when its relationships are established; otherwise report the joint tier as unverified without discarding known axes."
-  },
-  "reviewProvenance": [
+  "reviewSeparation": [
     {
       "id": "self-review",
-      "freshContext": false,
-      "sameModel": true,
-      "sameProvider": true
+      "freshContext": false
     },
     {
-      "id": "same-model-fresh-context",
-      "freshContext": true,
-      "sameModel": true,
-      "sameProvider": true
-    },
-    {
-      "id": "same-provider-different-model",
-      "freshContext": true,
-      "sameModel": false,
-      "sameProvider": true
-    },
-    {
-      "id": "cross-provider",
-      "freshContext": true,
-      "sameModel": false,
-      "sameProvider": false
+      "id": "fresh-context-review",
+      "freshContext": true
     }
   ]
 }

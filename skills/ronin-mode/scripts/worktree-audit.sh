@@ -5,8 +5,8 @@
 # deletes anything; deletion stays a human-gated step in the playbook.
 #
 # Usage: worktree-audit.sh [repo-path] [transcripts-dir]
-# The transcript directory must be supplied explicitly by the user or host
-# adapter, either as the second argument or PSTACK_TRANSCRIPTS_DIR. When it is
+# The transcript directory must be supplied explicitly by the user or host,
+# either as the second argument or RONIN_TRANSCRIPTS_DIR. When it is
 # unavailable, the audit reports the capability gap and leaves LAST_CHAT blank.
 set -u
 
@@ -26,7 +26,7 @@ trap 'rm -f "$prs"' EXIT
 gh pr list --author "@me" --state all --limit 1000 \
 	--json number,state,headRefName 2>/dev/null > "$prs" || echo "[]" > "$prs"
 
-transcripts="${2:-${PSTACK_TRANSCRIPTS_DIR:-}}"
+transcripts="${2:-${RONIN_TRANSCRIPTS_DIR:-}}"
 if [ -n "$transcripts" ] && [ ! -d "$transcripts" ]; then
 	printf 'warn: transcript capability path is not a directory: %s; LAST_CHAT unavailable\n' "$transcripts" >&2
 	transcripts=""

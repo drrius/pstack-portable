@@ -10,8 +10,6 @@
   },
   "scripts": {
     "build": "bun scripts/build.mjs",
-    "install:global": "bun scripts/install.mjs",
-    "uninstall:global": "bun scripts/uninstall.mjs",
     "install:tools": "cd skills/ronin-mode/scripts && bun install --frozen-lockfile",
     "audit:tools": "cd skills/ronin-mode/scripts && bun audit",
     "test": "bun run test:profiles && bun run test:tools",
@@ -20,7 +18,6 @@
     "typecheck:tests": "bun skills/ronin-mode/scripts/node_modules/typescript/bin/tsc --project tsconfig.tests.json",
     "typecheck:tools": "cd skills/ronin-mode/scripts && bun run typecheck",
     "verify": "bun scripts/verify.mjs",
-    "verify:installed": "bun scripts/verify.mjs --installed",
     "check": "bun run verify && bun run test && bun run typecheck:tests && bun run typecheck:tools && bun run audit:tools"
   },
   "license": "MIT"

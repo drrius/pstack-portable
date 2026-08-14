@@ -2,28 +2,28 @@
 
 Prompts worth copying, then the mistakes everyone makes once. Swap in your own paths and finish conditions. The recipes are deliberately informal. That's how they get typed in practice, and the skills read intent fine.
 
-![She tastes a finished dish while robots cook from a recipe box, with pinned cards reading /how, /tdd, and durable run above the counter.](./images/recipes.jpg)
+![She tastes a finished dish while robots cook from a recipe box, with pinned cards reading ronin-how, ronin-tdd, and durable run above the counter.](./images/recipes.jpg)
 
 ## Understand an unfamiliar subsystem
 
 ```text
-use /how first to understand how this initialization works. then use /why to figure out why it broke recently.
+use /ronin-how first to understand how this initialization works. then use /ronin-why to find why it broke recently.
 ```
 
 Mechanics first, history second. Each skill's report tells you which sources it searched, so you know what the answer is grounded in.
 
-## Get a second opinion on a design
+## Force real alternatives before a design
 
 ```text
-ask /arena for a second opinion on this thread and our approach
+/ronin-architect name three structurally different directions before choosing one. show me the tradeoffs.
 ```
 
-Your current design becomes one candidate among several, and the synthesis tells you whether the panel found something better or confirmed what you had. Cheap insurance before a costly commitment.
+The directions differ before exploration starts. That creates a real comparison without pretending repeated identical prompts are independent judgment.
 
 ## Check independent slices in parallel
 
 ```text
-/swarm check every package under packages/ against its check.sh. one worker per package. one report.
+/ronin-swarm check every package under packages/ against its check.sh. one worker per package. one report.
 ```
 
 Each worker owns one package. The parent waits for every slice and returns one `PASS`, `ISSUES`, or `BLOCKED` report instead of raw worker dumps.
@@ -31,7 +31,7 @@ Each worker owns one package. The parent waits for every slice and returns one `
 ## Review a branch skeptically
 
 ```text
-/interrogate the whole branch, but skeptically. don't change anything yet. no nitpicks unless it's an actual bug or regression in behavior.
+/ronin-interrogate the whole branch, but skeptically. don't change anything yet. no nitpicks unless it's an actual bug or regression in behavior.
 ```
 
 The qualifiers do real work. "don't change anything yet" keeps it read-only, and the nitpick rule pre-filters the noise so `Act on` findings are worth your time.
@@ -39,7 +39,7 @@ The qualifiers do real work. "don't change anything yet" keeps it read-only, and
 ## Fix a bug through a failing test
 
 ```text
-/ronin-mode repro the duplicate write first. if there's a cheap test path, /tdd it. then fix and rerun.
+/ronin-mode repro the duplicate write first. if there's a cheap test path, /ronin-tdd it. then fix and rerun.
 ```
 
 "if there's a cheap test path" matters. Forcing a test through brittle mocks proves less than running the real command, and the playbook is allowed to say so.
@@ -65,7 +65,7 @@ apply prove it works. show me the real output, not the build log.
 ```
 
 ```text
-/unslop that, no emdashes
+/ronin-unslop that. no em dashes.
 ```
 
 You rarely need more words. You need the right name, and [the principles page](./08-principles.md) is the vocabulary.
@@ -73,20 +73,19 @@ You rarely need more words. You need the right name, and [the principles page](.
 ## Get the reply in plain words
 
 ```text
-/bro
+/ronin-bro
 ```
 
-That's the whole prompt. [`/bro`](../../skills/bro/SKILL.md) restates the last message like one human talking to another, no jargon, shorter. Use it when a reply is technically thorough and you still don't know what it said.
+That's the whole prompt. [`/ronin-bro`](../../skills/ronin-bro/SKILL.md) restates the last message in plain words.
 
 ## The pitfalls
 
-- **Enumerating skills in the prompt.** "use /how then /architect then /arena" reorders steps the playbook already sequences. State the goal and constraints. Name a skill only to override a default.
+- **Enumerating skills in the prompt.** "use /ronin-how then /ronin-architect" reorders steps the playbook already sequences. State the goal and constraints. Name a skill only to override a default.
 - **A vague finish condition.** "make it better" gives a durable run nothing to check. Give a command or artifact that can pass or fail.
 - **Parallel agents in one worktree.** They overwrite each other and the diff becomes archaeology. Say "own worktree per attempt" and the isolation is free.
-- **Using `/arena` for coverage.** `/arena` pursues distinct directions toward one goal, then picks a base and grafts the best parts. `/swarm` partitions slices or declared race arms and aggregates one report.
-- **Accepting every review comment.** Bots and humans both file real catches and noise in one list. `/interrogate` sorts findings into act-on and dismissed buckets with reasons, and you can override either way.
-- **Treating model labels as proof of independence.** Task lenses create coverage, fresh contexts create review separation, and reproducible evidence creates confidence. Report model and provider identity as provenance when known; do not use different labels as a quality guarantee.
-- **Treating `inherit-current` as a model slug.** `inherit-current` means omit the model field so the task profile inherits the current chat model. [Setup](./01-setup.md) covers optional routing.
+- **Using `/ronin-swarm` for design synthesis.** Swarm partitions independent slices. `/ronin-architect` names structural directions, compares them, and chooses the boundary.
+- **Accepting every review comment.** Bots and humans both file real catches and noise in one list. `/ronin-interrogate` sorts findings into act-on and dismissed buckets with reasons.
+- **Treating worker count as proof.** Task lenses create coverage. Fresh contexts create review separation. Reproducible evidence creates confidence.
 - **Reporting success off a green build.** A build proves it compiles. Ask for the real command, flow, stored value, or profile, and expect the evidence in the reply.
 - **Writing a `SKILL.md` freehand.** Route it through the [Authoring or modifying a skill playbook](../../skills/ronin-mode/playbooks/authoring-a-skill.md) so validation and review happen.
 

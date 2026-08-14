@@ -4,7 +4,7 @@
 
 1. Establish the baseline first, before any migration: a visual regression harness that screenshots the current component across its states, plus the target when matching two implementations. No baseline, no parity claim. A blocking prerequisite, not a follow-up.
 2. Anti-shortcut clauses, stated and held: no harness modifications, no baseline tampering, no component restructuring to make a diff pass. If the baseline looks wrong, stop and ask, don't edit it.
-3. Migrate one component at a time. Each component writer is a delegated leaf lane with the `implement` profile and one exclusive worktree or branch. Parallelize across those isolated outputs, one owner per component (the **separate-before-serializing-shared-state** principle skill). Shared primitives migrate first as a blocking phase.
+3. Migrate one component at a time. Each component writer is a delegated leaf lane with the `implement` profile and one exclusive worktree or branch. Parallelize across those isolated outputs, one owner per component (the **ronin-principle-separate-before-serializing-shared-state** principle skill). Shared primitives migrate first as a blocking phase.
 4. Verify each component against its baseline via image diff on the matching surface through the host's real-surface control capability. A nonzero diff is a fail; investigate the pixel delta, don't wave it through. Iterate per component until the diff is zero, using the host's durable goal or wait/wake mechanism when the run must persist.
 5. Run **Opening a PR** per component or per safe batch.
 

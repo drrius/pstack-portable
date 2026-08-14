@@ -1,8 +1,7 @@
-import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import { tmpdir, homedir } from 'node:os';
+import { existsSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { filesUnder, installationPaths, parseHomeArgument, repositoryRoot, safeLstat, sha256, treeDigest, treeManifest } from './lib.mjs';
+import { filesUnder, repositoryRoot, treeDigest, treeManifest } from './lib.mjs';
 
 if (!process.versions.bun) throw new Error('ronin verification requires Bun 1.3.14 or newer');
 
@@ -11,11 +10,6 @@ const check = (condition, message) => { if (!condition) failures.push(message); 
 const run = (script, args = []) => {
   const result = spawnSync(process.execPath, [join(repositoryRoot, 'scripts', script), ...args], { cwd: repositoryRoot, encoding: 'utf8' });
   if (result.status !== 0) failures.push(`${script} failed: ${(result.stderr || result.stdout).trim()}`);
-  return result;
-};
-const runExpectingFailure = (script, args = []) => {
-  const result = spawnSync(process.execPath, [join(repositoryRoot, 'scripts', script), ...args], { cwd: repositoryRoot, encoding: 'utf8' });
-  check(result.status !== 0, `${script} unexpectedly succeeded`);
   return result;
 };
 
@@ -31,7 +25,7 @@ function frontmatter(text) {
 }
 
 const taskProfileIds = ['explore', 'implement', 'judge', 'explain', 'verify'];
-const reviewProvenanceIds = ['self-review', 'same-model-fresh-context', 'same-provider-different-model', 'cross-provider'];
+const reviewSeparationIds = ['self-review', 'fresh-context-review'];
 const workerContractFields = ['objective', 'ownershipBoundary', 'permissions', 'isolation', 'verifier', 'stopCondition', 'returnedEvidence'];
 
 function validateTaskProfiles(path, label) {
@@ -45,29 +39,22 @@ function validateTaskProfiles(path, label) {
     return;
   }
   check(contract.version === 1, `${label} task profile contract has an unsupported version`);
+  check(contract.delegation?.model === 'inherit-active', `${label} delegated workers do not inherit the active model`);
   check(JSON.stringify(Object.keys(contract.profiles ?? {}).sort()) === JSON.stringify([...taskProfileIds].sort()), `${label} task profile IDs changed`);
   for (const id of taskProfileIds) {
     const profile = contract.profiles?.[id];
     check(Boolean(profile), `${label} task profile is missing: ${id}`);
     if (!profile) continue;
     for (const field of workerContractFields) check(Boolean(profile[field]), `${label} ${id} profile lacks ${field}`);
-    check(profile.modelRouting === 'optional', `${label} ${id} profile makes model routing mandatory`);
-    check(profile.requiresDistinctModel === false, `${label} ${id} profile requires a distinct model`);
     check(profile.targetWrites === (id === 'implement'), `${label} ${id} profile has the wrong target-write policy`);
     if (id !== 'implement') check(`${profile.ownershipBoundary} ${profile.permissions}`.includes('artifact'), `${label} ${id} profile lacks an explicit output-artifact boundary`);
   }
-  const expectedProvenance = [
-    ['self-review', false, true, true],
-    ['same-model-fresh-context', true, true, true],
-    ['same-provider-different-model', true, false, true],
-    ['cross-provider', true, false, false]
-  ];
-  const actualProvenance = (contract.reviewProvenance ?? []).map(({ id, freshContext, sameModel, sameProvider }) => [id, freshContext, sameModel, sameProvider]);
-  check(JSON.stringify(actualProvenance) === JSON.stringify(expectedProvenance), `${label} review provenance tiers changed`);
-  const reporting = contract.provenanceReporting ?? {};
-  check(reporting.modelRelationship?.includes('unverified'), `${label} provenance reporting cannot represent an unknown model relationship`);
-  check(reporting.providerRelationship?.includes('unverified'), `${label} provenance reporting cannot represent an unknown provider relationship`);
-  check(Boolean(reporting.jointTierRule), `${label} provenance reporting lacks its joint-tier rule`);
+  const actualSeparation = (contract.reviewSeparation ?? []).map(({ id, freshContext }) => [id, freshContext]);
+  check(JSON.stringify(actualSeparation) === JSON.stringify([['self-review', false], ['fresh-context-review', true]]), `${label} review separation paths changed`);
+  const serialized = JSON.stringify(contract);
+  for (const removed of ['modelRouting', 'requiresDistinctModel', 'provider']) {
+    check(!serialized.includes(removed), `${label} retains deleted model-routing field ${removed}`);
+  }
 }
 
 function markdownSection(text, heading) {
@@ -94,12 +81,11 @@ function validateHostContractSemantics(text, label) {
     check(profileSection.includes('task-profiles.json'), `${label} host contract does not bind its prose to task-profiles.json`);
   }
 
-  const provenanceSection = markdownSection(text, 'Optional model routing and review provenance');
-  check(provenanceSection !== null, `${label} host contract lacks review provenance`);
-  if (provenanceSection !== null) {
-    for (const id of reviewProvenanceIds) check(provenanceSection.includes(`\`${id}\``), `${label} host contract lacks the ${id} provenance tier`);
-    check(/report each axis independently/i.test(provenanceSection), `${label} host contract does not preserve known provenance axes independently`);
-    check(/model or provider identity[^.]*unverified/i.test(provenanceSection), `${label} host contract does not disclose unknown model or provider identity`);
+  const separationSection = markdownSection(text, 'Review separation');
+  check(separationSection !== null, `${label} host contract lacks review separation`);
+  if (separationSection !== null) {
+    for (const id of reviewSeparationIds) check(separationSection.includes(`\`${id}\``), `${label} host contract lacks the ${id} review path`);
+    check(/separate subagent or session/i.test(separationSection), `${label} host contract does not define fresh context`);
   }
 }
 
@@ -119,7 +105,7 @@ function validateSource(root) {
     .filter((entry) => entry.path.endsWith('/SKILL.md') && !entry.path.slice(0, -9).includes('/'))
     .map((entry) => entry.path.split('/')[0])
     .sort();
-  check(skillDirectories.length === 46, `Expected 46 skills, found ${skillDirectories.length}`);
+  check(skillDirectories.length === 43, `Expected 43 skills, found ${skillDirectories.length}`);
   for (const name of skillDirectories) {
     const path = join(root, 'skills', name, 'SKILL.md');
     const metadata = frontmatter(readFileSync(path, 'utf8'));
@@ -154,7 +140,7 @@ function validateSource(root) {
     check(!new RegExp(['ben', 'ny'].join(''), 'i').test(text), `Excluded automation reference in ${relativePath}`);
     check(!/\/Users\/[A-Za-z0-9._-]+\//.test(text), `Private absolute path in ${relativePath}`);
     check(!/(BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|ghp_[A-Za-z0-9]{30,}|sk-[A-Za-z0-9]{20,})/.test(text), `Possible secret in ${relativePath}`);
-    if (/^(README\.md|PORTING\.md|docs\/|skills\/|adapters\/)/.test(relativePath)) {
+    if (/^(README\.md|PORTING\.md|docs\/|skills\/)/.test(relativePath)) {
       for (const pattern of [/counts? in full/i, /most different model/i, /spawn multiple models/i, /multiple model perspectives/i, /single[- ]provider.{0,50}degraded|degraded.{0,50}single[- ]provider/i]) {
         check(!pattern.test(text), `Manufactured-diversity rule remains in ${relativePath}: ${pattern}`);
       }
@@ -175,7 +161,7 @@ function validateSource(root) {
   check(license.includes('Copyright (c) 2026 Lauren Tan'), 'Lauren Tan copyright notice is missing');
   const teamKitLicense = readFileSync(join(root, 'LICENSE-cursor-team-kit'), 'utf8');
   check(teamKitLicense.includes('Copyright (c) 2026 Cursor'), 'Cursor Team Kit copyright notice is missing');
-  check(existsSync(join(root, 'skills/deslop/SKILL.md')), 'Imported deslop skill is missing');
+  check(existsSync(join(root, 'skills/ronin-deslop/SKILL.md')), 'Imported ronin-deslop skill is missing');
   const upstream = JSON.parse(readFileSync(join(root, 'upstream.json'), 'utf8'));
   check(upstream.version === '0.14.1' && upstream.commit === '2a8044425c7bddf429c3bdedf3ab61e791d34d65', 'Pinned upstream provenance changed');
   const rootPackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
@@ -231,12 +217,12 @@ function validateSource(root) {
     for (const profile of route.profiles) check(section.includes(`\`${profile}\``), `Task-profile route ${profile} is not explicit under ${route.heading} in ${route.file}`);
   }
   check(JSON.stringify([...new Set(profileRouting.routes.flatMap((route) => route.profiles))].sort()) === JSON.stringify([...taskProfileIds].sort()), 'Task-profile routing fixtures do not retain the complete profile union');
-  for (const doc of profileRouting.provenanceDocs ?? []) {
+  for (const doc of profileRouting.reviewSeparationDocs ?? []) {
     const source = join(root, doc.file);
-    check(existsSync(source), `Review-provenance documentation is missing: ${doc.file}`);
+    check(existsSync(source), `Review-separation documentation is missing: ${doc.file}`);
     if (!existsSync(source)) continue;
     const text = readFileSync(source, 'utf8');
-    for (const needle of doc.needles) check(text.includes(needle), `Review-provenance documentation in ${doc.file} lacks ${JSON.stringify(needle)}`);
+    for (const needle of doc.needles) check(text.includes(needle), `Review-separation documentation in ${doc.file} lacks ${JSON.stringify(needle)}`);
   }
   validateNamedSkillReferences(root, skillDirectories);
   check(readFileSync(join(root, 'skills/ronin-core/personas/poteto-agent.md'), 'utf8').includes('ronin-mode'), 'Poteto Agent persona cannot route to Ronin Mode');
@@ -258,71 +244,6 @@ function validateNamedSkillReferences(root, skillDirectories) {
   }
 }
 
-function validateInstallation(home) {
-  const paths = installationPaths(home);
-  const manifestPath = join(paths.root, '.ronin-install.json');
-  check(existsSync(manifestPath), `Installed ownership manifest is missing: ${manifestPath}`);
-  if (!existsSync(manifestPath)) return;
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-  const distributionManifestPath = join(paths.root, 'manifest.json');
-  check(existsSync(distributionManifestPath), `Installed distribution manifest is missing: ${distributionManifestPath}`);
-  if (existsSync(distributionManifestPath)) {
-    const distributionManifest = JSON.parse(readFileSync(distributionManifestPath, 'utf8'));
-    for (const entry of distributionManifest.files) {
-      const path = resolve(paths.root, entry.path);
-      check(path.startsWith(`${resolve(paths.root)}/`) && existsSync(path), `Installed manifest path is missing or unsafe: ${entry.path}`);
-      if (path.startsWith(`${resolve(paths.root)}/`) && existsSync(path)) check(sha256(readFileSync(path)) === entry.sha256, `Installed file digest changed: ${entry.path}`);
-    }
-  }
-  for (const name of manifest.skillNames) {
-    for (const base of [paths.agentsSkills, paths.claudeSkills]) {
-      const link = join(base, name);
-      check(existsSync(link) && lstatSync(link).isSymbolicLink(), `Missing skill link: ${link}`);
-      if (existsSync(link)) check(realpathSync(link) === realpathSync(join(paths.root, 'skills', name)), `Incorrect skill target: ${link}`);
-    }
-  }
-  for (const name of manifest.personaNames) {
-    const link = join(paths.claudeAgents, `${name}.md`);
-    check(existsSync(link) && lstatSync(link).isSymbolicLink(), `Missing persona link: ${link}`);
-    if (existsSync(link)) check(realpathSync(link) === realpathSync(join(paths.root, 'skills', 'ronin-core', 'personas', `${name}.md`)), `Incorrect persona target: ${link}`);
-  }
-  const installedRouter = join(paths.root, 'skills/ronin-mode/SKILL.md');
-  const installedPlaybook = join(paths.root, 'skills/ronin-mode/playbooks/feature.md');
-  const installedSibling = join(paths.root, 'skills/architect/SKILL.md');
-  const installedPersona = join(paths.root, 'skills/ronin-core/personas/poteto-agent.md');
-  check(existsSync(installedRouter) && readFileSync(installedRouter, 'utf8').includes('playbooks/feature.md'), 'Installed Ronin Mode router cannot resolve the Feature playbook');
-  check(existsSync(installedPlaybook) && readFileSync(installedPlaybook, 'utf8').includes('architect'), 'Installed Feature playbook cannot resolve architect');
-  check(existsSync(installedSibling) && readFileSync(installedSibling, 'utf8').includes('HOST_CONTRACT.md'), 'Installed architect skill cannot resolve the host contract');
-  const architectDir = realpathSync(dirname(installedSibling));
-  const contractFromSkill = resolve(architectDir, '../ronin-core/HOST_CONTRACT.md');
-  const profilesFromSkill = resolve(architectDir, '../ronin-core/task-profiles.json');
-  check(existsSync(contractFromSkill), 'HOST_CONTRACT.md is not reachable as ../ronin-core/HOST_CONTRACT.md from installed skills/architect');
-  if (existsSync(contractFromSkill)) {
-    try {
-      validateHostContractSemantics(readFileSync(contractFromSkill, 'utf8'), 'Installed');
-    } catch {
-      check(false, 'HOST_CONTRACT.md at the skill locator path is unreadable');
-    }
-  }
-  validateTaskProfiles(profilesFromSkill, 'Installed');
-  check(existsSync(installedPersona) && readFileSync(installedPersona, 'utf8').includes('ronin-mode'), 'Installed Poteto Agent cannot resolve Ronin Mode');
-}
-
-function validateToolLaunchers(home) {
-  const toolsRoot = join(installationPaths(home).root, 'skills/ronin-mode/scripts');
-  for (const [relativePath, expected] of [['orch/orch', 'Usage:'], ['watch-pr/watch-pr', 'Usage:']]) {
-    const path = join(toolsRoot, relativePath);
-    const result = spawnSync(path, ['--help'], {
-      cwd: toolsRoot,
-      encoding: 'utf8',
-      env: { ...process.env, BUN_BIN: process.execPath }
-    });
-    check(result.status === 0, `Installed Bun launcher failed: ${relativePath}: ${(result.stderr || result.stdout).trim()}`);
-    check((result.stdout || '').includes(expected), `Installed Bun launcher returned unexpected help: ${relativePath}`);
-  }
-  check(existsSync(join(toolsRoot, 'node_modules/commander/package.json')), 'Installed Bun launcher did not bootstrap pinned dependencies');
-}
-
 validateSource(repositoryRoot);
 run('build.mjs');
 const firstBuildDigest = existsSync(join(repositoryRoot, 'dist/ronin')) ? treeDigest(join(repositoryRoot, 'dist/ronin')) : '';
@@ -331,57 +252,9 @@ run('build.mjs');
 const secondBuildDigest = existsSync(join(repositoryRoot, 'dist/ronin')) ? treeDigest(join(repositoryRoot, 'dist/ronin')) : '';
 check(firstBuildDigest === secondBuildDigest, 'Build output is not deterministic');
 
-const argv = process.argv.slice(2);
-if (argv.includes('--installed')) {
-  validateInstallation(parseHomeArgument(argv, homedir()));
-} else {
-  const testHome = mkdtempSync(join(tmpdir(), 'ronin-test-'));
-  try {
-    writeFileSync(join(testHome, 'sentinel'), 'preserve\n');
-    const collision = join(testHome, '.agents/skills/architect');
-    mkdirSync(dirname(collision), { recursive: true });
-    writeFileSync(collision, 'unrelated\n');
-    const collisionResult = runExpectingFailure('install.mjs', ['--home', testHome]);
-    check((collisionResult.stderr || collisionResult.stdout).includes('Refusing to overwrite unrelated path'), 'Collision refusal did not explain the unrelated path');
-    check(readFileSync(collision, 'utf8') === 'unrelated\n', 'Collision refusal changed the unrelated path');
-    check(!existsSync(installationPaths(testHome).root), 'Collision refusal created an installation root');
-    rmSync(collision);
-    run('install.mjs', ['--home', testHome, '--dry-run']);
-    run('install.mjs', ['--home', testHome]);
-    validateInstallation(testHome);
-    validateToolLaunchers(testHome);
-    run('install.mjs', ['--home', testHome]);
-    validateInstallation(testHome);
-    const upgradeRoot = installationPaths(testHome).root;
-    const staleSkillDir = join(upgradeRoot, 'skills', 'renamed-away');
-    mkdirSync(staleSkillDir, { recursive: true });
-    writeFileSync(join(staleSkillDir, 'SKILL.md'), 'stale\n');
-    const staleLinks = [join(testHome, '.agents/skills/renamed-away'), join(testHome, '.claude/skills/renamed-away')];
-    for (const link of staleLinks) symlinkSync(staleSkillDir, link);
-    const releasedUnrelated = join(testHome, '.claude/skills/renamed-kept');
-    symlinkSync(join(testHome, 'sentinel'), releasedUnrelated);
-    const ownershipPath = join(upgradeRoot, '.ronin-install.json');
-    const ownership = JSON.parse(readFileSync(ownershipPath, 'utf8'));
-    writeFileSync(ownershipPath, JSON.stringify({ ...ownership, skillNames: [...ownership.skillNames, 'renamed-away', 'renamed-kept'] }, null, 2));
-    run('install.mjs', ['--home', testHome]);
-    validateInstallation(testHome);
-    for (const link of staleLinks) check(!safeLstat(link), `Upgrade reinstall left a stale owned link: ${link}`);
-    check(safeLstat(releasedUnrelated)?.isSymbolicLink(), 'Upgrade reinstall removed an unrelated link at a released name');
-    const unrelated = join(testHome, '.agents/skills/unrelated');
-    symlinkSync(join(testHome, 'sentinel'), unrelated);
-    run('uninstall.mjs', ['--home', testHome, '--dry-run']);
-    run('uninstall.mjs', ['--home', testHome]);
-    check(existsSync(join(testHome, 'sentinel')), 'Uninstall removed an unrelated file');
-    check(existsSync(unrelated), 'Uninstall removed an unrelated skill link');
-    check(!existsSync(installationPaths(testHome).root), 'Uninstall left the owned installation root');
-  } finally {
-    if (basename(testHome).startsWith('ronin-test-') && dirname(testHome) === resolve(tmpdir())) rmSync(testHome, { recursive: true });
-  }
-}
-
 if (failures.length) {
   console.error(failures.map((failure) => `FAIL: ${failure}`).join('\n'));
   process.exit(1);
 }
-console.log('Verified Agent Skills metadata, provenance, exclusions, local references, and capability fixtures.');
-console.log('Verified deterministic build plus isolated-home install, Bun tool bootstrap, reinstall, installed-file integrity, discovery links, dry-run, and exact uninstall.');
+console.log('Verified Agent Skills metadata, review separation, exclusions, local references, and capability fixtures.');
+console.log('Verified deterministic build output without cached dependencies.');

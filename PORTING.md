@@ -1,40 +1,61 @@
-# Divergence ledger
+# What ronin changes
 
-ronin derives from upstream pstack but is a native project for Agent Skills hosts, not a mirror. This file records every deliberate divergence from Cursor-native pstack and why it exists. Parity is a non-goal; honesty about capability differences is the goal.
+ronin is a curated Agent Skills project derived from pstack 0.14.1. Parity is not the goal.
 
-## Capability adaptations
+## What stays
 
-Upstream assumes the Cursor runtime. Canonical skills request the same outcomes through the capability contract in `skills/ronin-core/HOST_CONTRACT.md`:
+All 21 principles stay. They are the intellectual core.
 
-| Upstream surface | Native representation | Fallback when unavailable |
+Twenty-two working skills stay with them. That includes understanding, architecture, delegation, review, verification, cleanup, writing, and durable-run workflows. `deslop` remains as `ronin-deslop` under Cursor Team Kit's MIT license.
+
+## What goes
+
+Three upstream skills are excluded:
+
+- `arena` depended on independent model perspectives to make repeated attempts worth the ceremony. `ronin-architect` gets design breadth by naming structurally different directions before workers explore them.
+- `automate-me` was useful but peripheral. `ronin-reflect` still captures lessons from completed work.
+- `setup-pstack` configured model roles. ronin has no model configuration.
+
+The optional automation pack, Cursor plugin metadata, cache markers, vendored dependencies, proprietary loader behavior, cloud-agent syntax, and `/loop` command are also excluded.
+
+## Names stay distinct
+
+Every retained skill is namespaced `ronin-*`. The foundation, router, and review skills already had distinct names. The other 40 were renamed.
+
+Cursor can now show Lauren's pstack and ronin in the same picker without ambiguous commands. Cursor users should still prefer pstack. It is native there.
+
+The 21 principle skills use `user-invocable: false`. The router can read them, but they do not flood the command picker.
+
+## Delegation stays simple
+
+ronin asks the host for native subagents. Every worker gets a job, scope, permissions, verification requirement, stop condition, and evidence contract.
+
+Subagents inherit the active model. There is no model map, provider tier, reasoning-effort router, or host adapter layer. When subagents are unavailable, the coordinator runs the work itself and reports the lost concurrency or fresh context.
+
+`ronin-review` reports one of two things. `self-review` means the coordinator judged its own work. `fresh-context review` means a separate worker judged it without the implementation context.
+
+## Host capabilities are discovered
+
+Skills ask for capabilities through [`skills/ronin-core/HOST_CONTRACT.md`](./skills/ronin-core/HOST_CONTRACT.md). The host decides how to provide them.
+
+| Need | Preferred behavior | Fallback |
 | --- | --- | --- |
-| Task and subagent schemas | Behavioral profiles: `explore`, `implement`, `judge`, `explain`, and `verify`, each with a complete worker request | Execute serially and disclose lost concurrency separately from lost fresh context |
-| Provider-specific model identifiers | Optional per-profile model and reasoning-effort routing | Inherit the active model; useful behavior does not depend on a second model |
-| Sticky or long-running agent lifecycle | Host persistence, goals, waits, or monitors with an observable finish condition | Write a resume packet and stop honestly |
-| Cursor transcript storage | A host transcript adapter or an explicit task-scoped path | Report transcript access as unavailable |
-| Cursor-native browser, CLI, and UI tools | The host's real-surface control capability | Return a precise manual verification handoff |
-| Cursor built-in skills | A host-provided capability or an original portable skill | Report the missing capability; no unlicensed built-in is redistributed |
-| Cursor Team Kit `deslop` | MIT import at `skills/deslop` with `LICENSE-cursor-team-kit` | Inspect the diff for the same checklist if the skill is unavailable |
-| Cursor agent definitions | Canonical files under `skills/ronin-core/personas/` with thin host aliases | Pass the persona path in the worker brief |
+| Parallel work | Native subagents with isolated scopes | Run serially and disclose lost concurrency |
+| Fresh review | A new subagent context | Self-review and label it |
+| Durable work | Host goals, waits, or monitors | Write a resume packet and stop |
+| Transcript evidence | Workspace-scoped transcript access | Report it unavailable |
+| Browser, CLI, or UI control | Drive the real surface | Return an exact manual verification handoff |
+| Skill authoring | Host-provided authoring support | Write and validate the Agent Skill directly |
 
-## Workflow divergences
+No host-specific code lives in an adapter directory. Capability checks belong to the skill that needs them.
 
-Deliberate changes to what the workflows do, not just how they name capabilities:
+## Other deliberate changes
 
-- **Graphite removed.** Upstream's Shipping, Autopilot, and orchestration tooling assume the `gt` CLI and Graphite's merge queue. This project uses plain `gh` stacks: a PR opens against its parent with `--base`, the operator merges bottom-up and retargets each successor onto trunk as the one below lands, and `orch frontier set` resolves the stack from the forge's own base refs, scoped to the checkout's stack branch. The warning against enabling GitHub auto-merge on a stack is kept and strengthened: without a merge queue, nothing else sequences the merges.
-- **Cloud lifecycle removed.** Upstream's cloud-sleeper wake chains and cloud-agent syntax are replaced by the host's wait/wake mechanism, with a resume packet as the no-persistence fallback.
-- **`ronin-core` foundation skill added.** First-party. Carries `HOST_CONTRACT.md` and the personas inside a skill directory so bare per-skill copies (the `npx skills` install mode) keep them; every dependent skill locates them as the sibling `../ronin-core/`.
-- **Renamed entry points.** Cursor reads the same skill directories this project installs into, and two same-named skills are indistinguishable in its picker. The three commands whose portable behavior genuinely diverges carry their own names: `ronin-mode` (upstream `poteto-mode`), `setup-ronin` (upstream `setup-pstack`), and `ronin-review` (upstream `show-me-your-work`). Other leaves keep their upstream names — the hidden ones never reach a menu, and the visible ones are close enough to interchangeable. The personas keep their upstream names.
-- **Principle leaves are model-invocable.** Upstream marks all skills `disable-model-invocation: true`, which Cursor's loader treats differently. On Agent Skills hosts that flag blocks the read path `ronin-mode` depends on, so the 21 `principle-*` leaves carry `user-invocable: false` instead: readable by the model, hidden from the user's command menu. Mode skills keep `disable-model-invocation: true`.
-- **Task profiles replace model roles.** Upstream uses model choice to induce specialization. Here `explore`, `implement`, `judge`, `explain`, and `verify` define the job, permissions, and evidence contract. Model and reasoning-effort selection are optional routing choices. A cheaper or weaker model is selected only when capability, latency, or cost fits the job, never to manufacture diversity.
-- **`ronin-review` reports provenance.** Upstream's `show-me-your-work` hard-requires a different-model review subagent. Here fresh context, model identity, and provider identity are separate: the Attention section reports self-review, fresh-context same-model review, different-model same-provider review, cross-provider review, or an unverified joint tier when some relationships are unknown. Every known axis remains reported instead of being discarded with the joint label.
-- **Forge-neutral workflows.** Upstream assumes GitHub. PR workflows go through the repository's forge, detected from the git remote; GitHub (`gh`) and Azure DevOps (`az repos`) are supported, and `orch frontier set` resolves stacks on either. The bundled PR watcher remains GitHub-only and reports the gap elsewhere.
-- **Distribution via the skills CLI.** `npx skills add` is the primary install; the manifest-owned Bun installer remains the maintainer path.
-
-## Exclusions
-
-The project omits Cursor plugin metadata, cache markers, vendored dependencies, the optional automation pack, the proprietary plugin loader, cloud-agent syntax, and the `/loop` command. `deslop` is redistributed under Cursor's MIT license from the public Team Kit. The original Cursor plugins remain unchanged and should be preferred when using pstack natively inside Cursor.
+- Graphite is gone. Stack workflows use plain `gh` or `az`, merge bottom-up, and retarget each successor by hand.
+- PR workflows detect GitHub or Azure DevOps from the git remote. The bundled PR watcher remains GitHub-only and says so elsewhere.
+- `npx skills add` is the installer. The repository has no custom global install or uninstall path.
+- The installed Cursor plugin is evidence only. Build and verification never modify it.
 
 ## Safety
 
-Host safety always wins. Reversible local edits can proceed within the user's scope, but publication, merges, deployments, external communication, access changes, destructive actions, and paid operations still require the authorization demanded by the active host and user.
+Host safety wins. Reversible local work can proceed within scope. Publication, merges, deployments, external messages, access changes, destructive actions, and paid operations still need the authorization required by the active host and user.
