@@ -10,13 +10,13 @@
   },
   "scripts": {
     "build": "bun scripts/build.mjs",
-    "install:tools": "cd skills/ronin-mode/scripts && bun install --frozen-lockfile",
-    "audit:tools": "cd skills/ronin-mode/scripts && bun audit",
+    "install:tools": "cd skills/ronin/scripts && bun install --frozen-lockfile",
+    "audit:tools": "cd skills/ronin/scripts && bun audit",
     "test": "bun run test:profiles && bun run test:tools",
     "test:profiles": "bun test ./tests",
     "test:tools": "bun test",
-    "typecheck:tests": "bun skills/ronin-mode/scripts/node_modules/typescript/bin/tsc --project tsconfig.tests.json",
-    "typecheck:tools": "cd skills/ronin-mode/scripts && bun run typecheck",
+    "typecheck:tests": "bun skills/ronin/scripts/node_modules/typescript/bin/tsc --project tsconfig.tests.json",
+    "typecheck:tools": "cd skills/ronin/scripts && bun run typecheck",
     "verify": "bun scripts/verify.mjs",
     "check": "bun run verify && bun run test && bun run typecheck:tests && bun run typecheck:tools && bun run audit:tools"
   },

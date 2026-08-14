@@ -1,10 +1,10 @@
 ---
-name: ronin-mode
-description: poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /ronin-mode, or requests to work in this style.
+name: ronin
+description: poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /ronin, or requests to work in this style.
 disable-model-invocation: true
 ---
 
-# Ronin mode
+# ronin
 
 ## Host contract
 

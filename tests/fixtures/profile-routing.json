@@ -56,32 +56,32 @@
       "profiles": ["judge"]
     },
     {
-      "file": "skills/ronin-mode/playbooks/orchestrate.md",
+      "file": "skills/ronin/playbooks/orchestrate.md",
       "heading": "Roles and placement",
       "profiles": ["implement", "verify"]
     },
     {
-      "file": "skills/ronin-mode/playbooks/orchestrate.md",
+      "file": "skills/ronin/playbooks/orchestrate.md",
       "heading": "Verification",
       "profiles": ["verify"]
     },
     {
-      "file": "skills/ronin-mode/playbooks/autonomous-run.md",
+      "file": "skills/ronin/playbooks/autonomous-run.md",
       "heading": "Autonomous run",
       "profiles": ["verify"]
     },
     {
-      "file": "skills/ronin-mode/playbooks/visual-parity.md",
+      "file": "skills/ronin/playbooks/visual-parity.md",
       "heading": "Visual parity",
       "profiles": ["implement"]
     },
     {
-      "file": "skills/ronin-mode/playbooks/opening-a-pr.md",
+      "file": "skills/ronin/playbooks/opening-a-pr.md",
       "heading": "Opening a PR",
       "profiles": ["implement"]
     },
     {
-      "file": "skills/ronin-mode/playbooks/worktree-cleanup.md",
+      "file": "skills/ronin/playbooks/worktree-cleanup.md",
       "heading": "Worktree and simulator cleanup",
       "profiles": ["explore"]
     },
@@ -91,12 +91,12 @@
       "profiles": ["explore", "implement", "judge", "explain", "verify"]
     },
     {
-      "file": "skills/ronin-mode/playbooks/autopilot-stack.md",
+      "file": "skills/ronin/playbooks/autopilot-stack.md",
       "heading": "Autopilot-stack",
       "profiles": ["implement", "judge", "verify"]
     },
     {
-      "file": "skills/ronin-mode/playbooks/session-pickup.md",
+      "file": "skills/ronin/playbooks/session-pickup.md",
       "heading": "Session pickup",
       "profiles": ["explore"]
     }

@@ -1,6 +1,6 @@
 # Plan
 
-Produce a phased implementation plan grounded in the **Principles** section of the `ronin-mode` skill. The plan is the deliverable. Do not implement.
+Produce a phased implementation plan grounded in the **Principles** section of the `ronin` skill. The plan is the deliverable. Do not implement.
 
 Open a todolist with one item per step below.
 
@@ -12,7 +12,7 @@ Plan when the change spans three or more files, introduces architecture, has com
 
 ## 1. Re-read principles
 
-Read the **Principles** section of the `ronin-mode` skill end to end, and the leaf `ronin-principle-*` skills it indexes. The principles govern every plan decision; cross-link them.
+Read the **Principles** section of the `ronin` skill end to end, and the leaf `ronin-principle-*` skills it indexes. The principles govern every plan decision; cross-link them.
 
 ## 2. Scope and constraints
 
@@ -24,7 +24,7 @@ Resolve what is in scope vs explicitly out, technical or platform constraints, p
 
 Delegate codebase exploration (the **ronin-principle-guard-the-context-window** principle skill).
 
-- Prefer a Poteto Agent worker, which reads the ronin-core skill's `personas/poteto-agent.md` and `HOST_CONTRACT.md`, plus `skills/ronin-mode/SKILL.md`, before work. A general worker is the fallback when the host cannot load named personas.
+- Prefer a Poteto Agent worker, which reads the ronin-core skill's `personas/poteto-agent.md` and `HOST_CONTRACT.md`, plus `skills/ronin/SKILL.md`, before work. A general worker is the fallback when the host cannot load named personas.
 - Assign `explore` to source investigation and `judge` to architectural interpretation. Both inherit the active model.
 
 Each explorer returns file pointers, conventions, dependencies, test infrastructure, and entry points. No inlined dumps.
@@ -92,7 +92,7 @@ For bug fixes, the loop is reproduce on the surface, fix, verify on the same sur
 
 ## 6. Implementation guidance
 
-In the overview, name which ronin-mode non-negotiables the implementer must apply, by name:
+In the overview, name which ronin non-negotiables the implementer must apply, by name:
 
 - the **ronin-how** skill over each unfamiliar subsystem before changing it.
 - the **ronin-interrogate** skill for adversarial review on contested designs before shipping.

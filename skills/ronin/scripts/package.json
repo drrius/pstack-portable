@@ -1,5 +1,5 @@
 {
-  "name": "@ronin/ronin-mode-tools",
+  "name": "@ronin/ronin-tools",
   "private": true,
   "type": "module",
   "packageManager": "bun@1.3.14",

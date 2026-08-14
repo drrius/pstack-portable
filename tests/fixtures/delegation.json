@@ -7,5 +7,5 @@
   "stopCondition": "Stop after the scoped diff and verifier are inspected",
   "returnedEvidence": "Verdict, findings, inspected paths, and checks run",
   "persona": "skills/ronin-core/personas/poteto-agent.md",
-  "requiredSkill": "skills/ronin-mode/SKILL.md"
+  "requiredSkill": "skills/ronin/SKILL.md"
 }
