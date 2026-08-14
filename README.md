@@ -28,21 +28,7 @@ npx skills add drrius/ronin --all
 
 Every skill expects `ronin-core` next to it. That one carries the host contract and the two personas, so partial installs have to include it. `npx skills remove` takes it all back out.
 
-### If you also run Cursor
-
-Cursor reads `~/.agents/skills`, the same global directory Codex reads, and most skill names here match the originals. Install globally and you get two of everything with no way to tell them apart. Keep ronin out of Cursor's view.
-
-```sh
-npx skills add drrius/ronin --all -g -a claude-code
-```
-
-Claude Code reads `~/.claude/skills`. Cursor doesn't. For Codex, install per project.
-
-```sh
-cd your-project && npx skills add drrius/ronin --skill '*' -a codex -y
-```
-
-Three commands carry their own names so you can always tell which is which. `ronin-mode`, `setup-ronin`, `ronin-review`. Upstream calls them `poteto-mode`, `setup-pstack`, `show-me-your-work`.
+Three commands carry their own names. `ronin-mode`, `setup-ronin`, `ronin-review`. Upstream calls them `poteto-mode`, `setup-pstack`, `show-me-your-work`, so both sets can sit side by side and you always know which one you invoked.
 
 ## After install
 
