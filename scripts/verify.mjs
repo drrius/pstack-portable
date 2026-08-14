@@ -1,8 +1,8 @@
-import { existsSync, lstatSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { filesUnder, installationPaths, parseHomeArgument, repositoryRoot, sha256, treeDigest, treeManifest } from './lib.mjs';
+import { filesUnder, installationPaths, parseHomeArgument, repositoryRoot, safeLstat, sha256, treeDigest, treeManifest } from './lib.mjs';
 
 if (!process.versions.bun) throw new Error('pstack-portable verification requires Bun 1.3.14 or newer');
 
@@ -232,7 +232,7 @@ if (argv.includes('--installed')) {
   try {
     writeFileSync(join(testHome, 'sentinel'), 'preserve\n');
     const collision = join(testHome, '.agents/skills/architect');
-    await import('node:fs').then(({ mkdirSync }) => mkdirSync(dirname(collision), { recursive: true }));
+    mkdirSync(dirname(collision), { recursive: true });
     writeFileSync(collision, 'unrelated\n');
     const collisionResult = runExpectingFailure('install.mjs', ['--home', testHome]);
     check((collisionResult.stderr || collisionResult.stdout).includes('Refusing to overwrite unrelated path'), 'Collision refusal did not explain the unrelated path');
@@ -245,6 +245,21 @@ if (argv.includes('--installed')) {
     validateToolLaunchers(testHome);
     run('install.mjs', ['--home', testHome]);
     validateInstallation(testHome);
+    const upgradeRoot = installationPaths(testHome).root;
+    const staleSkillDir = join(upgradeRoot, 'skills', 'renamed-away');
+    mkdirSync(staleSkillDir, { recursive: true });
+    writeFileSync(join(staleSkillDir, 'SKILL.md'), 'stale\n');
+    const staleLinks = [join(testHome, '.agents/skills/renamed-away'), join(testHome, '.claude/skills/renamed-away')];
+    for (const link of staleLinks) symlinkSync(staleSkillDir, link);
+    const releasedUnrelated = join(testHome, '.claude/skills/renamed-kept');
+    symlinkSync(join(testHome, 'sentinel'), releasedUnrelated);
+    const ownershipPath = join(upgradeRoot, '.pstack-portable-install.json');
+    const ownership = JSON.parse(readFileSync(ownershipPath, 'utf8'));
+    writeFileSync(ownershipPath, JSON.stringify({ ...ownership, skillNames: [...ownership.skillNames, 'renamed-away', 'renamed-kept'] }, null, 2));
+    run('install.mjs', ['--home', testHome]);
+    validateInstallation(testHome);
+    for (const link of staleLinks) check(!safeLstat(link), `Upgrade reinstall left a stale owned link: ${link}`);
+    check(safeLstat(releasedUnrelated)?.isSymbolicLink(), 'Upgrade reinstall removed an unrelated link at a released name');
     const unrelated = join(testHome, '.agents/skills/unrelated');
     symlinkSync(join(testHome, 'sentinel'), unrelated);
     run('uninstall.mjs', ['--home', testHome, '--dry-run']);

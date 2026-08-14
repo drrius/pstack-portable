@@ -74,6 +74,12 @@ export function safeLstat(path) {
   }
 }
 
+export function isOwnedLink(path, expectedTarget) {
+  const status = safeLstat(path);
+  if (!status?.isSymbolicLink() || !existsSync(path) || !existsSync(expectedTarget)) return false;
+  return realpathSync(path) === realpathSync(expectedTarget);
+}
+
 export function assertOwnedLinkOrMissing(path, expectedTarget) {
   const status = safeLstat(path);
   if (!status) return;
