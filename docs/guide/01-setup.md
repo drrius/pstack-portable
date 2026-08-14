@@ -1,8 +1,8 @@
-# Set up pstack
+# Set up ronin
 
-In this page you install pstack-portable, pick which model roles it uses, and run your first task. Setup is one command plus a short conversation.
+In this page you install ronin, pick which model roles it uses, and run your first task. Setup is one command plus a short conversation.
 
-## Install pstack-portable
+## Install ronin
 
 From the repository, run the documented installer for your agent host. The installer exposes one canonical skill tree under `~/.agents/skills`; host adapters may add manifest-owned aliases such as `~/.claude/skills`.
 
@@ -16,7 +16,7 @@ Run:
 /setup-ronin
 ```
 
-[`/setup-ronin`](../../skills/setup-ronin/SKILL.md) detects the model-selection capability your host exposes, shows you each stable role (code delegates, judgment, and review panels), and asks what you want. It writes `~/.config/pstack/models.yaml`. Agents read that file when selecting models. A host may inject or enforce it when the host can.
+[`/setup-ronin`](../../skills/setup-ronin/SKILL.md) detects the model-selection capability your host exposes, shows you each stable role (code delegates, judgment, and review panels), and asks what you want. It writes `~/.config/ronin/models.yaml`. Agents read that file when selecting models. A host may inject or enforce it when the host can.
 
 You only override what you care about. A role with no line in the rule keeps the skill's default. To restore a default later, delete that role's line, or just run `/setup-ronin` again.
 

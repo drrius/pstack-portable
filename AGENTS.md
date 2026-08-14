@@ -1,6 +1,6 @@
-# Working in pstack-portable
+# Working in ronin
 
-Read `.codex/pstack-portable/goal.md` and `.codex/pstack-portable/plan.md` when they are present. Keep the plan current after material findings or failed verification.
+Read `.codex/ronin/goal.md` and `.codex/ronin/plan.md` when they are present. Keep the plan current after material findings or failed verification.
 
 Treat the installed Cursor pstack cache as immutable source material. Never edit, install over, remove, or relink the Cursor plugin.
 

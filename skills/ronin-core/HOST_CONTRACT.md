@@ -10,11 +10,11 @@ A requested checklist means the host's plan or durable state mechanism. A reques
 
 A worker request defines an objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Use the host's subagent facility when authorized. If unavailable, execute the lane serially and disclose that concurrency or model diversity was not exercised.
 
-Named pstack workers are portable personas. A Poteto Agent worker reads the pstack-core skill's `personas/poteto-agent.md`, this contract, and `skills/ronin-mode/SKILL.md` before work. A Comment Sicko worker reads the pstack-core skill's `personas/comment-sicko.md`, this contract, and `skills/no-comments/SKILL.md` before review. Host-specific generated wrappers may point to those canonical files.
+Named ronin workers are portable personas. A Poteto Agent worker reads the ronin-core skill's `personas/poteto-agent.md`, this contract, and `skills/ronin-mode/SKILL.md` before work. A Comment Sicko worker reads the ronin-core skill's `personas/comment-sicko.md`, this contract, and `skills/no-comments/SKILL.md` before review. Host-specific generated wrappers may point to those canonical files.
 
 ## Model roles
 
-Canonical workflows select stable roles such as `fast-code`, `deep-code`, `judgment`, `prose`, and `independent-review`. Reviewer diversity means the most different model the host offers from the author's: on a single-provider host, a different model in the provider's family is the intended state, not a degraded one. Disclose a diversity substitution only when the reviewer had to run on the author's own model. `~/.config/pstack/models.yaml` is the user-authored role map, keyed by host since identifiers are host-specific; the active host reads its own section, and a role may pin a reasoning effort where the host supports one. Workers and setup read it when choosing models. A host adapter may inject or enforce it when the host supports that. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them. If model selection is unavailable, inherit the current model and disclose the substitution when diversity was part of the verifier.
+Canonical workflows select stable roles such as `fast-code`, `deep-code`, `judgment`, `prose`, and `independent-review`. Reviewer diversity means the most different model the host offers from the author's: on a single-provider host, a different model in the provider's family is the intended state, not a degraded one. Disclose a diversity substitution only when the reviewer had to run on the author's own model. `~/.config/ronin/models.yaml` is the user-authored role map, keyed by host since identifiers are host-specific; the active host reads its own section, and a role may pin a reasoning effort where the host supports one. Workers and setup read it when choosing models. A host adapter may inject or enforce it when the host supports that. Otherwise the agent applies it by omitting selection for `inherit-current` and using configured identifiers when the host accepts them. If model selection is unavailable, inherit the current model and disclose the substitution when diversity was part of the verifier.
 
 ## Persistence
 
@@ -36,9 +36,9 @@ Forge equivalences the workflows rely on: GitHub PR state OPEN/MERGED/CLOSED cor
 
 ## Skills and paths
 
-pstack skills install wherever the host or the user's skill manager puts them: the Agent Skills root `~/.agents/skills`, an agent-specific directory such as `~/.claude/skills`, or a project-local `.agents/skills`. Installs may be copies or symlinks. The one requirement is that the pstack skills land side by side in the same parent directory.
+ronin skills install wherever the host or the user's skill manager puts them: the Agent Skills root `~/.agents/skills`, an agent-specific directory such as `~/.claude/skills`, or a project-local `.agents/skills`. Installs may be copies or symlinks. The one requirement is that the ronin skills land side by side in the same parent directory.
 
-This contract and the personas live inside the `pstack-core` skill. From any installed pstack skill directory, this contract is at `../pstack-core/HOST_CONTRACT.md` and the personas are under `../pstack-core/personas/`; resolve the skill directory's realpath first if a relative path does not resolve directly. If `pstack-core` is absent, report it as a missing prerequisite skill rather than searching elsewhere.
+This contract and the personas live inside the `ronin-core` skill. From any installed ronin skill directory, this contract is at `../ronin-core/HOST_CONTRACT.md` and the personas are under `../ronin-core/personas/`; resolve the skill directory's realpath first if a relative path does not resolve directly. If `ronin-core` is absent, report it as a missing prerequisite skill rather than searching elsewhere.
 
 ## Safety
 

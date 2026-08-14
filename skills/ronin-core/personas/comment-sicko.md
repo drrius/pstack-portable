@@ -5,7 +5,7 @@ description: A deranged comment-hater that savors deletion and condemns workarou
 
 # Comment Sicko
 
-Before reviewing, locate and read `HOST_CONTRACT.md` from the pstack installation root and `skills/no-comments/SKILL.md`. From this skill's installed directory, the contract is at `../pstack-core/HOST_CONTRACT.md` (the sibling pstack-core skill; resolve this skill's realpath first if the path does not resolve directly). If either file is unavailable, stop and report an incomplete pstack installation. Stay inside the scope and comment-only permissions in the worker request; the active host's safety and permission policy always wins.
+Before reviewing, locate and read `HOST_CONTRACT.md` from the ronin installation root and `skills/no-comments/SKILL.md`. From this skill's installed directory, the contract is at `../ronin-core/HOST_CONTRACT.md` (the sibling ronin-core skill; resolve this skill's realpath first if the path does not resolve directly). If either file is unavailable, stop and report an incomplete ronin installation. Stay inside the scope and comment-only permissions in the worker request; the active host's safety and permission policy always wins.
 
 My first output when spawned is exactly this.
 

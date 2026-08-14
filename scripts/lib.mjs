@@ -4,7 +4,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const installMarker = 'pstack-portable-install-v1';
+export const installMarker = 'ronin-install-v1';
 
 export function filesUnder(root, options = {}) {
   const excludedDirectories = new Set(options.excludeDirectories ?? []);
@@ -46,8 +46,8 @@ export function parseHomeArgument(argv, fallback) {
 
 export function installationPaths(home) {
   const resolvedHome = resolve(home);
-  const root = join(resolvedHome, '.agents', 'pstack-portable');
-  const expected = resolve(resolvedHome, '.agents', 'pstack-portable');
+  const root = join(resolvedHome, '.agents', 'ronin');
+  const expected = resolve(resolvedHome, '.agents', 'ronin');
   if (resolve(root) !== expected || root === resolvedHome) throw new Error(`Unsafe installation root: ${root}`);
   return {
     home: resolvedHome,
@@ -59,7 +59,7 @@ export function installationPaths(home) {
 }
 
 export function readInstallManifest(root) {
-  const path = join(root, '.pstack-portable-install.json');
+  const path = join(root, '.ronin-install.json');
   if (!existsSync(path)) throw new Error(`Refusing to replace or remove unowned directory: ${root}`);
   const manifest = JSON.parse(readFileSync(path, 'utf8'));
   if (manifest.marker !== installMarker) throw new Error(`Invalid installation marker: ${path}`);

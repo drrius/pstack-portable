@@ -7,7 +7,7 @@ const argv = process.argv.slice(2);
 const dryRun = argv.includes('--dry-run');
 const paths = installationPaths(parseHomeArgument(argv, homedir()));
 if (!existsSync(paths.root)) {
-  console.log(`No pstack-portable installation found under ${paths.root}`);
+  console.log(`No ronin installation found under ${paths.root}`);
   process.exit(0);
 }
 const manifest = readInstallManifest(paths.root);
@@ -17,7 +17,7 @@ for (const name of manifest.skillNames) {
   links.push([join(paths.claudeSkills, name), join(paths.root, 'skills', name)]);
 }
 for (const name of manifest.personaNames) {
-  links.push([join(paths.claudeAgents, `${name}.md`), join(paths.root, 'skills', 'pstack-core', 'personas', `${name}.md`)]);
+  links.push([join(paths.claudeAgents, `${name}.md`), join(paths.root, 'skills', 'ronin-core', 'personas', `${name}.md`)]);
 }
 for (const [link, target] of links) {
   const status = safeLstat(link);
@@ -34,4 +34,4 @@ for (const [link] of links) {
   if (safeLstat(link)) rmSync(link);
 }
 rmSync(paths.root, { recursive: true });
-console.log(`Removed pstack-portable from ${paths.root}`);
+console.log(`Removed ronin from ${paths.root}`);

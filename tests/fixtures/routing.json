@@ -11,7 +11,7 @@
       "needles": ["architect"]
     },
     {
-      "from": "skills/pstack-core/personas/poteto-agent.md",
+      "from": "skills/ronin-core/personas/poteto-agent.md",
       "to": "skills/ronin-mode/SKILL.md",
       "needles": ["ronin-mode"]
     }
