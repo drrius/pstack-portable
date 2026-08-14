@@ -4,7 +4,9 @@ A native [Agent Skills](https://agentskills.io/) project for Claude Code and Cod
 
 The repository keeps one canonical skill tree in `skills/`. Workflows request capabilities — delegation, persistence, model selection, transcript access, real-surface control, the source forge — through `skills/pstack-core/HOST_CONTRACT.md`, and each skill states an honest fallback when the active host lacks one. The original Cursor plugin remains the best native Cursor experience and is not modified by this project.
 
-The corpus derives from pstack 0.14.1 and diverges deliberately where these hosts differ from Cursor; `PORTING.md` is the divergence ledger. Upstream is watched and cherry-picked, not tracked. The tree holds 46 skills (44 derived from upstream, MIT-imported `deslop` from Cursor Team Kit, and the first-party `pstack-core` foundation), both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
+The corpus derives from pstack 0.14.1 and diverges deliberately where these hosts differ from Cursor; `PORTING.md` is the divergence ledger. Upstream is watched and cherry-picked, not tracked. The tree holds 46 skills (44 derived from upstream, MIT-imported `deslop` from Cursor Team Kit, and the first-party `pstack-core` foundation), both agent personas, the 23 Ronin Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
+
+Three entry points carry their own names so the portable and native projects stay distinguishable side by side: `ronin-mode` (upstream `poteto-mode`), `setup-ronin` (upstream `setup-pstack`), and `ronin-review` (upstream `show-me-your-work`). The Poteto Agent and Comment Sicko personas keep their upstream names.
 
 ## Status
 
@@ -22,7 +24,7 @@ Or pick agents and skills explicitly. Every pstack skill expects the `pstack-cor
 
 ### Coexisting with native Cursor pstack
 
-Cursor and Codex both read the shared global directory `~/.agents/skills`, and skills there carry the same names as the native Cursor plugin's. On a machine that runs Cursor with native pstack installed, a global shared-directory install produces indistinguishable duplicates in Cursor's skill picker. Keep this project out of Cursor's view instead:
+The renamed entry points (`ronin-mode`, `setup-ronin`, `ronin-review`) never collide with native pstack, but most other visible skills keep their upstream names, and Cursor and Codex both read the shared global directory `~/.agents/skills`. On a machine that runs Cursor with native pstack installed, a global shared-directory install still produces same-named duplicates in Cursor's skill picker. Keep this project out of Cursor's view instead:
 
 ```sh
 npx skills add drrius/pstack-portable --all -g -a claude-code
@@ -40,7 +42,7 @@ That lands in the project's `.agents/skills`; note Cursor also reads project `.a
 
 The skills CLI delivers only the skill tree. Three optional host steps unlock full capability; every skill degrades honestly without them:
 
-- **Model roles.** Run `/setup-pstack` (or invoke the `setup-pstack` skill) to write `~/.config/pstack/models.yaml` — per-host role maps with optional reasoning efforts. Without it, every role inherits the current model and review panels disclose that they shared one model.
+- **Model roles.** Run `/setup-ronin` (or invoke the `setup-ronin` skill) to write `~/.config/pstack/models.yaml` — per-host role maps with optional reasoning efforts. Without it, every role inherits the current model and review panels disclose that they shared one model.
 - **Codex fan-out.** Subagent delegation on Codex requires its feature flag: `codex features enable multi_agent`. Codex's newer `multi_agent_v2` coexists with it and can be enabled alongside. Without the flag, fan-out skills (`how`, `arena`, `interrogate`, `swarm`) execute serially and disclose the lost concurrency.
 - **Claude personas.** The persona files ship inside `skills/pstack-core/personas/`. To register them as Claude agent definitions, link them into `~/.claude/agents/` (the maintainer installer below does this automatically):
 
@@ -64,7 +66,7 @@ It places the owned distribution at `~/.agents/pstack-portable`, links all skill
 
 ## Use
 
-Invoke a skill by name through your host, such as `poteto-mode`, `architect`, `why`, or `show-me-your-work`. Hosts with persona support can spawn `poteto-agent` or `comment-sicko`; other hosts pass the matching file under `skills/pstack-core/personas/` in a delegated worker brief.
+Invoke a skill by name through your host, such as `ronin-mode`, `architect`, `why`, or `ronin-review`. Hosts with persona support can spawn `poteto-agent` or `comment-sicko`; other hosts pass the matching file under `skills/pstack-core/personas/` in a delegated worker brief.
 
 The workflows request capabilities through `HOST_CONTRACT.md`. If a host cannot delegate, persist a run, read transcripts, select a model role, or control the real UI, the skill uses its documented fallback and reports the lost capability rather than pretending it was exercised.
 

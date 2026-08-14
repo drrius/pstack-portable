@@ -6,25 +6,25 @@ In this page you install pstack-portable, pick which model roles it uses, and ru
 
 From the repository, run the documented installer for your agent host. The installer exposes one canonical skill tree under `~/.agents/skills`; host adapters may add manifest-owned aliases such as `~/.claude/skills`.
 
-Confirm that your host can discover `poteto-mode` before continuing. If discovery fails, stop and fix the adapter rather than copying another skill tree by hand.
+Confirm that your host can discover `ronin-mode` before continuing. If discovery fails, stop and fix the adapter rather than copying another skill tree by hand.
 
 ## Pick your models
 
 Run:
 
 ```text
-/setup-pstack
+/setup-ronin
 ```
 
-[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the model-selection capability your host exposes, shows you each stable role (code delegates, judgment, and review panels), and asks what you want. It writes `~/.config/pstack/models.yaml`. Agents read that file when selecting models. A host may inject or enforce it when the host can.
+[`/setup-ronin`](../../skills/setup-ronin/SKILL.md) detects the model-selection capability your host exposes, shows you each stable role (code delegates, judgment, and review panels), and asks what you want. It writes `~/.config/pstack/models.yaml`. Agents read that file when selecting models. A host may inject or enforce it when the host can.
 
-You only override what you care about. A role with no line in the rule keeps the skill's default. To restore a default later, delete that role's line, or just run `/setup-pstack` again.
+You only override what you care about. A role with no line in the rule keeps the skill's default. To restore a default later, delete that role's line, or just run `/setup-ronin` again.
 
 Set a role to `inherit-current` when the worker should keep the current model. That value is not a provider model. For a panel role the value is a list, and one worker runs per entry when the host supports model routing; otherwise workers inherit the current model and disclose that diversity was not exercised. Setup also configures `swarm workers`, the default role for every `/swarm` worker unless a race names one for each arm.
 
 ## Accept the verification offer, or don't
 
-At the end of setup, `/setup-pstack` looks for a way to prove app behavior in your project, either a `verify-*` skill or an existing harness. If it finds neither, it offers once to generate one with [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md).
+At the end of setup, `/setup-ronin` looks for a way to prove app behavior in your project, either a `verify-*` skill or an existing harness. If it finds neither, it offers once to generate one with [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md).
 
 Say yes and it writes `.agents/skills/verify-<app>/`, a project-local skill that teaches agents to drive your app the way a user does. It proves the skill works once before handing it over. Say no and setup moves on. You can run `/create-verification-skill` yourself any time. [Verify and ship](./06-verify-and-ship.md#create-a-project-verification-skill) covers when it earns its place.
 
@@ -35,11 +35,11 @@ After setup, start a new chat. The model rule applies to new sessions.
 Pick something real but small, and describe it the way you'd describe it to a colleague:
 
 ```text
-/poteto-mode add a --json flag to this command. text output stays byte-identical. verify both.
+/ronin-mode add a --json flag to this command. text output stays byte-identical. verify both.
 ```
 
-Watch the todo list. The first item is always "read the Principles section". The rest are the matched playbook's steps copied in, the Feature playbook for this prompt. If `/poteto-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
+Watch the todo list. The first item is always "read the Principles section". The rest are the matched playbook's steps copied in, the Feature playbook for this prompt. If `/ronin-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
 
-From here you can type normal follow-ups. Re-invoke `/poteto-mode` (or use a host pin if one is available) when you start the next task. The mode does not stay on by itself.
+From here you can type normal follow-ups. Re-invoke `/ronin-mode` (or use a host pin if one is available) when you start the next task. The mode does not stay on by itself.
 
-Next: [Route work through `/poteto-mode`](./02-poteto-mode.md).
+Next: [Route work through `/ronin-mode`](./02-ronin-mode.md).

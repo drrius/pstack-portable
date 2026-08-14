@@ -9,7 +9,7 @@
     {
       "name": "persistence",
       "contractNeedle": "Persistence",
-      "fallbackFile": "skills/poteto-mode/playbooks/autonomous-run.md",
+      "fallbackFile": "skills/ronin-mode/playbooks/autonomous-run.md",
       "fallbackNeedle": "resume packet"
     },
     {
@@ -21,19 +21,19 @@
     {
       "name": "model routing",
       "contractNeedle": "Model roles",
-      "fallbackFile": "skills/setup-pstack/SKILL.md",
+      "fallbackFile": "skills/setup-ronin/SKILL.md",
       "fallbackNeedle": "current model"
     },
     {
       "name": "real-surface control",
       "contractNeedle": "Real-surface control",
-      "fallbackFile": "skills/poteto-mode/SKILL.md",
+      "fallbackFile": "skills/ronin-mode/SKILL.md",
       "fallbackNeedle": "manual-handoff"
     },
     {
       "name": "source forge",
       "contractNeedle": "Source forge",
-      "fallbackFile": "skills/poteto-mode/playbooks/babysit.md",
+      "fallbackFile": "skills/ronin-mode/playbooks/babysit.md",
       "fallbackNeedle": "capability gap"
     }
   ]

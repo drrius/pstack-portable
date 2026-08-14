@@ -13,7 +13,7 @@ const commanderPackagePath = join(
 );
 const installKeyPath = join(
   nodeModulesDirectory,
-  ".poteto-mode-tools-install-key"
+  ".ronin-mode-tools-install-key"
 );
 
 function assertSupportedBun(): void {

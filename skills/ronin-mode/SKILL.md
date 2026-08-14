@@ -1,10 +1,10 @@
 ---
-name: poteto-mode
-description: poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /poteto-mode, or requests to work in this style.
+name: ronin-mode
+description: poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /ronin-mode, or requests to work in this style.
 disable-model-invocation: true
 ---
 
-# Poteto mode
+# Ronin mode
 
 ## Host contract
 
@@ -32,7 +32,7 @@ Remaining triggers:
 - Asked to land or ship a green stack → the **Shipping** playbook (`playbooks/shipping.md`). Green is not safe. Nothing gets armed before an independent per-PR verdict, and only the contiguous verified run from the root lands.
 - Bugbot or the agentic security review commented → skeptical posture. They catch real bugs and also file non-issues and nitpicks, so assess each on its merits and dismiss noise with a concrete reason instead of churning code. Triage fix / dismiss / ask per `references/bugbot-triage.md`.
 - Broken skill mid-task → fix it in its own PR. Don't block. Don't silently work around it.
-- Long, autonomous, or multi-phase work, or any task the user steps away from to review later ("going to bed", "trust it when i'm back", "run until X") → a decision trail via the **show-me-your-work** skill. Commit it when stakes need an auditable record; keep it local otherwise. Use the host contract's persistence capability; if none exists, write a resume packet and stop honestly.
+- Long, autonomous, or multi-phase work, or any task the user steps away from to review later ("going to bed", "trust it when i'm back", "run until X") → a decision trail via the **ronin-review** skill. Commit it when stakes need an auditable record; keep it local otherwise. Use the host contract's persistence capability; if none exists, write a resume packet and stop honestly.
 
 ## Principles
 
