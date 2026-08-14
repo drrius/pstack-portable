@@ -4,7 +4,7 @@ An unofficial, cross-agent port of [pstack](https://github.com/cursor/plugins/tr
 
 The repository keeps one canonical [Agent Skills](https://agentskills.io/) tree in `skills/`. Host adapters translate capabilities such as delegation, persistence, model selection, transcript access, and real-surface control without forking the underlying workflows. The original Cursor plugin remains the best native Cursor experience and is not modified by this project.
 
-This port currently tracks pstack 0.14.1. It includes the 44 upstream skills plus MIT-imported `deslop` from Cursor Team Kit (45 total), both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
+This port currently tracks pstack 0.14.1. It includes the 44 upstream skills, MIT-imported `deslop` from Cursor Team Kit, and the first-party `pstack-core` foundation skill (46 total), both agent personas, the 23 Poteto Mode playbooks, guides, and first-party tooling. Upstream's optional automation subtree is intentionally outside this project's scope.
 
 ## Status
 
@@ -12,7 +12,17 @@ The local release candidate is discoverable on Agent Skills-compatible hosts, in
 
 ## Install
 
-Clone the repository, then build and inspect the global installation before applying it:
+Install with the [skills CLI](https://github.com/vercel-labs/skills) into any supported agent:
+
+```sh
+npx skills add drrius/pstack-portable --all
+```
+
+Or pick agents and skills explicitly, for example `npx skills add drrius/pstack-portable -g --agent claude-code,codex --skill '*'`. Every pstack skill expects the `pstack-core` skill beside it — it carries the host contract and personas — so partial installs must include it. Skills report it as a missing prerequisite if it is absent. Remove with `npx skills remove`.
+
+### Maintainer install
+
+The repository also ships a manifest-owned installer used for development and release verification:
 
 ```sh
 bun run build
@@ -21,20 +31,11 @@ bun run install:global
 bun run verify:installed
 ```
 
-The installer places the owned distribution at `~/.agents/pstack-portable`, links all skills into `~/.agents/skills`, and creates Claude aliases in `~/.claude/skills` plus persona definitions in `~/.claude/agents`. It refuses unrelated files or links instead of overwriting them.
-
-To remove only manifest-owned files and links:
-
-```sh
-bun run uninstall:global -- --dry-run
-bun run uninstall:global
-```
-
-Pass `--home /explicit/home` to the install, uninstall, or installed-verification command to test another home directory.
+It places the owned distribution at `~/.agents/pstack-portable`, links all skills into `~/.agents/skills`, and creates Claude aliases in `~/.claude/skills` plus persona definitions in `~/.claude/agents`. It refuses unrelated files or links instead of overwriting them. `bun run uninstall:global` removes only manifest-owned artifacts, and `--home /explicit/home` targets another home directory.
 
 ## Use
 
-Invoke a skill by name through your host, such as `poteto-mode`, `architect`, `why`, or `show-me-your-work`. Hosts with persona support can spawn `poteto-agent` or `comment-sicko`; other hosts pass the matching file under `personas/` in a delegated worker brief.
+Invoke a skill by name through your host, such as `poteto-mode`, `architect`, `why`, or `show-me-your-work`. Hosts with persona support can spawn `poteto-agent` or `comment-sicko`; other hosts pass the matching file under `skills/pstack-core/personas/` in a delegated worker brief.
 
 The workflows request capabilities through `HOST_CONTRACT.md`. If a host cannot delegate, persist a run, read transcripts, select a model role, or control the real UI, the skill uses its documented fallback and reports the lost capability rather than claiming Cursor runtime parity.
 
@@ -53,7 +54,7 @@ bun run audit:tools
 ## Design
 
 - `skills/` is the canonical host-neutral Agent Skills tree.
-- `personas/` contains the portable source prompts for Poteto Agent and Comment Sicko.
+- `skills/pstack-core/` carries the host contract and the portable source prompts for Poteto Agent and Comment Sicko.
 - `adapters/` documents the thin Codex, Claude, and generic-agent mappings.
 - `docs/` contains the adapted pstack guide.
 - `scripts/` builds, installs, uninstalls, and verifies generated distributions.

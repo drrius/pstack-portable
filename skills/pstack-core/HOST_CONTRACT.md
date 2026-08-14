@@ -10,7 +10,7 @@ A requested checklist means the host's plan or durable state mechanism. A reques
 
 A worker request defines an objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Use the host's subagent facility when authorized. If unavailable, execute the lane serially and disclose that concurrency or model diversity was not exercised.
 
-Named pstack workers are portable personas. A Poteto Agent worker reads `personas/poteto-agent.md`, this contract, and `skills/poteto-mode/SKILL.md` before work. A Comment Sicko worker reads `personas/comment-sicko.md`, this contract, and `skills/no-comments/SKILL.md` before review. Host-specific generated wrappers may point to those canonical files.
+Named pstack workers are portable personas. A Poteto Agent worker reads the pstack-core skill's `personas/poteto-agent.md`, this contract, and `skills/poteto-mode/SKILL.md` before work. A Comment Sicko worker reads the pstack-core skill's `personas/comment-sicko.md`, this contract, and `skills/no-comments/SKILL.md` before review. Host-specific generated wrappers may point to those canonical files.
 
 ## Model roles
 
@@ -30,9 +30,9 @@ Browser, desktop, CLI, and TUI verification use the host's available real-surfac
 
 ## Skills and paths
 
-The canonical global skill root is `~/.agents/skills`; project-local skills use `.agents/skills`. Host adapters may expose aliases such as `~/.claude/skills` without duplicating source. Every installed path is owned by an installation manifest so collisions fail closed and uninstall removes only owned artifacts.
+pstack skills install wherever the host or the user's skill manager puts them: the Agent Skills root `~/.agents/skills`, an agent-specific directory such as `~/.claude/skills`, or a project-local `.agents/skills`. Installs may be copies or symlinks. The one requirement is that the pstack skills land side by side in the same parent directory.
 
-From any installed skill directory's realpath, this contract is at `../../HOST_CONTRACT.md` (two levels up from `skills/<name>` to the pstack installation root). The installed root has the shape `~/.agents/pstack-portable/HOST_CONTRACT.md`.
+This contract and the personas live inside the `pstack-core` skill. From any installed pstack skill directory, this contract is at `../pstack-core/HOST_CONTRACT.md` and the personas are under `../pstack-core/personas/`; resolve the skill directory's realpath first if a relative path does not resolve directly. If `pstack-core` is absent, report it as a missing prerequisite skill rather than searching elsewhere.
 
 ## Safety
 

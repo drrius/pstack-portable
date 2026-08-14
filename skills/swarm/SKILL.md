@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Swarm
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From any installed skill directory's realpath, the contract is at `../../HOST_CONTRACT.md` (two levels up from `skills/<name>`). Use its delegation, isolation, model-role, and safety rules for every worker. If it is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From this skill's installed directory, the contract is at `../pstack-core/HOST_CONTRACT.md` (the sibling pstack-core skill; resolve this skill's realpath first if the path does not resolve directly). Use its delegation, isolation, model-role, and safety rules for every worker. If it is unavailable, stop and report that the pstack-core skill is not installed alongside this one.
 
 Fan out N parallel workers. They may cover separate slices, race the same brief, or mix both. The parent waits, aggregates, and returns one report.
 

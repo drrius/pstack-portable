@@ -1,6 +1,6 @@
 # Contributing
 
-Keep `skills/`, `personas/`, and `docs/` host-neutral. Concrete host paths, tool schemas, and model identifiers belong in `adapters/`; a canonical workflow should ask for a capability through `HOST_CONTRACT.md` and state an honest fallback when the host lacks it.
+Keep `skills/` (including `skills/pstack-core/`) and `docs/` host-neutral. Concrete host paths, tool schemas, and model identifiers belong in `adapters/`; a canonical workflow should ask for a capability through `HOST_CONTRACT.md` and state an honest fallback when the host lacks it.
 
 ## Development checks
 

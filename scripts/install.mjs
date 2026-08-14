@@ -20,7 +20,7 @@ for (const name of sourceManifest.skillNames) {
   assertOwnedLinkOrMissing(join(paths.claudeSkills, name), target);
 }
 for (const name of sourceManifest.personaNames) {
-  assertOwnedLinkOrMissing(join(paths.claudeAgents, `${name}.md`), join(paths.root, 'personas', `${name}.md`));
+  assertOwnedLinkOrMissing(join(paths.claudeAgents, `${name}.md`), join(paths.root, 'skills', 'pstack-core', 'personas', `${name}.md`));
 }
 
 if (dryRun) {
@@ -50,7 +50,7 @@ for (const name of sourceManifest.skillNames) {
 }
 for (const name of sourceManifest.personaNames) {
   const link = join(paths.claudeAgents, `${name}.md`);
-  if (!existsSync(link)) symlinkSync(join(paths.root, 'personas', `${name}.md`), link);
+  if (!existsSync(link)) symlinkSync(join(paths.root, 'skills', 'pstack-core', 'personas', `${name}.md`), link);
 }
 if (existsSync(backup)) rmSync(backup, { recursive: true });
 console.log(`Installed ${sourceManifest.skillNames.length} skills and ${sourceManifest.personaNames.length} personas under ${paths.root}`);

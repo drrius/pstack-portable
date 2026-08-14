@@ -11,7 +11,7 @@ pstack-portable keeps the upstream engineering workflows while replacing Cursor 
 | Cursor-native browser, CLI, and UI tools | The host's real-surface control capability | Return a precise manual verification handoff |
 | Cursor built-in skills | A host-provided capability or an original portable skill | Report the missing capability; no unlicensed built-in is redistributed |
 | Cursor Team Kit `deslop` | MIT import at `skills/deslop` with `LICENSE-cursor-team-kit` | Inspect the diff for the same checklist if the skill is unavailable |
-| Cursor agent definitions | Canonical files under `personas/` with thin host aliases | Pass the persona path in the worker brief |
+| Cursor agent definitions | Canonical files under `skills/pstack-core/personas/` with thin host aliases | Pass the persona path in the worker brief |
 
 The port intentionally omits Cursor plugin metadata, cache markers, vendored dependencies, the optional automation pack, the proprietary plugin loader, cloud-agent syntax, and the `/loop` command. `deslop` is redistributed under Cursor's MIT license from the public Team Kit. The original Cursor plugins remain unchanged and should be preferred when using pstack natively inside Cursor.
 

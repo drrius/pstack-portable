@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Host contract
 
-Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From any installed skill directory's realpath, the contract is at `../../HOST_CONTRACT.md` (two levels up from `skills/<name>`). It defines delegation, model roles, persistence, transcript access, real-surface control, skill paths, and safety for the active host. The host contract and the host's own permission policy override any workflow shorthand in this skill or its playbooks. If the contract is unavailable, stop and report an incomplete pstack installation.
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. From this skill's installed directory, the contract is at `../pstack-core/HOST_CONTRACT.md` (the sibling pstack-core skill; resolve this skill's realpath first if the path does not resolve directly). It defines delegation, model roles, persistence, transcript access, real-surface control, skill paths, and safety for the active host. The host contract and the host's own permission policy override any workflow shorthand in this skill or its playbooks. If the contract is unavailable, stop and report an incomplete pstack installation.
 
 ## Non-negotiables
 
@@ -86,7 +86,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 ## Subagents
 
-**Use the Poteto Agent persona for playbook delegates** (code-writing delegates and ad-hoc helpers). Every such worker reads `personas/poteto-agent.md`, `HOST_CONTRACT.md`, and this skill before work. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) define their own worker contracts for independent review; respect those contracts instead of replacing them with the Poteto Agent persona.
+**Use the Poteto Agent persona for playbook delegates** (code-writing delegates and ad-hoc helpers). Every such worker reads `../pstack-core/personas/poteto-agent.md`, `../pstack-core/HOST_CONTRACT.md`, and this skill before work. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) define their own worker contracts for independent review; respect those contracts instead of replacing them with the Poteto Agent persona.
 
 **Define every worker request completely.** Include its objective, ownership boundary, permissions, isolation, verifier, stop condition, and returned evidence. Prefer file pointers over inlined bulk context. Select stable model roles through the host adapter: `fast-code` for mechanical work, `deep-code` for precisely specified difficult implementation, `judgment` for cross-cutting or ambiguous work, `prose` for communication, and `independent-review` for fresh verification. If model selection or delegation is unavailable, inherit the current model or execute serially and disclose which diversity or concurrency was not exercised.
 
