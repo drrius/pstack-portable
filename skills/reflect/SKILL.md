@@ -1,6 +1,6 @@
 ---
 name: reflect
-description: Spawn three parallel review subagents over the active transcript, surface learnings, and route each to a concrete edit on an existing skill. Use when the user says reflect.
+description: Run three independent reviews over the active transcript or session digest, surface learnings, and route each to a concrete skill improvement. Use when the user says reflect.
 disable-model-invocation: true
 ---
 
@@ -20,33 +20,27 @@ Skip when the conversation is trivial, off-topic, or already covered by an exist
 
 ## Process
 
-### 1. Locate the active transcript
+### 1. Obtain the active transcript
 
-The parent finds its own transcript file before fanning out. The system prompt names the active workspace's `agent-transcripts/` directory; use that path. Do not glob across `~/.cursor/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.
+Ask the active host adapter for the current conversation transcript. An explicit user-provided path is also valid when it is constrained to the current workspace or task. Never infer a host's storage layout or search private home-directory state.
 
-```bash
-ls -t <agent-transcripts>/*.jsonl <agent-transcripts>/*/*.jsonl <agent-transcripts>/*/subagents/*.jsonl 2>/dev/null | head -10
-```
+Confirm the candidate belongs to this conversation by matching its metadata or opening user request. If the host exposes no readable transcript, write a tight digest from the current context, state that transcript-level tool evidence is unavailable, and pass the digest instead. Reflection continues, but reviewers must not fabricate turn citations or claims about tools they cannot inspect.
 
-Three transcript layouts: legacy flat (`<id>.jsonl`), current nested (`<id>/<id>.jsonl`), and subagent (`<parent>/subagents/<child>.jsonl`).
+### 2. Run three independent reviewers
 
-For each candidate, read the first JSONL line and check that `message.content[0].text` contains the conversation's opening user prompt. Take the matching path. If no path resolves, write a tight digest of the session and pass that instead.
+Define three worker requests and launch them in parallel when the host's delegation facility is available and authorized. Each request owns one lens, may read the transcript or digest and query only connected sources it references, must not modify files or external state, stops after 3-5 durable findings, and returns the template's numbered evidence list. Grant read access to relevant connected services without granting write authority.
 
-### 2. Spawn three reviewers in parallel
-
-One message, three `Task` calls, `subagent_type: generalPurpose`, explicit `model:` on each, agent mode (`readonly: false`). Reviewers need MCP access for context lookups (tickets, chat threads, observability traces referenced in the transcript); readonly strips MCPs. The prompt forbids file writes; the parent applies edits.
-
-| Lens | `model` | Prompt template |
+| Lens | Stable model role | Prompt template |
 |---|---|---|
-| Judgment | your configured reflect-judgment model (default `claude-fable-5-thinking-max`) | `references/judgment-reviewer.md` |
-| Tooling | your configured reflect-tooling model (default `gpt-5.6-sol-max`) | `references/tooling-reviewer.md` |
-| Divergent | your configured reflect-judgment model (default `claude-fable-5-thinking-max`) | `references/divergent-reviewer.md` |
+| Judgment | `judgment` | `references/judgment-reviewer.md` |
+| Tooling | `deep-code` | `references/tooling-reviewer.md` |
+| Divergent | `independent-review` | `references/divergent-reviewer.md` |
 
-Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `Task` response body.
+Pass each template verbatim, substituting the transcript path or digest where marked. If delegation is unavailable, run the three lenses serially and disclose that independence was procedural rather than agent-isolated. If model selection is unavailable, inherit the current model and disclose that model diversity was not exercised.
 
 ### 3. Synthesize
 
-One `Task` call, `subagent_type: generalPurpose`, using your configured reflect-judgment model (default `claude-fable-5-thinking-max`), agent mode (`readonly: false`). The synthesizer's quality check includes spot-verifying citations, which can require MCP access; readonly strips MCPs. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
+Run a separate synthesis worker with the `judgment` role when delegation is available. Its request permits read-only citation checks through connected services but forbids repository or external writes. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. If delegation is unavailable, synthesize serially and disclose the fallback. The result is a structured Accepted / Rejected / Backlog list.
 
 ### 4. Structural enforcement check
 
@@ -56,14 +50,14 @@ Sanity-check the synthesizer's Accepted list. For any item that would be enforce
 
 Before applying any Accepted edit, present the synthesizer's full Accepted/Rejected/Backlog output to the user and wait for explicit approval. The user picks which subset to apply and may redirect routings. Skill changes affect every future agent in the org; do not auto-apply.
 
-Backlog items file to whatever devex / backlog tracker your team uses automatically. Those are tracker submissions, not skill edits. Only the Accepted list waits for approval.
+File Backlog items to the team's tracker only when the user has authorized external submissions and the host permits them. Otherwise include ready-to-file items in the result. Only the approved subset of Accepted skill edits may be applied.
 
 For each approved Accepted item, follow the Routing field exactly:
 
 - Trivial existing-skill edit (a one-line bullet, a tightened sentence, a stale fact corrected): parent does directly.
-- Substantive existing-skill edit (a new section, a new pattern table, more than ~10 lines): hand to Cursor's built-in `create-skill` skill and run its draft / test / iterate loop.
-- `tune description: <skill path>` (the skill exists but didn't trigger when it should have): hand to `create-skill` and run its description-optimization loop.
-- `new skill via create-skill: <kebab-name>`: hand creation to `create-skill`. Do not invent the shape ad hoc.
+- Substantive existing-skill edit (a new section, a new pattern table, more than ~10 lines): use the host-provided skill-authoring capability and run its draft / test / iterate loop. If unavailable, edit against the canonical Agent Skills format and validate the result with the repository's skill validator.
+- `tune description: <skill path>` (the skill exists but didn't trigger when it should have): use the skill-authoring capability's description-optimization loop, or perform an equivalent fixture-based trigger check when that capability is unavailable.
+- `new skill: <kebab-name>`: use the skill-authoring capability when available; otherwise draft it in the canonical Agent Skills format and validate it. Do not copy or assume a proprietary built-in.
 
 If your environment ships a SKILL.md validator, run it on every touched skill before declaring done. Skip this step if it doesn't.
 

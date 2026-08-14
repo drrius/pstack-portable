@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it } from "bun:test";
+import { afterEach, describe, expect, it } from "vitest";
+import { spawn, spawnSync } from "node:child_process";
 import {
   chmod,
   mkdir,
@@ -11,6 +12,7 @@ import {
 import { realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   NotFoundError,
   UserError,
@@ -20,7 +22,7 @@ import {
   type Store,
 } from "./store.ts";
 
-const SCRIPT = join(import.meta.dir, "orch.ts");
+const SCRIPT = fileURLToPath(new URL("orch", import.meta.url));
 const directories: string[] = [];
 const handles: Store[] = [];
 
@@ -62,8 +64,8 @@ function git({
   args: readonly string[];
   repo: string;
 }): string {
-  const result = Bun.spawnSync(["git", "-C", repo, ...args]);
-  if (result.exitCode !== 0) {
+  const result = spawnSync("git", ["-C", repo, ...args]);
+  if (result.status !== 0) {
     throw new Error(
       `git ${args.join(" ")} failed: ${result.stderr.toString()}`
     );
@@ -163,9 +165,9 @@ function runCli(
   args: readonly string[],
   env: Readonly<Record<string, string | undefined>> = process.env
 ): RunResult {
-  const result = Bun.spawnSync([process.execPath, SCRIPT, ...args], { env });
+  const result = spawnSync(SCRIPT, args, { env });
   return {
-    code: result.exitCode,
+    code: result.status ?? 1,
     stdout: result.stdout.toString(),
     stderr: result.stderr.toString(),
   };
@@ -312,7 +314,7 @@ describe("Store", () => {
       report: "reports/u1.md",
     });
     expect(first.pointer).toMatchObject({ unit: "u1", status: "done" });
-    expect(first.filename).toEndWith(".tsv");
+    expect(first.filename.endsWith(".tsv")).toBe(true);
     await store.inbox.push({
       agent: "worker-2",
       unit: "u2",
@@ -334,8 +336,12 @@ describe("Store", () => {
 
   it("replaces a stale lock whose holder pid is dead", async () => {
     const { directory } = await initializedStore();
-    const exited = Bun.spawn(["true"]);
-    await exited.exited;
+    const exited = spawn("true");
+    await new Promise<void>((resolve, reject) => {
+      exited.once("error", reject);
+      exited.once("close", () => resolve());
+    });
+    if (exited.pid === undefined) throw new Error("Fixture process has no pid");
     await writeFile(join(directory, ".orch.lock"), `${exited.pid}\n`);
 
     const stale: string[] = [];

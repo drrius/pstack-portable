@@ -1,5 +1,3 @@
-#!/usr/bin/env bun
-
 import { ensureDependenciesInstalled } from "../bootstrap.ts";
 import {
   NotFoundError,

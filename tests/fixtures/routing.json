@@ -1,0 +1,19 @@
+{
+  "edges": [
+    {
+      "from": "skills/poteto-mode/SKILL.md",
+      "to": "skills/poteto-mode/playbooks/feature.md",
+      "needles": ["playbooks/feature.md"]
+    },
+    {
+      "from": "skills/poteto-mode/playbooks/feature.md",
+      "to": "skills/architect/SKILL.md",
+      "needles": ["architect"]
+    },
+    {
+      "from": "personas/poteto-agent.md",
+      "to": "skills/poteto-mode/SKILL.md",
+      "needles": ["poteto-mode"]
+    }
+  ]
+}

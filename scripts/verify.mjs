@@ -1,0 +1,193 @@
+import { existsSync, lstatSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir, homedir } from 'node:os';
+import { basename, dirname, join, relative, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { filesUnder, installationPaths, parseHomeArgument, repositoryRoot, treeDigest, treeManifest } from './lib.mjs';
+
+const failures = [];
+const check = (condition, message) => { if (!condition) failures.push(message); };
+const run = (script, args = []) => {
+  const result = spawnSync(process.execPath, [join(repositoryRoot, 'scripts', script), ...args], { cwd: repositoryRoot, encoding: 'utf8' });
+  if (result.status !== 0) failures.push(`${script} failed: ${(result.stderr || result.stdout).trim()}`);
+  return result;
+};
+const runExpectingFailure = (script, args = []) => {
+  const result = spawnSync(process.execPath, [join(repositoryRoot, 'scripts', script), ...args], { cwd: repositoryRoot, encoding: 'utf8' });
+  check(result.status !== 0, `${script} unexpectedly succeeded`);
+  return result;
+};
+
+function frontmatter(text) {
+  if (!text.startsWith('---\n')) return null;
+  const end = text.indexOf('\n---\n', 4);
+  if (end < 0) return null;
+  const body = text.slice(4, end);
+  return Object.fromEntries(body.split('\n').flatMap((line) => {
+    const match = line.match(/^([a-zA-Z0-9-]+):\s*(.+)$/);
+    return match ? [[match[1], match[2].replace(/^['"]|['"]$/g, '')]] : [];
+  }));
+}
+
+function validateLinks(markdownPath, root) {
+  const text = readFileSync(markdownPath, 'utf8');
+  for (const match of text.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+    const target = match[1].split('#')[0];
+    if (!target || target === 'url' || /^(https?:|mailto:)/.test(target) || target.includes('<') || target.includes('{{')) continue;
+    const resolved = resolve(dirname(markdownPath), target);
+    check(resolved.startsWith(`${resolve(root)}/`) && existsSync(resolved), `Broken local link in ${relative(root, markdownPath)}: ${match[1]}`);
+  }
+}
+
+function validateSource(root) {
+  const sourceOptions = { excludeDirectories: ['node_modules'] };
+  const skillDirectories = treeManifest(join(root, 'skills'), sourceOptions)
+    .filter((entry) => entry.path.endsWith('/SKILL.md') && !entry.path.slice(0, -9).includes('/'))
+    .map((entry) => entry.path.split('/')[0])
+    .sort();
+  check(skillDirectories.length === 44, `Expected 44 skills, found ${skillDirectories.length}`);
+  for (const name of skillDirectories) {
+    const path = join(root, 'skills', name, 'SKILL.md');
+    const metadata = frontmatter(readFileSync(path, 'utf8'));
+    check(metadata, `Invalid frontmatter: skills/${name}/SKILL.md`);
+    if (!metadata) continue;
+    check(metadata.name === name, `Skill name must match directory: ${name} != ${metadata.name}`);
+    check(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.name) && metadata.name.length <= 64, `Invalid Agent Skills name: ${metadata.name}`);
+    check(Boolean(metadata.description) && metadata.description.length <= 1024, `Invalid description: ${name}`);
+  }
+  check(filesUnder(join(root, 'personas')).filter((path) => path.endsWith('.md')).length === 2, 'Expected two personas');
+  for (const path of filesUnder(join(root, 'personas')).filter((path) => path.endsWith('.md'))) {
+    const name = basename(path, '.md');
+    const metadata = frontmatter(readFileSync(path, 'utf8'));
+    check(metadata, `Invalid persona frontmatter: personas/${name}.md`);
+    if (metadata) check(metadata.name === name, `Persona name must match filename: ${name} != ${metadata.name}`);
+  }
+  check(filesUnder(join(root, 'skills/poteto-mode/playbooks')).filter((path) => path.endsWith('.md')).length === 23, 'Expected 23 playbooks');
+  check(filesUnder(join(root, 'skills'), sourceOptions).filter((path) => path.includes('/references/')).length === 34, 'Expected 34 skill reference files');
+  check(filesUnder(join(root, 'docs')).length === 17, 'Expected 17 guide files');
+  for (const path of filesUnder(root, { excludeDirectories: ['.git', '.codex', 'dist', 'node_modules'] }).filter((path) => path.endsWith('.md'))) validateLinks(path, root);
+
+  const trackedResult = spawnSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: root, encoding: 'buffer' });
+  check(trackedResult.status === 0, 'Unable to enumerate tracked publication files');
+  const publishable = trackedResult.status === 0
+    ? trackedResult.stdout.toString('utf8').split('\0').filter(Boolean).map((path) => join(root, path))
+    : [];
+  for (const path of publishable) {
+    const relativePath = relative(root, path);
+    check(!relativePath.split('/').includes('node_modules'), `Cached dependency is tracked: ${relativePath}`);
+    if (!/\.(md|json|mjs|js|ts|sh|yaml|yml|txt)$/.test(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    check(!new RegExp(['ben', 'ny'].join(''), 'i').test(text), `Excluded automation reference in ${relativePath}`);
+    check(!/\/Users\/[A-Za-z0-9._-]+\//.test(text), `Private absolute path in ${relativePath}`);
+    check(!/(BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|ghp_[A-Za-z0-9]{30,}|sk-[A-Za-z0-9]{20,})/.test(text), `Possible secret in ${relativePath}`);
+  }
+
+  for (const path of [...filesUnder(join(root, 'skills'), sourceOptions), ...filesUnder(join(root, 'personas'))]) {
+    if (!/\.(md|sh|ts|js|mjs|json)$/.test(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    for (const forbidden of ['~/.cursor/', '.cursor/skills/', 'subagent_type', 'run_in_background', 'environment: "cloud"', 'cloud_base_branch', 'cursor-team-kit', "Cursor's built-in"]) {
+      check(!text.includes(forbidden), `Host coupling ${JSON.stringify(forbidden)} remains in ${relative(root, path)}`);
+    }
+    check(!/(claude-fable-5|gpt-5\.6-sol|grok-4\.6-fast|claude-opus-5)/.test(text), `Hard-coded host model remains in ${relative(root, path)}`);
+  }
+
+  const license = readFileSync(join(root, 'LICENSE'), 'utf8');
+  check(license.includes('Copyright (c) 2026 Lauren Tan'), 'Lauren Tan copyright notice is missing');
+  const upstream = JSON.parse(readFileSync(join(root, 'upstream.json'), 'utf8'));
+  check(upstream.version === '0.14.1' && upstream.commit === '2a8044425c7bddf429c3bdedf3ab61e791d34d65', 'Pinned upstream provenance changed');
+  const fixture = JSON.parse(readFileSync(join(root, 'tests/fixtures/delegation.json'), 'utf8'));
+  for (const field of ['objective', 'ownershipBoundary', 'permissions', 'isolation', 'verifier', 'stopCondition', 'returnedEvidence']) check(Boolean(fixture[field]), `Delegation fixture lacks ${field}`);
+  check(existsSync(join(root, fixture.persona)), 'Delegation fixture persona is missing');
+  check(existsSync(join(root, fixture.requiredSkill)), 'Delegation fixture skill is missing');
+  const routing = JSON.parse(readFileSync(join(root, 'tests/fixtures/routing.json'), 'utf8'));
+  for (const edge of routing.edges) {
+    const source = join(root, edge.from);
+    const target = join(root, edge.to);
+    check(existsSync(source), `Routing fixture source is missing: ${edge.from}`);
+    check(existsSync(target), `Routing fixture target is missing: ${edge.to}`);
+    if (existsSync(source)) check(edge.needles.some((needle) => readFileSync(source, 'utf8').includes(needle)), `Routing edge is not expressed in ${edge.from}: ${edge.to}`);
+  }
+  const capabilities = JSON.parse(readFileSync(join(root, 'tests/fixtures/capabilities.json'), 'utf8'));
+  const contract = readFileSync(join(root, 'HOST_CONTRACT.md'), 'utf8');
+  for (const capability of capabilities.capabilities) {
+    check(contract.includes(capability.contractNeedle), `Host contract lacks ${capability.name}`);
+    const source = join(root, capability.fallbackFile);
+    check(existsSync(source), `Capability fallback file is missing: ${capability.fallbackFile}`);
+    if (existsSync(source)) check(readFileSync(source, 'utf8').includes(capability.fallbackNeedle), `Capability fallback is not explicit for ${capability.name}`);
+  }
+  check(readFileSync(join(root, 'personas/poteto-agent.md'), 'utf8').includes('poteto-mode'), 'Poteto Agent persona cannot route to Poteto Mode');
+}
+
+function validateInstallation(home) {
+  const paths = installationPaths(home);
+  const manifestPath = join(paths.root, '.pstack-portable-install.json');
+  check(existsSync(manifestPath), `Installed ownership manifest is missing: ${manifestPath}`);
+  if (!existsSync(manifestPath)) return;
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  for (const name of manifest.skillNames) {
+    for (const base of [paths.agentsSkills, paths.claudeSkills]) {
+      const link = join(base, name);
+      check(existsSync(link) && lstatSync(link).isSymbolicLink(), `Missing skill link: ${link}`);
+      if (existsSync(link)) check(realpathSync(link) === realpathSync(join(paths.root, 'skills', name)), `Incorrect skill target: ${link}`);
+    }
+  }
+  for (const name of manifest.personaNames) {
+    const link = join(paths.claudeAgents, `${name}.md`);
+    check(existsSync(link) && lstatSync(link).isSymbolicLink(), `Missing persona link: ${link}`);
+    if (existsSync(link)) check(realpathSync(link) === realpathSync(join(paths.root, 'personas', `${name}.md`)), `Incorrect persona target: ${link}`);
+  }
+  const installedRouter = join(paths.root, 'skills/poteto-mode/SKILL.md');
+  const installedPlaybook = join(paths.root, 'skills/poteto-mode/playbooks/feature.md');
+  const installedSibling = join(paths.root, 'skills/architect/SKILL.md');
+  const installedPersona = join(paths.root, 'personas/poteto-agent.md');
+  check(existsSync(installedRouter) && readFileSync(installedRouter, 'utf8').includes('playbooks/feature.md'), 'Installed Poteto Mode router cannot resolve the Feature playbook');
+  check(existsSync(installedPlaybook) && readFileSync(installedPlaybook, 'utf8').includes('architect'), 'Installed Feature playbook cannot resolve architect');
+  check(existsSync(installedSibling) && readFileSync(installedSibling, 'utf8').includes('HOST_CONTRACT.md'), 'Installed architect skill cannot resolve the host contract');
+  check(existsSync(installedPersona) && readFileSync(installedPersona, 'utf8').includes('poteto-mode'), 'Installed Poteto Agent cannot resolve Poteto Mode');
+}
+
+validateSource(repositoryRoot);
+run('build.mjs');
+const firstBuildDigest = existsSync(join(repositoryRoot, 'dist/pstack-portable')) ? treeDigest(join(repositoryRoot, 'dist/pstack-portable')) : '';
+check(!filesUnder(join(repositoryRoot, 'dist/pstack-portable')).some((path) => path.includes('/node_modules/')), 'Build output contains cached dependencies');
+run('build.mjs');
+const secondBuildDigest = existsSync(join(repositoryRoot, 'dist/pstack-portable')) ? treeDigest(join(repositoryRoot, 'dist/pstack-portable')) : '';
+check(firstBuildDigest === secondBuildDigest, 'Build output is not deterministic');
+
+const argv = process.argv.slice(2);
+if (argv.includes('--installed')) {
+  validateInstallation(parseHomeArgument(argv, homedir()));
+} else {
+  const testHome = mkdtempSync(join(tmpdir(), 'pstack-portable-test-'));
+  try {
+    writeFileSync(join(testHome, 'sentinel'), 'preserve\n');
+    const collision = join(testHome, '.agents/skills/architect');
+    await import('node:fs').then(({ mkdirSync }) => mkdirSync(dirname(collision), { recursive: true }));
+    writeFileSync(collision, 'unrelated\n');
+    const collisionResult = runExpectingFailure('install.mjs', ['--home', testHome]);
+    check((collisionResult.stderr || collisionResult.stdout).includes('Refusing to overwrite unrelated path'), 'Collision refusal did not explain the unrelated path');
+    check(readFileSync(collision, 'utf8') === 'unrelated\n', 'Collision refusal changed the unrelated path');
+    check(!existsSync(installationPaths(testHome).root), 'Collision refusal created an installation root');
+    rmSync(collision);
+    run('install.mjs', ['--home', testHome, '--dry-run']);
+    run('install.mjs', ['--home', testHome]);
+    validateInstallation(testHome);
+    run('install.mjs', ['--home', testHome]);
+    validateInstallation(testHome);
+    const unrelated = join(testHome, '.agents/skills/unrelated');
+    symlinkSync(join(testHome, 'sentinel'), unrelated);
+    run('uninstall.mjs', ['--home', testHome, '--dry-run']);
+    run('uninstall.mjs', ['--home', testHome]);
+    check(existsSync(join(testHome, 'sentinel')), 'Uninstall removed an unrelated file');
+    check(existsSync(unrelated), 'Uninstall removed an unrelated skill link');
+    check(!existsSync(installationPaths(testHome).root), 'Uninstall left the owned installation root');
+  } finally {
+    if (basename(testHome).startsWith('pstack-portable-test-') && dirname(testHome) === resolve(tmpdir())) rmSync(testHome, { recursive: true });
+  }
+}
+
+if (failures.length) {
+  console.error(failures.map((failure) => `FAIL: ${failure}`).join('\n'));
+  process.exit(1);
+}
+console.log('Verified Agent Skills metadata, provenance, exclusions, local references, and capability fixtures.');
+console.log('Verified deterministic build plus isolated-home install, reinstall, discovery links, dry-run, and exact uninstall.');

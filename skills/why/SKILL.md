@@ -1,9 +1,11 @@
 ---
 name: why
-description: "Use for 'why does X work this way', 'why we picked Y', design rationale, regressions, postmortems, or data-backed thresholds. Discovers available MCPs and queries each evidence category (source control, issue tracker, long-form docs, real-time chat, infrastructure observability, error tracking, product analytics warehouse) in parallel, then returns a cited read on decisions and tradeoffs. Use how for runtime behavior."
+description: "Use for 'why does X work this way', 'why we picked Y', design rationale, regressions, postmortems, or data-backed thresholds. Discovers available evidence tools and queries each category in parallel, then returns a cited read on decisions and tradeoffs. Use how for runtime behavior."
 ---
 
 # Why
+
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. Use its delegation, model-role, connector, and safety rules for every investigator and synthesizer. If it is unavailable, stop and report an incomplete pstack installation.
 
 Investigate the motivation and intent behind code. Why was it built this way? What edge cases were considered? What product, business, or operational constraints shaped the design? What alternatives were rejected, and why?
 
@@ -56,7 +58,7 @@ Parse what the user is asking. The **target** is usually a chunk of code, a patt
 - "Why does this code still exist?" Dead-code territory.
 - "What's the history of X?" Broad archaeological sweep.
 
-If the target is vague ("why do we do it this way?" with no clear referent), make your best guess from conversation context (open files, recent edits, cursor location, what was just discussed). State your interpretation briefly so the user can redirect if you're off, then proceed.
+If the target is vague ("why do we do it this way?" with no clear referent), make your best guess from conversation context (open files, recent edits, active editor position, what was just discussed). State your interpretation briefly so the user can redirect if you're off, then proceed.
 
 ## Step 2. Establish the Code Anchor
 
@@ -97,7 +99,7 @@ Capture this as seed context (file paths, symbols, commits, PR numbers, linked t
 
 ### Discovery
 
-Before spawning investigators, list the available MCPs from the Cursor environment. Use the available-tools map when present. Otherwise inspect the `mcps/` directory Cursor exposes for enabled MCP servers.
+Before launching investigators, enumerate the evidence tools, apps, and MCP servers exposed by the active host. Use documented tool metadata and resource descriptors. Do not inspect undocumented host-private directories. If the host cannot enumerate connected tools, use only the capabilities visible in the current session and record the discovery gap.
 
 Map each available MCP to one evidence category:
 
@@ -113,12 +115,9 @@ Source control is always available through git and `gh`. For the other six, clas
 
 Aim for a complete **coverage map**, not a minimal one. A null result from an issue tracker is evidence the decision was not ticketed, a useful fact in itself. Document the null, don't skip the search.
 
-Launch all matching investigators in a single message so they run concurrently. One investigator per category lets each specialize in one tool's query vocabulary and result shape. Don't ask one agent to cover multiple MCPs.
+Launch all matching investigators concurrently through the host's subagent capability. One investigator per category lets each specialize in one tool's query vocabulary and result shape. Don't ask one worker to cover multiple connectors.
 
-Subagent config (each):
-- `subagent_type`: `generalPurpose`
-- `model`: your configured why-investigators model (default `grok-4.6-fast-xhigh`)
-- `readonly`: `false` (agent mode). **Do not use readonly/Ask mode.** It strips MCP access, which disables MCP-backed investigators entirely. The source control investigator would be safe in readonly, but keep modes uniform. Investigators still shouldn't write anything. That's a posture, not a sandbox.
+Each investigator uses the configured `fast-code` role and receives a non-writing brief with its objective, evidence-source boundary, required connector access, verifier, stop condition, and returned citations. Request the least privilege that preserves read access to the needed connector. If the host couples connector access to broader agent permissions, the non-writing brief still applies and the host's safety policy wins. If delegation is unavailable, execute the category searches serially and disclose that concurrency was not exercised.
 
 Each investigator gets:
 1. The base prompt from `references/investigator-prompt.md`
@@ -160,11 +159,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
 
 ## Step 4. Synthesize
 
-Spawn one synthesizer subagent:
-
-- `subagent_type`: `generalPurpose`
-- `model`: your configured why-synthesizer model (default `claude-fable-5-thinking-max`)
-- `readonly`: `false` (agent mode). The synthesizer's quality check spot-verifies citations, which can require MCP access. Readonly/Ask mode strips MCPs and defeats that.
+Launch one synthesizer using the configured `judgment` role. Give it non-writing access to the cited evidence sources needed for spot checks, plus an objective, verifier, stop condition, and output contract. If delegation is unavailable, synthesize directly and disclose the substitution.
 
 The synthesizer gets:
 1. The investigator findings, including any null results and any categories skipped with justification

@@ -1,0 +1,34 @@
+{
+  "capabilities": [
+    {
+      "name": "delegation",
+      "contractNeedle": "Delegation",
+      "fallbackFile": "skills/swarm/SKILL.md",
+      "fallbackNeedle": "serially"
+    },
+    {
+      "name": "persistence",
+      "contractNeedle": "Persistence",
+      "fallbackFile": "skills/poteto-mode/playbooks/autonomous-run.md",
+      "fallbackNeedle": "resume packet"
+    },
+    {
+      "name": "transcripts",
+      "contractNeedle": "Transcript",
+      "fallbackFile": "skills/recall/SKILL.md",
+      "fallbackNeedle": "unavailable"
+    },
+    {
+      "name": "model routing",
+      "contractNeedle": "Model roles",
+      "fallbackFile": "skills/setup-pstack/SKILL.md",
+      "fallbackNeedle": "current model"
+    },
+    {
+      "name": "real-surface control",
+      "contractNeedle": "Real-surface control",
+      "fallbackFile": "skills/show-me-your-work/SKILL.md",
+      "fallbackNeedle": "unavailable"
+    }
+  ]
+}

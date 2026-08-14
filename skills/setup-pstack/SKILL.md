@@ -1,65 +1,59 @@
 ---
 name: setup-pstack
-description: Configure which models pstack uses per role. Detects your available models and writes an always-applied rule that overrides the skill defaults. Use for /setup-pstack, "configure pstack models", or changing pstack's model choices.
+description: Configure pstack's stable model roles through the active host adapter. Use for /setup-pstack, "configure pstack models", or changing pstack's model choices.
 ---
 
 # Setup pstack
 
-Write `~/.cursor/rules/pstack-models.mdc`, an always-applied rule that sets pstack's model per role. The skills read it and fall back to their inline defaults when a line is absent, so this is an override layer, not a requirement.
+Configure the mapping from pstack's stable roles to models the user can run. Canonical workflows name roles, never provider-specific model IDs; the active host adapter resolves those roles when it launches a worker.
+
+The roles are:
+
+- `fast-code`: cheap, mechanical implementation and corpus search.
+- `deep-code`: precisely specified, difficult implementation and debugging.
+- `judgment`: ambiguous design, prioritization, and synthesis.
+- `prose`: explanations and user-facing writing.
+- `independent-review`: adversarial review and comparison; this may map to a list when the host supports model diversity.
 
 ## Steps
 
-### 1. Detect available models
+### 1. Inspect host capabilities
 
-Enumerate the model slugs you can pass to a `Task` subagent in this session; that is the dependable source. If Cursor also exposes a models API or CLI that lists the user's entitled models, prefer it for completeness. If you cannot detect any, ask the user to paste the slugs they have access to. Never write a real slug you have not confirmed is available. The aliases `inherit-parent` and `auto` are always valid even though they are not detected slugs.
+Ask the active host adapter for its model-routing capability, current role mapping, and models available to this user. Treat that response as authoritative. Do not infer model access from documentation, model names seen in prose, or another host's configuration.
+
+If the host cannot enumerate models but accepts a user-configured model identifier, ask the user for the identifiers they want to use and explain that availability can be verified only when a worker is launched. If the host cannot select models at all, explain that every role will inherit the current model and identify model diversity as unavailable. This is a supported capability fallback, not an error.
 
 ### 2. Load current state
 
-The default role-to-model mapping is the rule shape shown in step 5 below. If `~/.cursor/rules/pstack-models.mdc` already exists, read it and treat its values as the current choices. Otherwise start from those defaults.
+Read `~/.config/pstack/models.yaml` when it exists. This host-neutral user configuration lives outside the replaceable installation tree. Never search another host's private configuration directories. Missing roles inherit the current model.
 
 ### 3. Map and confirm
 
-Show every role with its current model, marking any real slug not in the detected set as needing a choice. Ask whether to accept as-is or change specific roles, offering the detected models plus `inherit-parent` and `auto` (both mean: this role runs on the parent chat model, which is how Auto users stay on Auto) as the options. Prefer AskQuestion over free text. For panel roles (how critics, arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena selects one value from it whose model family differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
+Show every stable role with its current mapping. Mark a concrete identifier as unverified when the host could not enumerate availability. Use the host's user-input mechanism to ask whether to keep the mapping or change specific roles.
 
-### 4. Validate
+For `independent-review`, preserve a configured list when the host supports selecting a model per worker; its length sets the default review-panel size. When the host supports only one model or no explicit selection, keep the workflow's fan-out but inherit the current model and disclose that the panel did not exercise model diversity.
 
-Every real slug written must be in the detected set; `inherit-parent` and `auto` always pass. If a chosen real slug is not available, stop and ask again. A rule pointing at a model the user cannot use breaks every delegation that reads it.
+### 4. Validate and write
 
-### 5. Write the rule
+Validate the complete mapping through the adapter before writing it. Every concrete identifier must be in the host's enumerated set when enumeration is available. If enumeration is unavailable, preserve the user's identifiers as explicitly unverified rather than claiming they work.
 
-Write `~/.cursor/rules/pstack-models.mdc` with `alwaysApply: true` and one line per role, using the same labels poteto-mode uses. Overwrite the whole file so re-runs stay idempotent. Shape:
+Write `~/.config/pstack/models.yaml` atomically and preserve no unrelated keys. Re-running this skill must produce the same state for the same choices. The file has this shape:
 
-```
----
-description: pstack per-role model choices (overrides skill defaults)
-alwaysApply: true
----
-# pstack model configuration. One line per role. Delete a line to fall back to the skill default.
-# `inherit-parent` or `auto` as a value: the role runs on the parent chat model (omit Task `model`). Alias entries in a panel list still count toward its fan-out.
-feature, refactoring: grok-4.6-fast-xhigh
-bug-fix: gpt-5.6-sol-max
-perf-issue: gpt-5.6-sol-max
-hillclimb: gpt-5.6-sol-max
-judgment and prose: claude-fable-5-thinking-max
-hardest tasks: claude-fable-5-thinking-max
-how explorer: grok-4.6-fast-xhigh
-how explainer: claude-fable-5-thinking-max
-how critics: claude-fable-5-thinking-max, gpt-5.6-sol-max, grok-4.6-fast-xhigh, claude-opus-5-thinking-xhigh
-why investigators: grok-4.6-fast-xhigh
-why synthesizer: claude-fable-5-thinking-max
-reflect tooling: gpt-5.6-sol-max
-reflect judgment, divergent, synthesizer: claude-fable-5-thinking-max
-arena runners: claude-fable-5-thinking-max, gpt-5.6-sol-max, grok-4.6-fast-xhigh, claude-opus-5-thinking-xhigh
-arena cross-judge pool: claude-fable-5-thinking-max, gpt-5.6-sol-max, grok-4.6-fast-xhigh, claude-opus-5-thinking-xhigh
-swarm workers: grok-4.6-fast-xhigh
-architect runners: claude-fable-5-thinking-max, gpt-5.6-sol-max, grok-4.6-fast-xhigh, claude-opus-5-thinking-xhigh
-interrogate reviewers: claude-fable-5-thinking-max, gpt-5.6-sol-max, grok-4.6-fast-xhigh, claude-opus-5-thinking-xhigh
+```yaml
+fast-code: inherit-current
+deep-code: inherit-current
+judgment: inherit-current
+prose: inherit-current
+independent-review:
+  - inherit-current
 ```
 
-### 6. Confirm
+`inherit-current` is a pstack semantic value, not a model identifier. An adapter implements it by omitting explicit model selection.
 
-Tell the user the rule was written and that it applies to new sessions. Re-running this skill updates it.
+### 5. Confirm
 
-### 7. Offer a verification skill (optional)
+Tell the user which roles inherit the current model, which identifiers remain unverified, and whether the host applies the change immediately or only to new sessions. Never claim model diversity when every role inherited the same model.
 
-Check whether the project has a way to drive the real app for proof (a `verify-*` skill, or an existing harness). If not, offer once: "want a project-local verification skill, so agents can drive the app the way a user does and prove changes work? I can generate one with /create-verification-skill." On yes, invoke `/create-verification-skill` (resolves wherever pstack is installed — workspace, user, or plugin). On no, move on without pushing.
+### 6. Offer a verification skill (optional)
+
+Check whether the project has a way to drive the real app for proof, such as a `verify-*` skill or an existing harness. If not, offer once: "want a project-local verification skill, so agents can drive the app the way a user does and prove changes work?" On yes, invoke the bundled **create-verification-skill** skill through the host's skill mechanism, or read and execute its `SKILL.md` directly when invocation is unavailable. On no, move on without pushing.

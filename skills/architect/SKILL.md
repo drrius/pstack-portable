@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # Architect
 
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. Use its planning, delegation, model-role, isolation, and safety rules throughout. If it is unavailable, stop and report an incomplete pstack installation.
+
 Design before implementing. Sketch types, function signatures, class shapes, and module boundaries with `not implemented` bodies and pseudocode. Synthesize across multiple model perspectives, then fill in code against the chosen sketch. If implementation proves the sketch wrong, throw it out and redesign.
 
 ## Start
@@ -30,7 +32,7 @@ Skip Phase A only when the work is genuinely greenfield with no surrounding syst
 
 Run the **arena** skill with the design-sketch task and the Phase A grounding artifacts. Pass `references/runner-prompt.md` as each runner's prompt. Each candidate produces a design package shaped per `references/rationale-template.md`: the caller's usage written first, then the type sketch, function signatures, module map, and prose rationale derived from it.
 
-Use your configured architect runners (defaults `claude-fable-5-thinking-max`, `gpt-5.6-sol-max`, `grok-4.6-fast-xhigh`, `claude-opus-5-thinking-xhigh`).
+Use the host adapter's configured architect panel. Otherwise use the arena defaults across `judgment`, `deep-code`, `fast-code`, and `independent-review`, inheriting the current model where model selection is unavailable.
 
 Design it twice. Require at least two structurally distinct candidates before synthesis, even when the first looks sufficient. This is the **exhaust-the-design-space** principle skill made concrete. Whole-shape alternatives, not point fixes inside one shape.
 

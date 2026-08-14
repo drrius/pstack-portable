@@ -1,6 +1,7 @@
-#!/usr/bin/env bun
-import { ensureDependenciesInstalled } from "../bootstrap.ts";
-
-ensureDependenciesInstalled();
-const { main } = await import("./cli.ts");
-process.exitCode = await main(process.argv.slice(2));
+#!/bin/sh
+set -eu
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
+if [ ! -x "$script_dir/node_modules/.bin/tsx" ]; then
+  npm ci --prefix "$script_dir" --ignore-scripts --no-audit --no-fund
+fi
+exec "$script_dir/node_modules/.bin/tsx" "$script_dir/watch-pr/entry.ts" "$@"

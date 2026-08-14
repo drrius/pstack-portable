@@ -4,7 +4,10 @@
 # operated in it. Emits a table sorted by size with a suggested bucket. Never
 # deletes anything; deletion stays a human-gated step in the playbook.
 #
-# Usage: worktree-audit.sh [repo-path]   (defaults to the current repo)
+# Usage: worktree-audit.sh [repo-path] [transcripts-dir]
+# The transcript directory must be supplied explicitly by the user or host
+# adapter, either as the second argument or PSTACK_TRANSCRIPTS_DIR. When it is
+# unavailable, the audit reports the capability gap and leaves LAST_CHAT blank.
 set -u
 
 repo="${1:-$(git rev-parse --show-toplevel 2>/dev/null)}"
@@ -19,12 +22,34 @@ git fetch origin main --quiet 2>/dev/null || echo "warn: could not fetch origin/
 
 # PR state by branch, fetched once. Empty if gh is unavailable.
 prs=$(mktemp)
+trap 'rm -f "$prs"' EXIT
 gh pr list --author "@me" --state all --limit 1000 \
 	--json number,state,headRefName 2>/dev/null > "$prs" || echo "[]" > "$prs"
 
-# Transcripts dir: ~/.cursor/projects/<slugified-repo-path>/agent-transcripts.
-slug=$(printf '%s' "$main_wt" | sed 's#^/##; s#/#-#g')
-transcripts="$HOME/.cursor/projects/$slug/agent-transcripts"
+transcripts="${2:-${PSTACK_TRANSCRIPTS_DIR:-}}"
+if [ -n "$transcripts" ] && [ ! -d "$transcripts" ]; then
+	printf 'warn: transcript capability path is not a directory: %s; LAST_CHAT unavailable\n' "$transcripts" >&2
+	transcripts=""
+elif [ -z "$transcripts" ]; then
+	printf 'warn: no transcript capability supplied; LAST_CHAT unavailable\n' >&2
+fi
+
+file_mtime() {
+	if stat -f '%m' "$1" >/dev/null 2>&1; then
+		stat -f '%m' "$1"
+	else
+		stat -c '%Y' "$1"
+	fi
+}
+
+format_epoch_date() {
+	if date -r "$1" '+%Y-%m-%d' >/dev/null 2>&1; then
+		date -r "$1" '+%Y-%m-%d'
+	else
+		date -d "@$1" '+%Y-%m-%d'
+	fi
+}
+
 now=$(date +%s)
 
 printf "SIZE\tAGE\tMERGED\tDIRTY\tREMOTE\tPR\tLAST_CHAT\tBUCKET\tWORKTREE\n"
@@ -63,11 +88,16 @@ git worktree list --porcelain | awk '/^worktree /{print $2}' | while read -r wt;
 	# Most recent chat whose transcript operated in this worktree. Match path
 	# followed by "/" or a quote so glint-482 does not match glint-482-r37.
 	last="-"; last_ts=0
-	if [ -d "$transcripts" ]; then
-		f=$(rg -l -e "${wt}/" -e "${wt}\"" "$transcripts" 2>/dev/null \
-			| xargs stat -f '%m %N' 2>/dev/null | sort -rn | head -1)
-		if [ -n "$f" ]; then last_ts=$(echo "$f" | awk '{print $1}')
-			last=$(date -r "$last_ts" '+%Y-%m-%d' 2>/dev/null); fi
+	if [ -n "$transcripts" ]; then
+		last_ts=$(find "$transcripts" -type f -print0 2>/dev/null \
+			| while IFS= read -r -d '' transcript; do
+				if rg -q -F -e "${wt}/" -e "${wt}\"" "$transcript" 2>/dev/null; then
+					file_mtime "$transcript"
+				fi
+			done | sort -rn | head -1)
+		if [ -n "$last_ts" ]; then
+			last=$(format_epoch_date "$last_ts" 2>/dev/null || printf '-')
+		fi
 	fi
 	recent=$([ "$last_ts" -gt 0 ] 2>/dev/null && [ $(( (now - last_ts) / 86400 )) -le 4 ] && echo yes || echo no)
 
@@ -82,5 +112,3 @@ git worktree list --porcelain | awk '/^worktree /{print $2}' | while read -r wt;
 	printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
 		"$size" "$age" "$merged" "$dirty" "$remote" "$pr" "$last" "$bucket" "$wt"
 done | sort -t$'\t' -k1,1 -rh
-
-rm -f "$prs"

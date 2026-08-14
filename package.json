@@ -9,7 +9,11 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
+    "install:global": "node scripts/install.mjs",
+    "uninstall:global": "node scripts/uninstall.mjs",
     "test": "node scripts/verify.mjs",
+    "test:tools": "npm test --prefix skills/poteto-mode/scripts",
+    "typecheck:tools": "npm run typecheck --prefix skills/poteto-mode/scripts",
     "verify": "node scripts/verify.mjs",
     "verify:installed": "node scripts/verify.mjs --installed"
   },

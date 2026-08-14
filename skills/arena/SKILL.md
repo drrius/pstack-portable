@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # Arena
 
+Before using this skill, locate and read `HOST_CONTRACT.md` from the pstack installation root. Use its delegation, isolation, model-role, and safety rules for every candidate and judge. If it is unavailable, stop and report an incomplete pstack installation.
+
 Fan out N parallel attempts at the same task. Read every candidate end to end. Pick the strongest as the base. Graft the best ideas from the others into it. Verify the synthesized result.
 
 ## Start
@@ -25,12 +27,12 @@ The N candidates will receive the same prompt, so the prompt is the contract. Ge
 
 1. State the artifact each candidate is producing.
 2. Derive the rubric. State what success looks like for *this* task, then turn it into 3-6 concrete gradeable criteria. Concrete: `Adds a --dry-run flag that skips writes`. Vague: `code is correct`. The rubric is the picker's tool in Phase D; candidates only see the task.
-3. Pick the runners. Use `arena runners` from `~/.cursor/rules/pstack-models.mdc` when present. Otherwise default to one each on `claude-fable-5-thinking-max`, `gpt-5.6-sol-max`, `grok-4.6-fast-xhigh`, `claude-opus-5-thinking-xhigh`. Spawn more when the arena covers multiple design directions. Same model N times when the work is generation-bound rather than judgment-sensitive.
+3. Pick the runners. Use the host adapter's configured arena panel. Otherwise default to four candidates across the stable roles best suited to the task: `judgment`, `deep-code`, `fast-code`, and `independent-review`. Ask the adapter for model diversity when judgment is the point; repeated inherited models are acceptable when generation breadth is the point. Spawn more when the arena covers multiple design directions.
 4. Assign output paths. Each candidate writes to its own location (a git worktree where possible, otherwise `/tmp/arena-<slug>/candidate-<n>/`). N candidates writing to the same path is shared mutable state and fails the the **separate-before-serializing-shared-state** principle skill test.
 
 ## Phase B: Fan out
 
-Spawn all N subagents in one message with `run_in_background: true`, each with the task, the path to the shared grounding, its own output path, and instructions to produce both the artifact and a short rationale.
+Launch all N candidates concurrently through the host's subagent capability. Every request names the objective, ownership boundary, permissions, isolated output path, verifier, stop condition, shared grounding path, and required artifact plus rationale. If delegation is unavailable, run the candidates serially in the same isolated locations and disclose that concurrency was not exercised.
 
 The rationale is mandatory. Without it, the parent cannot tell whether a candidate's structure is principled or accidental, which makes Phase E grafting unreliable. Each rationale names the alternatives the candidate considered and what it rejected.
 
@@ -38,7 +40,7 @@ If a candidate fails to produce output, proceed with N-1 and note the dropout in
 
 ## Phase C: Cross-judge
 
-After all Phase B candidates complete, choose one model from the `arena cross-judge pool` in `~/.cursor/rules/pstack-models.mdc` when present. Otherwise use `claude-fable-5-thinking-max`, `gpt-5.6-sol-max`, `grok-4.6-fast-xhigh`, `claude-opus-5-thinking-xhigh`. Prefer a different model family from the parent's. Spawn one readonly judge subagent on that model. It sees the rubric and the candidates by path label, scores each criterion, and recommends a base with rationale. It runs in parallel with the parent's reading in Phase D, not with the candidates themselves. Spawning while candidates are still writing means the judge sees partial or empty outputs and reports them as dropouts.
+After all Phase B candidates complete, launch one non-writing judge using the configured `independent-review` role. Ask the host adapter for a model family different from the parent when selection is available. If it is not, inherit the current model and record that model diversity was not exercised. The judge sees the rubric and candidates by path label, scores each criterion, and recommends a base with rationale. It runs concurrently with the parent's reading in Phase D, never while candidates are still writing. If delegation is unavailable, perform a separate serial judging pass and disclose the substitution.
 
 ## Phase D: Pick a base
 

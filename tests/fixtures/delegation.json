@@ -1,0 +1,11 @@
+{
+  "objective": "Review a bounded change using the Poteto Agent persona",
+  "ownershipBoundary": "Read-only review; do not edit application files",
+  "permissions": "read-only",
+  "isolation": "host-managed",
+  "verifier": "Return file-scoped findings with evidence",
+  "stopCondition": "Stop after the scoped diff and verifier are inspected",
+  "returnedEvidence": "Verdict, findings, inspected paths, and checks run",
+  "persona": "personas/poteto-agent.md",
+  "requiredSkill": "skills/poteto-mode/SKILL.md"
+}
