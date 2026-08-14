@@ -1,30 +1,46 @@
 # Contributing
 
-Keep `skills/` (including `skills/ronin-core/`) and `docs/` host-neutral. Concrete host paths, tool schemas, and model identifiers belong in `adapters/`; a canonical workflow should ask for a capability through `HOST_CONTRACT.md` and state an honest fallback when the host lacks it.
+Keep `skills/` and `docs/` host-neutral. A skill asks for a capability through [`HOST_CONTRACT.md`](./skills/ronin-core/HOST_CONTRACT.md), then states what happens when the host cannot provide it.
 
-## Development checks
+Do not add host adapters, model configuration, provider tiers, or a custom global installer. Subagents inherit the active model. New public skills use the `ronin-*` namespace.
 
-Install Bun 1.3.14 or newer, then reproduce the pinned dependencies and run the complete gate:
+## Run the gate
+
+Install Bun 1.3.14 or newer. Then run:
 
 ```sh
 bun run install:tools
 bun run check
 ```
 
-For focused work, `bun test` runs the native unit suite, `bun run verify` exercises the distribution lifecycle, and `bun run typecheck:tools` checks the complete TypeScript tooling tree.
+`bun run check` is the completion gate. It validates the distribution, runs repository and tooling tests, typechecks both trees, and audits dependencies.
 
-## Updating from upstream
+Focused commands:
 
-`upstream.json` pins the public repository, commit, version, allowlist, and original import digest. Fetch the exact public commit into a clean checkout, then verify it before reviewing any update:
+```sh
+bun run test:profiles
+bun run test:tools
+bun run verify
+bun run typecheck:tests
+bun run typecheck:tools
+```
+
+## Update from upstream
+
+[`upstream.json`](./upstream.json) pins the public repository, commit, version, allowlist, and import digest. Audit an exact public checkout before reviewing an update:
 
 ```sh
 bun scripts/audit-upstream.mjs --source /path/to/cursor-plugins/pstack
 ```
 
-For a new version, update one portability surface at a time: inventory the upstream diff, preserve the exact MIT notice, copy only the explicit allowlist, reapply semantic adaptations deliberately, and update the routing and capability fixtures. Never bulk-copy cache artifacts, generated dependencies, plugin packaging, or the excluded automation subtree.
+Import deliberately. Keep all 21 principles unless the project direction changes explicitly. Review each upstream skill against ronin's curated surface. Do not bulk-copy caches, generated dependencies, plugin packaging, or the excluded automation tree.
 
-The installed Cursor cache is evidence, not a build dependency. A clean contributor must be able to reproduce provenance from the pinned public commit without Cursor installed.
+Preserve Lauren Tan's MIT notice. Keep the Cursor Team Kit notice with `ronin-deslop`.
 
-## Change discipline
+The installed Cursor cache is read-only evidence. A clean contributor must reproduce the audit from the pinned public commit without Cursor installed.
 
-Run `bun run check` after each meaningful adaptation. Do not weaken a failing exclusion or capability test to make the suite green; either implement the portable behavior or document and test the capability gap. Changes to install ownership, collision handling, or uninstall require an isolated-home regression test because those paths touch global agent directories.
+## Keep changes honest
+
+Run `bun run check` after each meaningful adaptation. Do not weaken a failing exclusion, link, or capability check to make the suite green. Fix the behavior or document the gap.
+
+Changes to names or distribution shape need a deterministic build test. Every public link and command must resolve against the built tree.

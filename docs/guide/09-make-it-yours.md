@@ -1,67 +1,57 @@
-# Make it yours
+# Teach ronin what lasts
 
-ronin-mode is one person's style. The machinery underneath, playbooks, routing, model roles, works just as well wearing yours. This page covers generating a personal mode, capturing lessons from a session, authoring a focused skill, and testing a skill change before you trust it.
+Do not turn every preference into a mode. Capture the lessons that change a future decision, then encode the repeated ones in a skill, test, or script.
 
-## Generate your own mode with `/automate-me`
+## Capture a session with `/ronin-reflect`
 
-```text
-/automate-me
-```
-
-You don't describe your style, because [`/automate-me`](../../skills/automate-me/SKILL.md) reads it out of your history when the host exposes workspace-scoped transcripts. It mines repeated preferences in replies, delegation, verification, code, prose, and process, then asks you which patterns are really you. It drafts `.agents/skills/<your-name>-mode/SKILL.md` through the host's skill-authoring capability, runs the draft through [`/unslop`](../../skills/unslop/SKILL.md), and opens a PR from a worktree so you review it like any other change. Without transcript access, it reports the capability gap rather than searching private home-directory state.
-
-Run it again whenever your habits drift:
+Run reflection while the hard parts are still visible:
 
 ```text
-/automate-me update my mode skill with everything since its last edit
+/ronin-reflect that took too long. capture what would change the next run.
 ```
 
-Update mode mines only the history since the skill last changed. It keeps rules you haven't contradicted, revises the ones with new evidence, and adds sections only for genuinely new patterns.
+[`/ronin-reflect`](../../skills/ronin-reflect/SKILL.md) gives the transcript to reviewers with different jobs. A synthesizer sorts proposals into `Accepted`, `Rejected`, and `Backlog`. Nothing changes until you approve it.
 
-## Capture a session's lessons with `/reflect`
+One odd session is an anecdote. Keep a proposal only when it names a repeated failure and a concrete future decision.
 
-Right after a task that taught you something, run:
+## Write a focused skill
 
-```text
-/reflect that took way too long. capture what we learned so the next run doesn't repeat it.
-```
-
-[`/reflect`](../../skills/reflect/SKILL.md) sends the transcript to three parallel reviewers, then a synthesizer sorts the proposals into `Accepted`, `Rejected`, and `Backlog` and waits for your approval before any skill changes. Approve a proposal only if it would change a future decision. One weird session is an anecdote, not a rule.
-
-## Author a focused skill
-
-When you already know the workflow you want to capture:
+When the workflow is real enough to reuse, name the behavior:
 
 ```text
 /ronin-mode write a skill for verifying database migrations in this repo
 ```
 
-Writing a skill matches the [Authoring or modifying a skill playbook](../../skills/ronin-mode/playbooks/authoring-a-skill.md), which routes through the host's skill-authoring capability, validates the frontmatter and links, and ships the result through the Opening a PR playbook. Agent-facing prose has a higher bar than human prose, because an unhelpful sentence becomes an instruction some future agent follows. Let the playbook hold that bar rather than writing a `SKILL.md` freehand.
+The [Authoring or modifying a skill playbook](../../skills/ronin-mode/playbooks/authoring-a-skill.md) uses the host's skill-authoring capability when one exists. Otherwise it writes and validates the Agent Skill directly. It checks frontmatter, links, commands, and one real invocation before opening a PR.
 
-One special case has its own generator. A skill that must drive your app and prove behavior is a verification skill, so use [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md) and [`/maintain-verification-skill`](../../skills/maintain-verification-skill/SKILL.md) instead. [Verify and ship](./06-verify-and-ship.md#create-a-project-verification-skill) covers both.
+Agent-facing prose has a higher bar than human prose. A loose sentence becomes an instruction some future agent follows.
 
-## Write docs to a standard with `/technical-writing`
+A skill that drives your app has its own tools. Use [`/ronin-create-verification-skill`](../../skills/ronin-create-verification-skill/SKILL.md) to build it and [`/ronin-maintain-verification-skill`](../../skills/ronin-maintain-verification-skill/SKILL.md) to keep its feature map honest. [Verify and ship](./06-verify-and-ship.md#create-a-project-verification-skill) covers both.
 
-Skills aren't the only prose you ship. For docs, RFCs, readmes, PR descriptions, and commit messages:
+## Write docs to a standard
 
 ```text
-/technical-writing review the readme changes
+/ronin-technical-writing review the readme changes
 ```
 
-[`/technical-writing`](../../skills/technical-writing/SKILL.md) applies a layered standard with one goal, prose a tired engineer understands on the first read. It picks the document's mode first (tutorial, how-to, reference, or explanation), then works sentence by sentence: who does what, one thought per sentence, nothing readable two ways. Use it to review what you or an agent just wrote, or name it up front when you ask for a doc.
+[`/ronin-technical-writing`](../../skills/ronin-technical-writing/SKILL.md) picks the document's job first. Then it makes each sentence do one thing. Use it for guides, RFCs, readmes, PR descriptions, and commit messages.
+
+Use `/ronin-unslop` for a final subtraction pass:
+
+```text
+/ronin-unslop the readme changes. no em dashes.
+```
 
 ## Test a skill change blind
 
-A skill edit affects every future session, so test it like the experiment it is:
-
 ```text
-/ronin-mode run the eval playbook on this skill change. same task for both variants, candidates stay blind.
+/ronin-mode run the eval playbook on this skill change. same task for both variants. keep the candidates blind.
 ```
 
-The [Eval playbook](../../skills/ronin-mode/playbooks/eval.md) is built around one failure mode, the observer effect. An agent that knows it's being evaluated behaves differently. So candidate agents get an organic-looking task in sanitized directories, never the words "eval" or "candidate", and never each other's existence. One judge scores all outputs under neutral labels, and chain-following gets graded from which files each candidate actually read, not from what it claims.
+The [Eval playbook](../../skills/ronin-mode/playbooks/eval.md) hides the experiment from candidate workers. They receive an ordinary task in sanitized directories. One judge scores neutral outputs. Chain-following is measured from the files each candidate read, not from its claims.
 
-Read every output yourself before accepting the verdict. If you disagree with the judge, suspect the rubric before you suspect your judgment.
+Read every output before accepting the verdict. If the verdict feels wrong, inspect the rubric first.
 
-**Pitfall:** don't edit a skill mid-task because it's misbehaving. Fix it in its own PR and keep the task moving. A skill edit that ships tangled into feature work is invisible to review and impossible to evaluate.
+Do not edit a skill inside unrelated feature work. Give the skill its own change and its own proof.
 
 Next: [Recipes and pitfalls](./10-recipes-and-pitfalls.md).

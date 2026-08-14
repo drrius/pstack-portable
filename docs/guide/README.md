@@ -1,30 +1,32 @@
 # The ronin guide
 
-ronin works best when you stop micromanaging the agent. You describe what you want and how you'll know it's done. `/ronin-mode` picks the playbook, runs the other skills as the steps need them, and shows you the evidence. This guide teaches that habit with realistic prompts.
+ronin routes a goal through the right playbook and returns evidence. You say what you want and how you will know it is done. `/ronin-mode` handles the sequence.
 
-Here's what you'll learn:
+Skip the ceremony. The agent still needs a finish condition, and this guide does not make unsupported hosts behave like Cursor.
 
-1. [Set up ronin](./01-setup.md). Install ronin and pick your models.
-2. [Route work through `/ronin-mode`](./02-ronin-mode.md). Give it a goal and watch it pick a playbook.
-3. [Understand the code](./03-understand.md). `/how`, `/why`, `/teach`, and `/recall` before you edit anything.
-4. [Design the change](./04-design.md). `/architect`, `/arena`, `/swarm`, and `/interrogate` before code locks in a shape.
-5. [Build and clean the change](./05-build-and-clean.md). The build playbooks, `/tdd`, `/deslop`, `/unslop`, and `/no-comments`.
-6. [Verify and ship](./06-verify-and-ship.md). Prove behavior on the real app, then open a focused PR and drive it to merged.
-7. [Run work while you sleep](./07-overnight.md). An overnight contract, a decision log you can audit, and the playbooks that scale past one agent.
-8. [Steer with principle names](./08-principles.md). The 21 names that redirect an agent mid-task.
-9. [Make it yours](./09-make-it-yours.md). Your own mode, plus how to test a skill change.
-10. [Recipes and pitfalls](./10-recipes-and-pitfalls.md). Prompts to copy and mistakes to skip.
+Start here:
 
-Read the pages in order the first time. After that, each page stands alone.
+1. [Set up ronin](./01-setup.md). Install it for one host and enable native workers.
+2. [Route work through `/ronin-mode`](./02-ronin-mode.md). Give it a goal and let it choose the playbook.
+3. [Understand the code](./03-understand.md). Read before editing.
+4. [Design the change](./04-design.md). Set the shape before implementation.
+5. [Build and clean the change](./05-build-and-clean.md). Build, test, and remove slop.
+6. [Verify and ship](./06-verify-and-ship.md). Prove the behavior, then open a focused PR.
+7. [Run work while you sleep](./07-overnight.md). Set a contract and leave an auditable decision log.
+8. [Steer with principle names](./08-principles.md). Redirect a run without rewriting the prompt.
+9. [Teach ronin what lasts](./09-make-it-yours.md). Capture lessons and build focused skills.
+10. [Recipes and pitfalls](./10-recipes-and-pitfalls.md). Copy the useful prompts. Skip the traps.
 
-## If you only remember one thing
+Read the pages in order once. Each page stands alone after that.
 
-Give the agent a goal and a way to check it, in your own words:
+## The one prompt that matters
+
+Give the agent a goal and a check:
 
 ```text
 /ronin-mode the export writes duplicate rows when a retry lands mid-run. repro first, then fix and verify.
 ```
 
-You don't need to name a playbook or list skills. "repro first" and a checkable outcome are all the routing signal `/ronin-mode` needs. It matches the Bug fix playbook, copies the steps into a todo list, and calls the right skills as each step fires.
+You do not need to name a playbook or list skills. “Repro first” and a checkable outcome are enough. `/ronin-mode` matches the Bug fix playbook, copies its steps into the todo list, and calls the skills each step needs.
 
 Next: [Set up ronin](./01-setup.md).

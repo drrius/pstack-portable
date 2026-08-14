@@ -1,0 +1,118 @@
+{
+  "routes": [
+    {
+      "file": "skills/ronin-how/SKILL.md",
+      "heading": "Step 2a. Explore (complex questions only)",
+      "profiles": ["explore"]
+    },
+    {
+      "file": "skills/ronin-how/SKILL.md",
+      "heading": "Step 2b. Direct Explain (simple questions)",
+      "profiles": ["explain"]
+    },
+    {
+      "file": "skills/ronin-how/SKILL.md",
+      "heading": "Step 3. Synthesize (complex questions only)",
+      "profiles": ["explain"]
+    },
+    {
+      "file": "skills/ronin-interrogate/SKILL.md",
+      "heading": "Step 3, Spawn Reviewers",
+      "profiles": ["judge"]
+    },
+    {
+      "file": "skills/ronin-why/SKILL.md",
+      "heading": "Step 3. Spawn Parallel Investigators (default posture)",
+      "profiles": ["explore"]
+    },
+    {
+      "file": "skills/ronin-why/SKILL.md",
+      "heading": "Step 4. Synthesize",
+      "profiles": ["explain"]
+    },
+    {
+      "file": "skills/ronin-reflect/SKILL.md",
+      "heading": "2. Run three independent reviewers",
+      "profiles": ["judge"]
+    },
+    {
+      "file": "skills/ronin-reflect/SKILL.md",
+      "heading": "3. Synthesize",
+      "profiles": ["judge"]
+    },
+    {
+      "file": "skills/ronin-swarm/SKILL.md",
+      "heading": "Phase A: Frame",
+      "profiles": ["explore", "implement", "judge", "verify"]
+    },
+    {
+      "file": "skills/ronin-recall/SKILL.md",
+      "heading": "Recall",
+      "profiles": ["explore"]
+    },
+    {
+      "file": "skills/ronin-review/SKILL.md",
+      "heading": "Fresh-context review of the trail",
+      "profiles": ["judge"]
+    },
+    {
+      "file": "skills/ronin-mode/playbooks/orchestrate.md",
+      "heading": "Roles and placement",
+      "profiles": ["implement", "verify"]
+    },
+    {
+      "file": "skills/ronin-mode/playbooks/orchestrate.md",
+      "heading": "Verification",
+      "profiles": ["verify"]
+    },
+    {
+      "file": "skills/ronin-mode/playbooks/autonomous-run.md",
+      "heading": "Autonomous run",
+      "profiles": ["verify"]
+    },
+    {
+      "file": "skills/ronin-mode/playbooks/visual-parity.md",
+      "heading": "Visual parity",
+      "profiles": ["implement"]
+    },
+    {
+      "file": "skills/ronin-mode/playbooks/opening-a-pr.md",
+      "heading": "Opening a PR",
+      "profiles": ["implement"]
+    },
+    {
+      "file": "skills/ronin-mode/playbooks/worktree-cleanup.md",
+      "heading": "Worktree and simulator cleanup",
+      "profiles": ["explore"]
+    },
+    {
+      "file": "skills/ronin-figure-it-out/SKILL.md",
+      "heading": "Phase B: Design the workflow",
+      "profiles": ["explore", "implement", "judge", "explain", "verify"]
+    },
+    {
+      "file": "skills/ronin-mode/playbooks/autopilot-stack.md",
+      "heading": "Autopilot-stack",
+      "profiles": ["implement", "judge", "verify"]
+    },
+    {
+      "file": "skills/ronin-mode/playbooks/session-pickup.md",
+      "heading": "Session pickup",
+      "profiles": ["explore"]
+    }
+  ],
+  "reviewSeparationDocs": [
+    {
+      "file": "README.md",
+      "needles": ["self-review", "fresh-context review"]
+    },
+    {
+      "file": "PORTING.md",
+      "needles": ["self-review", "fresh-context review"]
+    },
+    {
+      "file": "docs/guide/07-overnight.md",
+      "needles": ["self-review", "fresh-context review"]
+    }
+  ]
+}

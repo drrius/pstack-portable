@@ -6,10 +6,10 @@ You don't invoke principles. You use their names to steer. Each name points at a
 
 ## Steering in practice
 
-Say the agent is about to bolt a new adapter onto three existing ones:
+Say the agent is about to bolt a new compatibility layer onto three existing ones:
 
 ```text
-use subtract before you add. delete the obsolete adapters first, then design what's left.
+use subtract before you add. delete the obsolete layers first, then design what's left.
 ```
 
 Say it claims success because the build passed:
@@ -30,39 +30,39 @@ Each phrase lands because the rule behind it is specific. The agent still has to
 
 The core principles decide how much to build and when to rethink the design:
 
-- [Laziness Protocol](../../skills/principle-laziness-protocol/SKILL.md) prefers deletion and the smallest change that solves the problem.
-- [Foundational Thinking](../../skills/principle-foundational-thinking/SKILL.md) chooses the core data structures before writing logic.
-- [Redesign from First Principles](../../skills/principle-redesign-from-first-principles/SKILL.md) integrates a new requirement as if it had been there from day one.
-- [Subtract Before You Add](../../skills/principle-subtract-before-you-add/SKILL.md) removes dead weight before building on top of it.
-- [Minimize Reader Load](../../skills/principle-minimize-reader-load/SKILL.md) collapses layers and hidden state a reader must hold in their head.
-- [Outcome-Oriented Execution](../../skills/principle-outcome-oriented-execution/SKILL.md) converges rewrites on the target design instead of preserving throwaway compatibility states.
-- [Experience First](../../skills/principle-experience-first/SKILL.md) chooses the user's result over implementation convenience.
-- [Exhaust the Design Space](../../skills/principle-exhaust-the-design-space/SKILL.md) builds two or three competing prototypes when there's no precedent.
-- [Build the Lever](../../skills/principle-build-the-lever/SKILL.md) builds the script that does or proves the work, so a reviewer can rerun it.
+- [Laziness Protocol](../../skills/ronin-principle-laziness-protocol/SKILL.md) prefers deletion and the smallest change that solves the problem.
+- [Foundational Thinking](../../skills/ronin-principle-foundational-thinking/SKILL.md) chooses the core data structures before writing logic.
+- [Redesign from First Principles](../../skills/ronin-principle-redesign-from-first-principles/SKILL.md) integrates a new requirement as if it had been there from day one.
+- [Subtract Before You Add](../../skills/ronin-principle-subtract-before-you-add/SKILL.md) removes dead weight before building on top of it.
+- [Minimize Reader Load](../../skills/ronin-principle-minimize-reader-load/SKILL.md) collapses layers and hidden state a reader must hold in their head.
+- [Outcome-Oriented Execution](../../skills/ronin-principle-outcome-oriented-execution/SKILL.md) converges rewrites on the target design instead of preserving throwaway compatibility states.
+- [Experience First](../../skills/ronin-principle-experience-first/SKILL.md) chooses the user's result over implementation convenience.
+- [Exhaust the Design Space](../../skills/ronin-principle-exhaust-the-design-space/SKILL.md) names two or three structural directions when there is no precedent.
+- [Build the Lever](../../skills/ronin-principle-build-the-lever/SKILL.md) builds the script that does or proves the work, so a reviewer can rerun it.
 
 The architecture principles decide where state, validation, and compatibility live:
 
-- [Model the Domain](../../skills/principle-model-the-domain/SKILL.md) encodes repeated rules in one structure, not scattered conditionals.
-- [Boundary Discipline](../../skills/principle-boundary-discipline/SKILL.md) validates at the boundary and trusts internal types.
-- [Type System Discipline](../../skills/principle-type-system-discipline/SKILL.md) makes illegal states unrepresentable.
-- [Make Operations Idempotent](../../skills/principle-make-operations-idempotent/SKILL.md) converges retries on the same end state.
-- [Migrate Callers Then Delete Legacy APIs](../../skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md) migrates and deletes in one wave.
-- [Separate Before Serializing Shared State](../../skills/principle-separate-before-serializing-shared-state/SKILL.md) removes the sharing before adding coordination.
+- [Model the Domain](../../skills/ronin-principle-model-the-domain/SKILL.md) encodes repeated rules in one structure, not scattered conditionals.
+- [Boundary Discipline](../../skills/ronin-principle-boundary-discipline/SKILL.md) validates at the boundary and trusts internal types.
+- [Type System Discipline](../../skills/ronin-principle-type-system-discipline/SKILL.md) makes illegal states unrepresentable.
+- [Make Operations Idempotent](../../skills/ronin-principle-make-operations-idempotent/SKILL.md) converges retries on the same end state.
+- [Migrate Callers Then Delete Legacy APIs](../../skills/ronin-principle-migrate-callers-then-delete-legacy-apis/SKILL.md) migrates and deletes in one wave.
+- [Separate Before Serializing Shared State](../../skills/ronin-principle-separate-before-serializing-shared-state/SKILL.md) removes the sharing before adding coordination.
 
 The verification principles define what counts as proof:
 
-- [Prove It Works](../../skills/principle-prove-it-works/SKILL.md) verifies the real artifact, not a proxy.
-- [Fix Root Causes](../../skills/principle-fix-root-causes/SKILL.md) reproduces and traces to the cause before changing code.
-- [Sequence Work into Verifiable Units](../../skills/principle-sequence-verifiable-units/SKILL.md) ends each small unit in a check before starting the next.
+- [Prove It Works](../../skills/ronin-principle-prove-it-works/SKILL.md) verifies the real artifact, not a proxy.
+- [Fix Root Causes](../../skills/ronin-principle-fix-root-causes/SKILL.md) reproduces and traces to the cause before changing code.
+- [Sequence Work into Verifiable Units](../../skills/ronin-principle-sequence-verifiable-units/SKILL.md) ends each small unit in a check before starting the next.
 
 The delegation principles keep parallel work sane:
 
-- [Guard the Context Window](../../skills/principle-guard-the-context-window/SKILL.md) routes bulk reading to subagents and keeps findings in the main chat.
-- [Never Block on the Human](../../skills/principle-never-block-on-the-human/SKILL.md) proceeds on reversible work and presents the result.
+- [Guard the Context Window](../../skills/ronin-principle-guard-the-context-window/SKILL.md) routes bulk reading to subagents and keeps findings in the main chat.
+- [Never Block on the Human](../../skills/ronin-principle-never-block-on-the-human/SKILL.md) proceeds on reversible work and presents the result.
 
 And one meta principle:
 
-- [Encode Lessons in Structure](../../skills/principle-encode-lessons-in-structure/SKILL.md) turns advice you've repeated twice into a lint, check, or script.
+- [Encode Lessons in Structure](../../skills/ronin-principle-encode-lessons-in-structure/SKILL.md) turns advice you've repeated twice into a lint, check, or script.
 
 Don't memorize the list. Skim it now, then come back when you catch the agent doing something a name here would have prevented. That's how the vocabulary sticks.
 

@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@ronin-portable/poteto-mode-tools",
+      "name": "@ronin/ronin-mode-tools",
       "dependencies": {
         "commander": "14.0.0",
       },

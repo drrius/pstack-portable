@@ -4,106 +4,84 @@
 
 # ronin
 
-pstack is Lauren Tan's engineering workflow. ronin is that workflow rebuilt to run in Claude Code and Codex. If you work in Cursor, install [her plugin](https://github.com/cursor/plugins/tree/main/pstack) instead. It's better there.
+ronin is the best of Lauren Tan's pstack, adapted for Claude Code, Codex, and other Agent Skills hosts. If you use Cursor, use [her plugin](https://github.com/cursor/plugins/tree/main/pstack). It is better there.
 
-Unofficial and unaffiliated. A ronin serves no house, which is the point.
+This is an unofficial port. Lauren and Cursor did not endorse it.
 
-## Why
+ronin keeps all 21 pstack principles and 22 working skills. It drops three surfaces that do not earn their weight here: `arena`, `automate-me`, and `setup-pstack`.
 
-I use pstack every day. I don't use Cursor.
-
-Moving the skills across was the easy half. Two problems the original never had to solve turned out to matter more.
-
-My work repos live in Azure DevOps. Every PR step in pstack speaks `gh`. ronin reads the git remote and speaks `az repos` when the remote is Azure, `gh` when it's GitHub. Same playbooks either way.
-
-Then there's review. Cursor can hand your code to a different lab's model, so pstack treats a single provider as a degraded setup. Claude Code and Codex each ship one family. I don't think that's degraded. ronin asks for the most different model the host actually has, counts a sibling in the same family as real diversity, and says so in the reply when the reviewer ended up on the author's own model.
-
-The rest follows from those two. I don't use Graphite, so stacks are plain `gh` and `az` with bases retargeted by hand. Any skill that can't get what it needs says so instead of pretending it did.
+Every command starts with `ronin-`. Cursor can load ronin beside pstack without duplicate command names in the picker.
 
 ## Install
 
-```sh
-npx skills add drrius/ronin --all
-```
+Install the full set for the host that will run it.
 
-Every skill expects `ronin-core` next to it. That one carries the host contract and the two personas, so partial installs have to include it. `npx skills remove` takes it all back out.
-
-### If you also run Cursor
-
-Cursor reads `~/.agents/skills`, the same global directory Codex reads, and most skill names here match the originals. Install globally and you get two of everything with no way to tell them apart. Keep ronin out of Cursor's view.
+Claude Code:
 
 ```sh
-npx skills add drrius/ronin --all -g -a claude-code
+npx skills add drrius/ronin --skill '*' -g -a claude-code -y
 ```
 
-Claude Code reads `~/.claude/skills`. Cursor doesn't. For Codex, install per project.
+Codex, inside the project that needs it:
 
 ```sh
-cd your-project && npx skills add drrius/ronin --skill '*' -a codex -y
+cd your-project
+npx skills add drrius/ronin --skill '*' -a codex -y
 ```
 
-Three commands carry their own names so you can always tell which is which. `ronin-mode`, `setup-ronin`, `ronin-review`. Upstream calls them `poteto-mode`, `setup-pstack`, `show-me-your-work`.
+Every skill expects `ronin-core` beside it. Partial installs must include that skill. Use `npx skills remove` to uninstall what the skills CLI installed.
 
-## After install
-
-The skills CLI ships the skill tree and nothing else. Three steps unlock the rest. Skip them and everything still runs, just with less.
-
-**Models.** Run `/setup-ronin`. It writes `~/.config/ronin/models.yaml`, keyed by host, with an optional reasoning effort per role. Without it every role inherits your current model.
-
-**Codex fan-out.** Run `codex features enable multi_agent`. Without it `how`, `arena`, `interrogate`, and `swarm` run one worker at a time and tell you they did.
-
-**Claude personas.** Link them so Claude Code can spawn them by name.
+Codex needs multi-agent support for concurrent workers:
 
 ```sh
-ln -s ~/.claude/skills/ronin-core/personas/poteto-agent.md ~/.claude/agents/poteto-agent.md
-ln -s ~/.claude/skills/ronin-core/personas/comment-sicko.md ~/.claude/agents/comment-sicko.md
+codex features enable multi_agent
 ```
 
-## Get started
+Without subagents, ronin runs the same work in the coordinator and reports the lost isolation or concurrency. Subagents inherit the active model. There is no model setup file, provider matrix, or routing layer.
 
-Give it a goal and a way to check it.
+## Start here
+
+Give ronin a goal and a check.
 
 ```text
 /ronin-mode the export writes duplicate rows when a retry lands mid-run. repro first, then fix and verify.
 ```
 
-You don't name a playbook. `/ronin-mode` matches one, copies the steps into a todo list, and calls the other skills as the steps fire. The [guide](./docs/guide/README.md) teaches the habit in ten pages.
+`/ronin-mode` picks the playbook and calls the right skills. The [guide](./docs/guide/README.md) teaches the habit.
 
 <details>
-<summary>The other skills</summary>
+<summary>The public skills</summary>
 
 | Skills | Use them for |
 | --- | --- |
-| `/how` `/why` `/teach` `/recall` | Understand code before you touch it |
-| `/architect` `/arena` `/swarm` `/interrogate` | Design it, compete the options, stress test the result |
-| `/tdd` `/deslop` `/unslop` `/no-comments` | Build it and clean it |
-| `/blast-radius` `/ronin-review` | Prove it's safe, leave a trail someone can audit |
-| `/figure-it-out` `/automate-me` | Large migrations, and capturing how you work |
-| `/bro` `/technical-writing` `/typescript-best-practices` | Plain language, docs, TypeScript |
+| `/ronin-how` `/ronin-why` `/ronin-teach` `/ronin-recall` | Understand code before changing it |
+| `/ronin-architect` `/ronin-swarm` `/ronin-interrogate` | Design, divide, and stress-test work |
+| `/ronin-tdd` `/ronin-deslop` `/ronin-unslop` `/ronin-no-comments` | Build and clean the result |
+| `/ronin-blast-radius` `/ronin-review` | Prove safety and leave evidence |
+| `/ronin-figure-it-out` `/ronin-reflect` | Structure unusual work and capture lessons |
+| `/ronin-bro` `/ronin-technical-writing` `/ronin-typescript-best-practices` | Write plainly and keep TypeScript sharp |
+| `/ronin-create-verification-skill` `/ronin-maintain-verification-skill` | Build and maintain real-surface proof |
 
-21 `principle-*` skills sit behind these. `/ronin-mode` reads them and names the ones it applied.
+Twenty-one hidden `ronin-principle-*` skills sit behind these. `/ronin-mode` names the principles it applies.
 
 </details>
 
-## What's different from pstack
+## What changed from pstack
 
 | | pstack | ronin |
 | --- | --- | --- |
-| Hosts | Cursor | Claude Code, Codex, anything that reads Agent Skills |
-| Forge | GitHub | GitHub or Azure DevOps, picked from the remote |
-| Stacks | Graphite | Plain `gh` and `az`, bases retargeted by hand |
-| Review panel | Another provider's model | The most different model the host has |
-| Missing capability | Assumed present | Named in the reply |
+| Home | Cursor | Claude Code, Codex, and Agent Skills hosts |
+| Scope | Full upstream plugin | 43 curated skills, including all 21 principles |
+| Commands | Upstream names | Every retained skill uses `ronin-*` |
+| Design breadth | Arena candidates | `/ronin-architect` names structural directions before exploring them |
+| Parallel work | Cursor agents | Native subagents that inherit the active model |
+| Review report | Model-oriented review | `self-review` or `fresh-context review` |
+| Forge | GitHub | GitHub or Azure DevOps, chosen from the remote |
+| Stacks | Graphite | Plain `gh` and `az`, with bases retargeted by hand |
 
-[`PORTING.md`](./PORTING.md) records every divergence and the reason for it.
+[`PORTING.md`](./PORTING.md) records each intentional difference.
 
-## What isn't done
-
-The PR watcher only speaks GitHub. On Azure it hands you a manual next step.
-
-Azure support passes against recorded fixtures, not a live org. I haven't run it at work yet.
-
-ronin derives from pstack 0.14.1. I watch upstream and cherry-pick. I don't track it.
+ronin starts from pstack 0.14.1. It is curated, not a byte-for-byte mirror.
 
 ## Verify
 
@@ -111,27 +89,19 @@ ronin derives from pstack 0.14.1. I watch upstream and cherry-pick. I don't trac
 bun run check
 ```
 
-You need Bun 1.3.14 or newer. That runs 58 tests, a strict typecheck, a dependency audit, and the distribution verifier. The verifier builds twice and compares digests, installs into a throwaway home, proves the installer refuses to touch anything it doesn't own, then uninstalls and checks nothing got left behind.
+Use Bun 1.3.14 or newer. The check validates the skills, tests the tooling, typechecks the code, audits dependencies, and proves the build is deterministic.
 
-## How it's built
+## Repository map
 
-- `skills/` is the canonical tree, host-neutral.
-- [`skills/ronin-core/HOST_CONTRACT.md`](./skills/ronin-core/HOST_CONTRACT.md) is the capability contract every skill reads first.
-- `adapters/` maps that contract onto Claude Code, Codex, and generic hosts.
-- `docs/` is the guide.
-- `scripts/` builds, installs, and verifies.
-- `upstream.json` pins the imported commit.
+- `skills/` is the canonical Agent Skills tree.
+- [`skills/ronin-core/HOST_CONTRACT.md`](./skills/ronin-core/HOST_CONTRACT.md) defines delegation and capability fallbacks.
+- [`skills/ronin-core/task-profiles.json`](./skills/ronin-core/task-profiles.json) defines worker jobs and permissions.
+- `docs/` holds the guide.
+- `scripts/` builds and verifies the distribution.
+- `upstream.json` pins the imported pstack commit.
 
-Maintainers can install from source instead of the skills CLI.
-
-```sh
-bun run build
-bun run install:global -- --dry-run
-bun run install:global
-```
-
-That puts the owned tree in `~/.agents/ronin` and links it into place. It refuses unrelated files instead of overwriting them, and `bun run uninstall:global` removes only what it owns.
+Contributors can build the distribution with `bun run build`. Users should install through `npx skills` for the host they chose.
 
 ## Credit
 
-pstack is Lauren Tan's work, MIT, preserved in [`LICENSE`](./LICENSE). `deslop` comes from Cursor's Team Kit, MIT, in [`LICENSE-cursor-team-kit`](./LICENSE-cursor-team-kit). Neither Lauren nor Cursor endorsed this. [`NOTICE.md`](./NOTICE.md) has the full provenance.
+pstack is Lauren Tan's work. Her MIT notice is preserved in [`LICENSE`](./LICENSE). `ronin-deslop` comes from Cursor's Team Kit under the MIT notice in [`LICENSE-cursor-team-kit`](./LICENSE-cursor-team-kit). [`NOTICE.md`](./NOTICE.md) records the provenance.

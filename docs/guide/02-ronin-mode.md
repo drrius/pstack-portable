@@ -89,9 +89,9 @@ When you step away, say what done means and go:
 /ronin-mode im stepping away. keep going until the migration check reports zero old callers. log your decisions.
 ```
 
-Work you'll review later routes through [`/figure-it-out`](../../skills/figure-it-out/SKILL.md), which designs the run's phases and keeps a [`/ronin-review`](../../skills/ronin-review/SKILL.md) decision log. [Run work while you sleep](./07-overnight.md) covers the full overnight contract.
+Work you'll review later routes through [`/ronin-figure-it-out`](../../skills/ronin-figure-it-out/SKILL.md), which designs the run's phases and keeps a [`/ronin-review`](../../skills/ronin-review/SKILL.md) decision log. [Run work while you sleep](./07-overnight.md) covers the full overnight contract.
 
-**Pitfall:** don't enumerate skills in your prompt ("use /how, then /architect, then /arena..."). The playbook already sequences them, and a hand-written sequence usually reorders or drops steps the playbook would have kept. Name a skill only when you want to override a specific choice.
+**Pitfall:** don't enumerate skills in your prompt ("use /ronin-how, then /ronin-architect..."). The playbook already sequences them. Name a skill only when you want to override a specific choice.
 
 Read [`ronin-mode`](../../skills/ronin-mode/SKILL.md) itself for the full routing rules.
 

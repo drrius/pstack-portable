@@ -1,45 +1,50 @@
 # Set up ronin
 
-In this page you install ronin, pick which model roles it uses, and run your first task. Setup is one command plus a short conversation.
+ronin installs through the Agent Skills CLI. There is no second installer to understand.
 
-## Install ronin
+## Install for one host
 
-From the repository, run the documented installer for your agent host. The installer exposes one canonical skill tree under `~/.agents/skills`; host adapters may add manifest-owned aliases such as `~/.claude/skills`.
+Claude Code:
 
-Confirm that your host can discover `ronin-mode` before continuing. If discovery fails, stop and fix the adapter rather than copying another skill tree by hand.
-
-## Pick your models
-
-Run:
-
-```text
-/setup-ronin
+```sh
+npx skills add drrius/ronin --skill '*' -g -a claude-code -y
 ```
 
-[`/setup-ronin`](../../skills/setup-ronin/SKILL.md) detects the model-selection capability your host exposes, shows you each stable role (code delegates, judgment, and review panels), and asks what you want. It writes `~/.config/ronin/models.yaml`. Agents read that file when selecting models. A host may inject or enforce it when the host can.
+Codex, inside the project that needs it:
 
-You only override what you care about. A role with no line in the rule keeps the skill's default. To restore a default later, delete that role's line, or just run `/setup-ronin` again.
+```sh
+cd your-project
+npx skills add drrius/ronin --skill '*' -a codex -y
+```
 
-Set a role to `inherit-current` when the worker should keep the current model. That value is not a provider model. For a panel role the value is a list, and one worker runs per entry when the host supports model routing; otherwise workers inherit the current model and disclose that diversity was not exercised. Setup also configures `swarm workers`, the default role for every `/swarm` worker unless a race names one for each arm.
+Confirm that your host can discover `ronin-mode`. Every other skill expects `ronin-core` beside it, so partial installs must include both.
 
-## Accept the verification offer, or don't
+Every command carries the `ronin-` prefix. Cursor can load ronin beside pstack without ambiguous picker entries. Use Lauren's pstack when you are working in Cursor.
 
-At the end of setup, `/setup-ronin` looks for a way to prove app behavior in your project, either a `verify-*` skill or an existing harness. If it finds neither, it offers once to generate one with [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md).
+## Enable workers when the host needs it
 
-Say yes and it writes `.agents/skills/verify-<app>/`, a project-local skill that teaches agents to drive your app the way a user does. It proves the skill works once before handing it over. Say no and setup moves on. You can run `/create-verification-skill` yourself any time. [Verify and ship](./06-verify-and-ship.md#create-a-project-verification-skill) covers when it earns its place.
+Codex needs multi-agent support for concurrent workers:
 
-After setup, start a new chat. The model rule applies to new sessions.
+```sh
+codex features enable multi_agent
+```
 
-## Run your first task
+Claude Code and other hosts use their native subagent capability.
 
-Pick something real but small, and describe it the way you'd describe it to a colleague:
+All subagents inherit the active model. The work changes by profile, not by model. `explore`, `implement`, `judge`, `explain`, and `verify` define the scope, permissions, and evidence each worker owes back.
+
+Without subagents, ronin runs the lane in the coordinator. It reports when concurrency or a fresh context was unavailable.
+
+## Run a real task
+
+Pick something small. Give it a finish condition.
 
 ```text
 /ronin-mode add a --json flag to this command. text output stays byte-identical. verify both.
 ```
 
-Watch the todo list. The first item is always "read the Principles section". The rest are the matched playbook's steps copied in, the Feature playbook for this prompt. If `/ronin-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
+Watch the todo list. The first item reads the principles. The rest come from the matched playbook. A skipped step stays visible with `skip: <reason>`.
 
-From here you can type normal follow-ups. Re-invoke `/ronin-mode` (or use a host pin if one is available) when you start the next task. The mode does not stay on by itself.
+Use normal follow-ups after that. Invoke `/ronin-mode` again when you start a new task. The mode does not stay on by itself.
 
 Next: [Route work through `/ronin-mode`](./02-ronin-mode.md).

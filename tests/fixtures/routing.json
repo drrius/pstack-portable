@@ -7,8 +7,8 @@
     },
     {
       "from": "skills/ronin-mode/playbooks/feature.md",
-      "to": "skills/architect/SKILL.md",
-      "needles": ["architect"]
+      "to": "skills/ronin-architect/SKILL.md",
+      "needles": ["ronin-architect"]
     },
     {
       "from": "skills/ronin-core/personas/poteto-agent.md",
